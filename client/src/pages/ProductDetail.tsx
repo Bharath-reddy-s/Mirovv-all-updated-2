@@ -139,7 +139,7 @@ export default function ProductDetailPage() {
               <Card className="bg-black rounded-3xl p-12 flex items-center justify-center min-h-[400px]">
                 <div className="relative w-full max-w-md h-[350px]">
                   <img
-                    src={`/${product.additionalImages[0]}`}
+                    src={product.additionalImages[0]}
                     alt="Product feature"
                     className="w-full h-full object-contain"
                   />

@@ -24,7 +24,7 @@ export const products: Product[] = [
     label: "Giveaway Ticket",
     price: "₹199",
     image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
-    additionalImages: ["attached_assets/Screenshot 2025-10-27 at 8.19.39 PM_1761852401308.png"],
+    additionalImages: ["/earbuds-product.png"],
     description: "Unlock a world of digital surprises with exclusive content, software, and digital goodies.",
     longDescription: "The Digital Mystery Box is your gateway to exclusive digital content and premium software. Each box contains carefully curated digital products worth significantly more than the purchase price. From productivity tools to entertainment subscriptions, you'll discover amazing digital treasures that enhance your online experience.",
     features: [
