@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import BackgroundPaths from "@/components/BackgroundPaths";
 import { Card, CardContent } from "@/components/ui/card";
-import { SplineScene } from "@/components/SplineScene";
+import videoSrc from "@assets/Mystery_Box_Rotation_Video_1761850460895.mp4";
 
 export default function Home() {
   return (
@@ -15,29 +15,28 @@ export default function Home() {
             About Us
           </h2>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div className="space-y-8">
-              <Card className="hover-elevate" data-testid="card-about-description">
-                <CardContent className="p-8">
-                  <p className="text-left text-base leading-relaxed text-foreground">
-                    We sell Mystery Boxes that include a surprise item, a letter, and a lucky draw ticket that gives you free entry into our exclusive giveaway. Winners are picked live on Instagram every few days, and prizes may include earphones, AirPods, and more — depending on the box you choose.
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="hover-elevate" data-testid="card-about-goal">
-                <CardContent className="p-8">
-                  <p className="text-left text-lg font-semibold text-foreground">
-                    Our goal is to help fulfil students' dreams through our exclusive giveaways.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card className="hover-elevate flex flex-col" data-testid="card-about-description">
+              <CardContent className="p-8 space-y-6 flex-1 flex flex-col justify-center">
+                <p className="text-left text-base leading-relaxed text-foreground">
+                  We sell Mystery Boxes that include a surprise item, a letter, and a lucky draw ticket that gives you free entry into our exclusive giveaway. Winners are picked live on Instagram every few days, and prizes may include earphones, AirPods, and more — depending on the box you choose.
+                </p>
+                
+                <p className="text-left text-lg font-semibold text-foreground">
+                  Our goal is to help fulfil students' dreams through our exclusive giveaways.
+                </p>
+              </CardContent>
+            </Card>
             
-            <div className="w-full h-[500px] lg:h-[600px] rounded-md overflow-hidden" data-testid="container-spline">
-              <SplineScene 
-                scene="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode"
-                className="w-full h-full"
+            <div className="w-full rounded-md overflow-hidden bg-black flex items-center justify-center" data-testid="container-video">
+              <video
+                src={videoSrc}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-contain"
+                data-testid="video-mystery-box"
               />
             </div>
           </div>
