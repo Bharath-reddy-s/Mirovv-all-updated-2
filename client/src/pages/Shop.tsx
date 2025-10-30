@@ -39,15 +39,11 @@ export default function ShopPage() {
             >
               <Link href={`/shop/${box.id}`}>
                 <div className="p-8 cursor-pointer hover:opacity-90 transition-opacity">
-                  <h2 className="text-white text-[28px] font-bold mb-1 leading-tight">
-                    {index + 1}. {box.title}
+                  <h2 className="text-white text-[28px] font-bold mb-3 leading-tight">
+                    {box.title}
                   </h2>
                   
-                  <p className="text-gray-400 text-sm mb-3">
-                    {box.label}
-                  </p>
-                  
-                  <p className="text-white text-lg font-normal mb-3">
+                  <p className="text-white text-lg font-normal mb-6">
                     From {box.price}
                   </p>
                   
@@ -69,7 +65,7 @@ export default function ShopPage() {
                     e.preventDefault();
                     addToCart(box);
                   }}
-                  className="w-full bg-[#3a3a3a] hover:bg-[#4a4a4a] text-white rounded-2xl h-14 text-base font-medium transition-colors"
+                  className="w-full bg-[#3a3a3a] hover:bg-[#4a4a4a] text-white rounded-2xl h-14 text-base font-medium transition-colors focus-visible:ring-0 focus-visible:ring-offset-0"
                   data-testid={`button-add-to-cart-${box.id}`}
                 >
                   Add to Cart
