@@ -110,7 +110,7 @@ export default function ProductDetailPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="flex flex-col"
+            className="flex flex-col gap-6"
           >
             <Card className="bg-black rounded-3xl p-12 flex items-center justify-center min-h-[500px]">
               <div className="relative w-full max-w-md h-[400px]">
@@ -134,6 +134,18 @@ export default function ProductDetailPage() {
                 </div>
               </div>
             </Card>
+            
+            {product.additionalImages && product.additionalImages.length > 0 && (
+              <Card className="bg-black rounded-3xl p-12 flex items-center justify-center min-h-[400px]">
+                <div className="relative w-full max-w-md h-[350px]">
+                  <img
+                    src={`/${product.additionalImages[0]}`}
+                    alt="Product feature"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </Card>
+            )}
           </motion.div>
 
           <motion.div
