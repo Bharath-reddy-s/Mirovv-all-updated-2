@@ -47,7 +47,7 @@ export default function ShopPage() {
                     Giveaway ticket included
                   </p>
                   
-                  <p className="text-white text-lg font-normal mb-6">
+                  <p className="text-white/80 text-sm font-normal mb-6">
                     From {box.price}
                   </p>
                   
