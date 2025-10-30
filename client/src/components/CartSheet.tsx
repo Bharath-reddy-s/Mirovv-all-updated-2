@@ -1,4 +1,4 @@
-import { X, Minus, Plus, Trash2 } from "lucide-react";
+import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Link } from "wouter";
@@ -29,12 +29,21 @@ export default function CartSheet() {
 
         <div className="flex-1 overflow-y-auto p-4">
           {items.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400 mb-4">Your cart is empty</p>
+            <div className="flex flex-col items-center justify-center h-full text-center px-8">
+              <div className="w-32 h-32 mb-8 flex items-center justify-center">
+                <ShoppingBag className="w-24 h-24 text-gray-300 dark:text-gray-600" strokeWidth={1.5} />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                Your cart is empty
+              </h3>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mb-8">
+                Add some mystery boxes to get started!
+              </p>
               <Link href="/shop">
                 <Button
                   onClick={() => setIsCartOpen(false)}
                   data-testid="button-shop-empty-cart"
+                  className="bg-black dark:bg-white text-white dark:text-black rounded-full px-12 h-12 text-base font-medium"
                 >
                   Continue Shopping
                 </Button>
