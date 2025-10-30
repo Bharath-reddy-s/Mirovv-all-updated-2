@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
 import { getProductById } from "@shared/schema";
-import { ArrowLeft, Share2, ShoppingCart, Zap, Package } from "lucide-react";
+import { ArrowLeft, Share2, ShoppingCart, Zap, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 
@@ -14,10 +14,27 @@ export default function ProductDetailPage() {
   const [, setLocation] = useLocation();
   const { addToCart } = useCart();
   const [isSharing, setIsSharing] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { toast } = useToast();
   
   const productId = parseInt(params.id as string);
   const product = getProductById(productId);
+  
+  const allImages = product 
+    ? [product.image, ...(product.additionalImages || [])]
+    : [];
+  
+  const handlePreviousImage = () => {
+    setCurrentImageIndex((prev) => 
+      prev === 0 ? allImages.length - 1 : prev - 1
+    );
+  };
+  
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) => 
+      prev === allImages.length - 1 ? 0 : prev + 1
+    );
+  };
 
   if (!product) {
     return (
@@ -110,42 +127,70 @@ export default function ProductDetailPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="flex flex-col gap-6"
+            className="flex flex-col"
           >
-            <Card className="bg-black rounded-3xl p-12 flex items-center justify-center min-h-[500px]">
+            <Card className="bg-black rounded-3xl p-12 flex items-center justify-center min-h-[500px] relative">
               <div className="relative w-full max-w-md h-[400px]">
                 <div className="relative w-full h-full flex items-center justify-center">
                   <img
-                    src={product.image}
+                    src={allImages[currentImageIndex]}
                     alt={product.title}
                     className="w-full h-full object-contain drop-shadow-2xl"
                   />
-                  <div className="absolute top-full left-0 w-full h-[150px] overflow-hidden opacity-30">
-                    <img
-                      src={product.image}
-                      alt=""
-                      className="w-full h-full object-contain scale-y-[-1]"
-                      style={{
-                        maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 100%)",
-                        WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 100%)",
-                      }}
-                    />
-                  </div>
+                  {currentImageIndex === 0 && (
+                    <div className="absolute top-full left-0 w-full h-[150px] overflow-hidden opacity-30">
+                      <img
+                        src={allImages[currentImageIndex]}
+                        alt=""
+                        className="w-full h-full object-contain scale-y-[-1]"
+                        style={{
+                          maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 100%)",
+                          WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 100%)",
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
+              
+              {allImages.length > 1 && (
+                <>
+                  <button
+                    onClick={handlePreviousImage}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                    aria-label="Previous image"
+                    data-testid="button-previous-image"
+                  >
+                    <ChevronLeft className="w-6 h-6 text-white" />
+                  </button>
+                  
+                  <button
+                    onClick={handleNextImage}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                    aria-label="Next image"
+                    data-testid="button-next-image"
+                  >
+                    <ChevronRight className="w-6 h-6 text-white" />
+                  </button>
+                  
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+                    {allImages.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`w-2 h-2 rounded-full transition-all ${
+                          index === currentImageIndex 
+                            ? 'bg-white w-6' 
+                            : 'bg-white/40 hover:bg-white/60'
+                        }`}
+                        aria-label={`Go to image ${index + 1}`}
+                        data-testid={`button-image-indicator-${index}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </Card>
-            
-            {product.additionalImages && product.additionalImages.length > 0 && (
-              <Card className="bg-black rounded-3xl p-12 flex items-center justify-center min-h-[400px]">
-                <div className="relative w-full max-w-md h-[350px]">
-                  <img
-                    src={product.additionalImages[0]}
-                    alt="Product feature"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-              </Card>
-            )}
           </motion.div>
 
           <motion.div
