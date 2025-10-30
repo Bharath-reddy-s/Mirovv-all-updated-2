@@ -65,7 +65,7 @@ export default function ShopPage() {
                     e.preventDefault();
                     addToCart(box);
                   }}
-                  className="w-full bg-[#3a3a3a] hover:bg-[#4a4a4a] text-white rounded-2xl h-14 text-base font-medium transition-colors focus-visible:ring-0 focus-visible:ring-offset-0"
+                  className="w-full bg-[#3a3a3a] hover:bg-[#4a4a4a] text-white rounded-2xl h-14 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-0 border-transparent"
                   data-testid={`button-add-to-cart-${box.id}`}
                 >
                   Add to Cart
