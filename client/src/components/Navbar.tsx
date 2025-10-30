@@ -52,7 +52,9 @@ export default function Navbar() {
           >
             <ShoppingCart className="w-5 h-5 text-black dark:text-white" />
             {cartCount > 0 && (
-              <span className="absolute top-0 right-0 w-2 h-2 bg-red-600 rounded-full"></span>
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-black dark:bg-white text-white dark:text-black text-xs font-semibold rounded-full flex items-center justify-center">
+                {cartCount}
+              </span>
             )}
           </Button>
         </div>
