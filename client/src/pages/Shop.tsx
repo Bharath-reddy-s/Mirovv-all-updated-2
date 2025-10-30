@@ -47,8 +47,8 @@ export default function ShopPage() {
                     From {box.price}
                   </p>
                   
-                  <div className="relative w-full h-[320px] mb-1 flex items-center justify-center">
-                    <div className="relative w-[280px] h-[280px]">
+                  <div className="relative w-full h-[400px] mb-1 flex items-center justify-center">
+                    <div className="relative w-[360px] h-[360px]">
                       <img
                         src={box.image}
                         alt={box.title}
