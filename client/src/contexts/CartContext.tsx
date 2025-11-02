@@ -54,6 +54,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (existingItem) {
         toast({
           title: "Quantity updated in cart",
+          duration: 1500,
         });
         return prevItems.map((i) =>
           i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
@@ -61,6 +62,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       toast({
         title: "Added to cart",
+        duration: 1500,
       });
       return [...prevItems, { ...item, quantity: 1 }];
     });
@@ -71,6 +73,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prevItems) => prevItems.filter((item) => item.id !== id));
     toast({
       title: "Removed from cart",
+      duration: 1500,
     });
   };
 
@@ -85,6 +88,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems([]);
     toast({
       title: "Cart cleared",
+      duration: 1500,
     });
   };
 
