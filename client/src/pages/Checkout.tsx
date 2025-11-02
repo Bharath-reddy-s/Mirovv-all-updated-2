@@ -66,14 +66,17 @@ export default function CheckoutPage() {
                     className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900"
                     data-testid="input-first-name"
                   />
-                  <Input
-                    type="text"
-                    placeholder="Address Line 1"
+                  <select
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900"
-                    data-testid="input-address"
-                  />
+                    className="w-full h-14 rounded-xl border border-gray-300 bg-white dark:bg-neutral-900 px-4 text-gray-900 dark:text-gray-100"
+                    data-testid="select-address"
+                  >
+                    <option value="">Select Delivery Address</option>
+                    <option value="BMSIT (Institute of Technology and Management) Yelahanka">BMSIT (Institute of Technology and Management) Yelahanka</option>
+                    <option value="NITTE (Meenakshi Institute of Technology) Yelahanka">NITTE (Meenakshi Institute of Technology) Yelahanka</option>
+                    <option value="Manipal University Yelahanka">Manipal University Yelahanka</option>
+                  </select>
                   <Input
                     type="tel"
                     placeholder="India Mobile Number"
