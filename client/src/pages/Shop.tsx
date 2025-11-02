@@ -66,11 +66,11 @@ export default function ShopPage() {
                   </h2>
                   
                   <p className="text-white/70 text-sm font-normal mb-1">
-                    From {box.price}
+                    Giveaway Ticket Included
                   </p>
                   
                   <p className="text-white/70 text-sm font-normal mb-4">
-                    Giveaway Ticket Included
+                    From {box.price}
                   </p>
                   
                   <div className="relative w-full flex-1 flex items-center justify-center min-h-[300px] mb-4 overflow-hidden">
