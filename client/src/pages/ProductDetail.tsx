@@ -251,24 +251,21 @@ export default function ProductDetailPage() {
               </Button>
             </div>
 
-            <Card className="p-6 mb-6 bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-900">
-              <div className="flex items-center gap-2 mb-4">
-                <Package className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                <h3 className="text-xl font-bold text-black dark:text-white">
-                  What's in the Box?
-                </h3>
-              </div>
-              <ul className="space-y-2">
+            <div className="p-6 mb-6 bg-gray-50 dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 rounded-lg">
+              <h3 className="text-xl font-bold mb-4 text-black dark:text-white">
+                What's in the Box?
+              </h3>
+              <div className="space-y-3">
                 {product.whatsInTheBox.map((item, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <span className="text-purple-600 dark:text-purple-400 font-bold flex-shrink-0">
+                  <div key={index} className="flex items-start py-2 border-b border-gray-200 dark:border-neutral-800 last:border-0">
+                    <span className="text-gray-600 dark:text-gray-400 font-medium flex-shrink-0 mr-2">
                       •
                     </span>
-                    <span className="text-gray-700 dark:text-gray-300">{item}</span>
-                  </li>
+                    <span className="text-gray-900 dark:text-gray-100">{item}</span>
+                  </div>
                 ))}
-              </ul>
-            </Card>
+              </div>
+            </div>
 
             <div className="p-6 bg-gray-50 dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 rounded-lg">
               <h3 className="text-xl font-bold mb-4 text-black dark:text-white">
