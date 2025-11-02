@@ -79,7 +79,7 @@ export default function CheckoutPage() {
                   </select>
                   <Input
                     type="tel"
-                    placeholder="India Mobile Number"
+                    placeholder="Mobile Number"
                     value={formData.mobile}
                     onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
                     className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900"
