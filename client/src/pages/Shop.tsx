@@ -55,12 +55,13 @@ export default function ShopPage() {
               key={box.id}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
+              whileHover={{ scale: 1.02, y: -8 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="bg-black rounded-[24px] overflow-hidden flex flex-col"
               data-testid={`card-product-${box.id}`}
             >
               <Link href={`/shop/${box.id}`}>
-                <div className="p-6 pb-0 flex flex-col flex-1 cursor-pointer hover:opacity-90 transition-opacity">
+                <div className="p-6 pb-0 flex flex-col flex-1 cursor-pointer transition-opacity">
                   <h2 className="text-white text-[22px] font-bold mb-2 leading-tight">
                     {box.title}
                   </h2>
