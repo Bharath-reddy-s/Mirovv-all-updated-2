@@ -1,12 +1,34 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
 import { products } from "@shared/schema";
 import { Link } from "wouter";
+import { useState, useEffect } from "react";
 
 export default function ShopPage() {
   const { addToCart } = useCart();
+  const [currentImageIndices, setCurrentImageIndices] = useState<{[key: number]: number}>({});
+
+  useEffect(() => {
+    const intervals: {[key: number]: NodeJS.Timeout} = {};
+    
+    products.forEach((product) => {
+      const allImages = [product.image, ...(product.additionalImages || [])];
+      if (allImages.length > 1) {
+        intervals[product.id] = setInterval(() => {
+          setCurrentImageIndices((prev) => ({
+            ...prev,
+            [product.id]: ((prev[product.id] || 0) + 1) % allImages.length,
+          }));
+        }, 5000);
+      }
+    });
+
+    return () => {
+      Object.values(intervals).forEach(clearInterval);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-white dark:bg-neutral-950">
@@ -47,12 +69,27 @@ export default function ShopPage() {
                     From {box.price}
                   </p>
                   
-                  <div className="relative w-full flex-1 flex items-center justify-center min-h-[300px] mb-4">
-                    <img
-                      src={box.image}
-                      alt={box.title}
-                      className="w-full h-full object-contain drop-shadow-2xl"
-                    />
+                  <div className="relative w-full flex-1 flex items-center justify-center min-h-[300px] mb-4 overflow-hidden">
+                    <AnimatePresence mode="wait">
+                      {(() => {
+                        const allImages = [box.image, ...(box.additionalImages || [])];
+                        const currentIndex = currentImageIndices[box.id] || 0;
+                        const currentImage = allImages[currentIndex];
+                        
+                        return (
+                          <motion.img
+                            key={`${box.id}-${currentIndex}`}
+                            src={currentImage}
+                            alt={box.title}
+                            className="w-full h-full object-contain drop-shadow-2xl absolute"
+                            initial={{ x: "100%", opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: "-100%", opacity: 0 }}
+                            transition={{ duration: 2, ease: "easeInOut" }}
+                          />
+                        );
+                      })()}
+                    </AnimatePresence>
                   </div>
                 </div>
               </Link>
