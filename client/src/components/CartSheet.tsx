@@ -135,8 +135,8 @@ export default function CartSheet() {
             </div>
             <div className="border-t border-gray-200 dark:border-neutral-800 pt-4">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-gray-900 dark:text-gray-100 text-xl font-bold">Total</span>
-                <span className="font-bold text-2xl text-gray-900 dark:text-gray-100">₹{subtotal}</span>
+                <span className="text-gray-600 dark:text-gray-400 text-base">Total</span>
+                <span className="font-bold text-xl text-gray-900 dark:text-gray-100">₹{subtotal}</span>
               </div>
             </div>
             <Link href="/checkout">
