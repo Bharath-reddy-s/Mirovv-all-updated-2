@@ -223,10 +223,9 @@ export default function ProductDetailPage() {
               <Button
                 onClick={handleBuyNow}
                 size="lg"
-                className="flex-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 rounded-full h-14 text-lg font-semibold gap-2"
+                className="flex-1 bg-black dark:bg-white text-white dark:text-black rounded-full h-14 text-lg font-semibold"
                 data-testid="button-buy-now"
               >
-                <Zap className="w-5 h-5" />
                 Buy Now
               </Button>
               <Button
