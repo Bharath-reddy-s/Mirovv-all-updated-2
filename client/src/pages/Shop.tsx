@@ -37,23 +37,25 @@ export default function ShopPage() {
               className="bg-black rounded-[24px] overflow-hidden flex flex-col"
               data-testid={`card-product-${box.id}`}
             >
-              <div className="p-6 pb-0 flex flex-col flex-1">
-                <h2 className="text-white text-[22px] font-bold mb-2 leading-tight">
-                  {box.title}
-                </h2>
-                
-                <p className="text-white/70 text-sm font-normal mb-4">
-                  From {box.price}
-                </p>
-                
-                <div className="relative w-full flex-1 flex items-center justify-center min-h-[300px] mb-4">
-                  <img
-                    src={box.image}
-                    alt={box.title}
-                    className="w-full h-full object-contain drop-shadow-2xl"
-                  />
+              <Link href={`/shop/${box.id}`}>
+                <div className="p-6 pb-0 flex flex-col flex-1 cursor-pointer hover:opacity-90 transition-opacity">
+                  <h2 className="text-white text-[22px] font-bold mb-2 leading-tight">
+                    {box.title}
+                  </h2>
+                  
+                  <p className="text-white/70 text-sm font-normal mb-4">
+                    From {box.price}
+                  </p>
+                  
+                  <div className="relative w-full flex-1 flex items-center justify-center min-h-[300px] mb-4">
+                    <img
+                      src={box.image}
+                      alt={box.title}
+                      className="w-full h-full object-contain drop-shadow-2xl"
+                    />
+                  </div>
                 </div>
-              </div>
+              </Link>
               
               <div className="px-6 pb-6">
                 <Button
