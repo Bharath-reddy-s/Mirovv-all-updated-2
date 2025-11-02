@@ -223,7 +223,7 @@ export default function ProductDetailPage() {
               <Button
                 onClick={handleBuyNow}
                 size="lg"
-                className="flex-1 bg-gray-200 dark:bg-gray-800 text-black dark:text-white rounded-full h-14 text-lg font-semibold"
+                className="flex-1 bg-gray-200 dark:bg-gray-800 text-black dark:text-white rounded-full h-14 text-lg font-semibold border-2 border-gray-200 dark:border-gray-800"
                 data-testid="button-buy-now"
               >
                 Buy Now
