@@ -203,17 +203,17 @@ export default function ProductDetailPage() {
               <span className="inline-block px-3 py-1 bg-gray-200 text-black text-sm font-medium rounded-full mb-3">
                 {product.label}
               </span>
-              <h1 className="text-5xl font-bold mb-4 text-black dark:text-white">
+              <h1 className="text-4xl font-semibold mb-4 text-black dark:text-white">
                 {product.title}
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-400 mb-4">
                 {product.description}
               </p>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-black dark:text-white">
+                <span className="text-2xl font-medium text-black dark:text-white">
                   {product.price}
                 </span>
-                <span className="text-lg text-gray-500 dark:text-gray-400">
+                <span className="text-base text-gray-500 dark:text-gray-400">
                   starting from
                 </span>
               </div>
