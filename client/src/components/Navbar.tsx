@@ -17,20 +17,32 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-6">
-          <Button 
-            className="bg-black dark:bg-white text-white dark:text-black rounded-full px-6 h-9 text-sm font-medium"
-            data-testid="link-home"
-            asChild
-          >
-            <Link href="/">
+          <Link href="/">
+            <Button 
+              className={`rounded-full px-6 h-9 text-sm font-medium ${
+                location === "/" 
+                  ? "bg-black dark:bg-white text-white dark:text-black" 
+                  : "bg-transparent text-black dark:text-white"
+              }`}
+              variant={location === "/" ? "default" : "ghost"}
+              data-testid="link-home"
+            >
               Home
-            </Link>
-          </Button>
+            </Button>
+          </Link>
 
           <Link href="/shop">
-            <span className="text-sm font-medium text-black dark:text-white cursor-pointer hover:opacity-70 transition-opacity" data-testid="link-shop">
+            <Button 
+              className={`rounded-full px-6 h-9 text-sm font-medium ${
+                location === "/shop" 
+                  ? "bg-black dark:bg-white text-white dark:text-black" 
+                  : "bg-transparent text-black dark:text-white"
+              }`}
+              variant={location === "/shop" ? "default" : "ghost"}
+              data-testid="link-shop"
+            >
               Shop
-            </span>
+            </Button>
           </Link>
 
           <Button
@@ -40,7 +52,9 @@ export default function Navbar() {
             data-testid="button-notifications"
           >
             <Bell className="w-5 h-5 text-black dark:text-white" />
-            <span className="absolute top-0 right-0 w-2 h-2 bg-red-600 rounded-full"></span>
+            <span className="absolute top-1 right-1 w-4 h-4 bg-red-600 rounded-full flex items-center justify-center text-[10px] font-semibold text-white">
+              1
+            </span>
           </Button>
 
           <Button
