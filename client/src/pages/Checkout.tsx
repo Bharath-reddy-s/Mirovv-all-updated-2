@@ -13,16 +13,13 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState({
     firstName: "",
     address: "",
-    pinCode: "",
-    cityState: "",
-    country: "India",
     mobile: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.firstName || !formData.address || !formData.pinCode || !formData.cityState || !formData.mobile) {
+    if (!formData.firstName || !formData.address || !formData.mobile) {
       toast({
         title: "Please fill in all fields",
         variant: "destructive",
@@ -75,37 +72,6 @@ export default function CheckoutPage() {
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900"
                     data-testid="input-address"
-                  />
-                  <Input
-                    type="text"
-                    placeholder="PIN Code"
-                    value={formData.pinCode}
-                    onChange={(e) => setFormData({ ...formData, pinCode: e.target.value })}
-                    className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900"
-                    data-testid="input-pin-code"
-                  />
-                  <select
-                    value={formData.cityState}
-                    onChange={(e) => setFormData({ ...formData, cityState: e.target.value })}
-                    className="w-full h-14 rounded-xl border border-gray-300 bg-white dark:bg-neutral-900 px-4 text-gray-500 dark:text-gray-400"
-                    data-testid="select-city-state"
-                  >
-                    <option value="">City, State</option>
-                    <option value="Mumbai, Maharashtra">Mumbai, Maharashtra</option>
-                    <option value="Delhi, Delhi">Delhi, Delhi</option>
-                    <option value="Bangalore, Karnataka">Bangalore, Karnataka</option>
-                    <option value="Hyderabad, Telangana">Hyderabad, Telangana</option>
-                    <option value="Chennai, Tamil Nadu">Chennai, Tamil Nadu</option>
-                    <option value="Kolkata, West Bengal">Kolkata, West Bengal</option>
-                    <option value="Pune, Maharashtra">Pune, Maharashtra</option>
-                    <option value="Ahmedabad, Gujarat">Ahmedabad, Gujarat</option>
-                  </select>
-                  <Input
-                    type="text"
-                    value={formData.country}
-                    readOnly
-                    className="h-14 rounded-xl border-gray-300 bg-gray-50 dark:bg-neutral-800 cursor-not-allowed"
-                    data-testid="input-country"
                   />
                 </div>
               </div>
