@@ -73,19 +73,15 @@ export default function CheckoutPage() {
                     className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900"
                     data-testid="input-address"
                   />
+                  <Input
+                    type="tel"
+                    placeholder="India Mobile Number"
+                    value={formData.mobile}
+                    onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                    className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900"
+                    data-testid="input-mobile"
+                  />
                 </div>
-              </div>
-
-              <div>
-                <h2 className="text-lg font-normal mb-6">What's your contact information?</h2>
-                <Input
-                  type="tel"
-                  placeholder="India Mobile Number"
-                  value={formData.mobile}
-                  onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                  className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900"
-                  data-testid="input-mobile"
-                />
               </div>
 
               <Button
