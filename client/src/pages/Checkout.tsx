@@ -135,15 +135,15 @@ export default function CheckoutPage() {
               <div className="border-t border-gray-200 dark:border-neutral-800 pt-6 space-y-3">
                 <div className="flex justify-between text-base">
                   <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
-                  <span className="font-semibold">₹{subtotal}</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">₹{subtotal}</span>
                 </div>
                 <div className="flex justify-between text-base">
                   <span className="text-gray-600 dark:text-gray-400">Shipping</span>
-                  <span className="font-semibold text-green-600">FREE</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">Included</span>
                 </div>
-                <div className="flex justify-between text-xl font-bold pt-3 border-t border-gray-200 dark:border-neutral-800">
-                  <span>Total</span>
-                  <span>₹{subtotal}</span>
+                <div className="flex justify-between text-base pt-3 border-t border-gray-200 dark:border-neutral-800">
+                  <span className="text-gray-600 dark:text-gray-400">Total</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">₹{subtotal}</span>
                 </div>
               </div>
             </div>
