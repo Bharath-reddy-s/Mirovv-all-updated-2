@@ -63,13 +63,13 @@ export default function CheckoutPage() {
                     placeholder="First Name"
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900"
+                    className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900 transition-all duration-300 focus-visible:ring-0 focus-visible:border-gray-400 dark:focus-visible:border-gray-600 focus-visible:scale-[1.01]"
                     data-testid="input-first-name"
                   />
                   <select
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="w-full h-14 rounded-xl border border-gray-300 bg-white dark:bg-neutral-900 px-4 text-gray-900 dark:text-gray-100"
+                    className="w-full h-14 rounded-xl border border-gray-300 bg-white dark:bg-neutral-900 px-4 text-gray-900 dark:text-gray-100 transition-all duration-300 focus-visible:outline-none focus-visible:ring-0 focus-visible:border-gray-400 dark:focus-visible:border-gray-600 focus-visible:scale-[1.01]"
                     data-testid="select-address"
                   >
                     <option value="">Select Delivery Address</option>
@@ -82,7 +82,7 @@ export default function CheckoutPage() {
                     placeholder="Mobile Number"
                     value={formData.mobile}
                     onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                    className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900"
+                    className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900 transition-all duration-300 focus-visible:ring-0 focus-visible:border-gray-400 dark:focus-visible:border-gray-600 focus-visible:scale-[1.01]"
                     data-testid="input-mobile"
                   />
                   <Input
@@ -90,7 +90,7 @@ export default function CheckoutPage() {
                     placeholder="Instagram Username"
                     value={formData.instagram}
                     onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
-                    className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900"
+                    className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900 transition-all duration-300 focus-visible:ring-0 focus-visible:border-gray-400 dark:focus-visible:border-gray-600 focus-visible:scale-[1.01]"
                     data-testid="input-instagram"
                   />
                 </div>
