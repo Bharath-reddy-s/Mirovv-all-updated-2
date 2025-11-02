@@ -266,24 +266,6 @@ export default function ProductDetailPage() {
                 ))}
               </div>
             </div>
-
-            <div className="p-6 bg-gray-50 dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 rounded-lg">
-              <h3 className="text-xl font-bold mb-4 text-black dark:text-white">
-                Specifications
-              </h3>
-              <div className="space-y-3">
-                {product.specifications.map((spec, index) => (
-                  <div key={index} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-neutral-800 last:border-0">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">
-                      {spec.label}
-                    </span>
-                    <span className="text-gray-900 dark:text-gray-100 font-semibold">
-                      {spec.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </motion.div>
         </div>
       </main>
