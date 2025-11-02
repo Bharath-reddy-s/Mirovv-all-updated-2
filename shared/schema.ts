@@ -21,7 +21,7 @@ export const products: Product[] = [
   {
     id: 1,
     title: "Digital Mystery Box",
-    label: "Giveaway Ticket",
+    label: "Giveaway Ticket Included",
     price: "₹199",
     image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
     additionalImages: ["/earbuds-product.png"],
@@ -52,7 +52,7 @@ export const products: Product[] = [
   {
     id: 2,
     title: "Tech Box",
-    label: "Giveaway Ticket",
+    label: "Giveaway Ticket Included",
     price: "₹499",
     image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
     description: "Experience cutting-edge technology with gadgets, accessories, and tech essentials in every box.",
@@ -82,7 +82,7 @@ export const products: Product[] = [
   {
     id: 3,
     title: "Concert Box",
-    label: "Giveaway Ticket",
+    label: "Giveaway Ticket Included",
     price: "₹999",
     image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
     description: "Get exclusive concert merchandise, VIP experiences, and music-related surprises.",

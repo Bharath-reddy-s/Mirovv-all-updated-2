@@ -200,7 +200,7 @@ export default function ProductDetailPage() {
             className="flex flex-col"
           >
             <div className="mb-6">
-              <span className="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium rounded-full mb-3">
+              <span className="inline-block px-3 py-1 bg-gray-200 text-black text-sm font-medium rounded-full mb-3">
                 {product.label}
               </span>
               <h1 className="text-5xl font-bold mb-4 text-black dark:text-white">
