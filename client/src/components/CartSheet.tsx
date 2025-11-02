@@ -127,7 +127,7 @@ export default function CartSheet() {
           <div className="border-t border-gray-200 dark:border-neutral-800 p-6 space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-gray-600 dark:text-gray-400 text-base">Subtotal</span>
-              <span className="font-bold text-xl text-gray-900 dark:text-gray-100">₹{subtotal}</span>
+              <span className="font-semibold text-gray-900 dark:text-gray-100 text-base">₹{subtotal}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600 dark:text-gray-400 text-base">Shipping</span>
@@ -136,7 +136,7 @@ export default function CartSheet() {
             <div className="border-t border-gray-200 dark:border-neutral-800 pt-4">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-gray-600 dark:text-gray-400 text-base">Total</span>
-                <span className="font-bold text-xl text-gray-900 dark:text-gray-100">₹{subtotal}</span>
+                <span className="font-semibold text-gray-900 dark:text-gray-100 text-base">₹{subtotal}</span>
               </div>
             </div>
             <Link href="/checkout">
