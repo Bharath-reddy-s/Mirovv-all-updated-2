@@ -214,7 +214,7 @@ export default function ProductDetailPage() {
                   {product.price}
                 </span>
                 <span className="text-base text-gray-500 dark:text-gray-400">
-                  starting from
+                  starting at
                 </span>
               </div>
             </div>

@@ -70,7 +70,7 @@ export default function ShopPage() {
                   </p>
                   
                   <p className="text-white/70 text-sm font-normal mb-4">
-                    From {box.price}
+                    At {box.price}
                   </p>
                   
                   <div className="relative w-full flex-1 flex items-center justify-center min-h-[300px] mb-4 overflow-hidden">
