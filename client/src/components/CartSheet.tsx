@@ -2,19 +2,30 @@ import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Link } from "wouter";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function CartSheet() {
   const { items, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart, clearCart, subtotal } = useCart();
 
-  if (!isCartOpen) return null;
-
   return (
-    <>
-      <div
-        className="fixed inset-0 bg-black/50 z-50"
-        onClick={() => setIsCartOpen(false)}
-      />
-      <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white dark:bg-neutral-900 z-50 shadow-xl flex flex-col">
+    <AnimatePresence>
+      {isCartOpen && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black/50 z-50"
+            onClick={() => setIsCartOpen(false)}
+          />
+          <motion.div
+            initial={{ x: "100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "100%", opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white dark:bg-neutral-900 z-50 shadow-xl flex flex-col"
+          >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-neutral-800">
           <h2 className="text-2xl font-bold">Shopping Cart</h2>
           <Button
@@ -161,7 +172,9 @@ export default function CartSheet() {
             </div>
           </div>
         )}
-      </div>
-    </>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

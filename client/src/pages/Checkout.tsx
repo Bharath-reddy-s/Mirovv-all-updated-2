@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
 export default function CheckoutPage() {
   const [, setLocation] = useLocation();
@@ -53,7 +54,11 @@ export default function CheckoutPage() {
       
       <main className="container mx-auto px-4 py-24 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             <form onSubmit={handleSubmit} className="space-y-8">
               <div>
                 <h2 className="text-lg font-normal mb-6">Enter your name and address:</h2>
@@ -104,9 +109,13 @@ export default function CheckoutPage() {
                 Place Order
               </Button>
             </form>
-          </div>
+          </motion.div>
 
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <h2 className="text-2xl font-bold mb-8">Order Summary</h2>
             
             <div className="space-y-6">
@@ -147,7 +156,7 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </main>
     </div>
