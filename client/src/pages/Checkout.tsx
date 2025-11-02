@@ -14,12 +14,13 @@ export default function CheckoutPage() {
     firstName: "",
     address: "",
     mobile: "",
+    instagram: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.firstName || !formData.address || !formData.mobile) {
+    if (!formData.firstName || !formData.address || !formData.mobile || !formData.instagram) {
       toast({
         title: "Please fill in all fields",
         variant: "destructive",
@@ -80,6 +81,14 @@ export default function CheckoutPage() {
                     onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
                     className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900"
                     data-testid="input-mobile"
+                  />
+                  <Input
+                    type="text"
+                    placeholder="Instagram Username"
+                    value={formData.instagram}
+                    onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                    className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900"
+                    data-testid="input-instagram"
                   />
                 </div>
               </div>
