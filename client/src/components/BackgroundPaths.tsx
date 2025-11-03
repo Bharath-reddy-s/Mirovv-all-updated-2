@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { ThreeDPhotoCarousel } from "./ThreeDPhotoCarousel";
 
 function FloatingPaths({ position }: { position: number }) {
     const paths = Array.from({ length: 36 }, (_, i) => ({
@@ -99,6 +100,10 @@ export default function BackgroundPaths({
                             </span>
                         ))}
                     </h1>
+
+                    <div className="my-12">
+                        <ThreeDPhotoCarousel />
+                    </div>
 
                     <div
                         className="inline-block group relative bg-gradient-to-b from-black/10 to-white/10 
