@@ -1,4 +1,4 @@
-import { ShoppingCart, Bell } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Link, useLocation } from "wouter";
@@ -37,15 +37,6 @@ export default function Navbar() {
               Shop
             </Button>
           </Link>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative"
-            data-testid="button-notifications"
-          >
-            <Bell className="w-5 h-5 text-black dark:text-white" />
-          </Button>
 
           <Button
             variant="ghost"
