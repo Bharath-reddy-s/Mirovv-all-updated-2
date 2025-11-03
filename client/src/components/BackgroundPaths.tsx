@@ -101,7 +101,7 @@ export default function BackgroundPaths({
                         ))}
                     </h1>
 
-                    <div className="-mt-4">
+                    <div className="-mt-12">
                         <ThreeDPhotoCarousel />
                     </div>
 
