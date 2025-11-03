@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ThreeDPhotoCarousel } from "./ThreeDPhotoCarousel";
 
 function FloatingPaths({ position }: { position: number }) {
     const paths = Array.from({ length: 36 }, (_, i) => ({
@@ -71,7 +70,7 @@ export default function BackgroundPaths({
                     transition={{ duration: 2 }}
                     className="max-w-4xl mx-auto"
                 >
-                    <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-0 tracking-tighter">
+                    <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-8 tracking-tighter">
                         {words.map((word, wordIndex) => (
                             <span
                                 key={wordIndex}
@@ -100,10 +99,6 @@ export default function BackgroundPaths({
                             </span>
                         ))}
                     </h1>
-
-                    <div className="-mt-32">
-                        <ThreeDPhotoCarousel />
-                    </div>
 
                     <div
                         className="inline-block group relative bg-gradient-to-b from-black/10 to-white/10 
