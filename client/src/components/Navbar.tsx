@@ -9,14 +9,14 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800">
-      <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+      <div className="container mx-auto px-6 h-16 flex items-center justify-start gap-3 md:gap-4">
         <Link href="/" onClick={() => setIsCartOpen(false)}>
           <div className="flex items-center cursor-pointer hover-elevate active-elevate-2 p-2 rounded-md" data-testid="link-home-logo">
             <Box className="w-6 h-6 text-black dark:text-white" />
           </div>
         </Link>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2 md:gap-6">
           <Link href="/" onClick={() => setIsCartOpen(false)}>
             <Button 
               className={`rounded-full px-6 h-9 text-sm font-medium ${
