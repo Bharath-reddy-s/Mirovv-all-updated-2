@@ -9,7 +9,7 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800">
-      <div className="container mx-auto px-6 h-16 flex items-center justify-start gap-1">
+      <div className="container mx-auto px-6 h-16 flex items-center justify-end gap-1">
           <Link href="/" onClick={() => setIsCartOpen(false)}>
             <Button 
               className={`rounded-full px-6 h-9 text-sm font-medium ${
