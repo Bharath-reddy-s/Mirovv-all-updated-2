@@ -207,11 +207,11 @@ export default function ProductDetailPage() {
                 {product.title}
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-400 mb-4">
-                {product.description.split("'to GET A GIVEAWAY TICKET TO WIN BOAT NIRVANA ION'").map((part, index, array) => (
+                {product.description.split("'GET A GIVEAWAY TICKET TO WIN BOAT NIRVANA ION'").map((part, index, array) => (
                   index < array.length - 1 ? (
                     <>
                       {part}
-                      <span className="text-black dark:text-white font-semibold">'to GET A GIVEAWAY TICKET TO WIN BOAT NIRVANA ION'</span>
+                      <span className="text-black dark:text-white font-semibold">'GET A GIVEAWAY TICKET TO WIN BOAT NIRVANA ION'</span>
                     </>
                   ) : part
                 ))}
