@@ -207,7 +207,14 @@ export default function ProductDetailPage() {
                 {product.title}
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-400 mb-4">
-                {product.description}
+                {product.description.split("'WIN A GIVEAWAY TICKET TO WIN BOAT NIRVANA ION'").map((part, index, array) => (
+                  index < array.length - 1 ? (
+                    <>
+                      {part}
+                      <span className="text-black dark:text-white font-semibold">'WIN A GIVEAWAY TICKET TO WIN BOAT NIRVANA ION'</span>
+                    </>
+                  ) : part
+                ))}
               </p>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-medium text-black dark:text-white">
