@@ -259,6 +259,17 @@ export default function ProductDetailPage() {
 
             <div className="p-6 mb-6 bg-gray-50 dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 rounded-lg">
               <h3 className="text-xl font-bold mb-4 text-black dark:text-white">
+                Description
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-start py-2">
+                  <span className="text-gray-900 dark:text-gray-100">{product.longDescription}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 mb-6 bg-gray-50 dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 rounded-lg">
+              <h3 className="text-xl font-bold mb-4 text-black dark:text-white">
                 What's in the Box?
               </h3>
               <div className="space-y-3">
