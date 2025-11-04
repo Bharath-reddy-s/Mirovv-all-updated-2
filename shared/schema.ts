@@ -25,7 +25,7 @@ export const products: Product[] = [
     price: "₹59",
     image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
     additionalImages: ["/earbuds-product.png"],
-    description: "Get a Mystery box WIN A GIVEAWAY TICKET TO WIN BOAT NIRVANA ION at a cost of 3.5 lights",
+    description: "Get a Mystery box and 'WIN A GIVEAWAY TICKET TO WIN BOAT NIRVANA ION' at a cost of 3.5 LIGHTS",
     longDescription: "The Digital Mystery Box is your gateway to exclusive digital content and premium software. Each box contains carefully curated digital products worth significantly more than the purchase price. From productivity tools to entertainment subscriptions, you'll discover amazing digital treasures that enhance your online experience.",
     features: [
       "5+ Premium Digital Products",
