@@ -37,7 +37,7 @@ export const products: Product[] = [
     whatsInTheBox: [
       "A Mystery item (something you would not expect)",
       "A Letter (guide to use the product)",
-      "GIVEAWAY TICKET (UNDERSTAND IF YOU ARE SMART)"
+      "GIVEAWAY TICKET (Highlighted every where UNDERSTAND IF YOU ARE SMART)"
     ],
     specifications: [
       { label: "Delivery", value: "Instant Digital Download" },
@@ -64,7 +64,7 @@ export const products: Product[] = [
     whatsInTheBox: [
       "A Mystery item (something you would not expect)",
       "A Letter (guide to use the product)",
-      "GIVEAWAY TICKET (UNDERSTAND IF YOU ARE SMART)"
+      "GIVEAWAY TICKET (Highlighted every where UNDERSTAND IF YOU ARE SMART)"
     ],
     specifications: [
       { label: "Delivery", value: "3-5 Business Days" },
@@ -91,7 +91,7 @@ export const products: Product[] = [
     whatsInTheBox: [
       "A Mystery item (something you would not expect)",
       "A Letter (guide to use the product)",
-      "GIVEAWAY TICKET (UNDERSTAND IF YOU ARE SMART)"
+      "GIVEAWAY TICKET (Highlighted every where UNDERSTAND IF YOU ARE SMART)"
     ],
     specifications: [
       { label: "Delivery", value: "5-7 Business Days" },
