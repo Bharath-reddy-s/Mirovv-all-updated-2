@@ -210,9 +210,6 @@ export default function ProductDetailPage() {
                 {product.description}
               </p>
               <div className="flex items-baseline gap-2">
-                <span className="text-base text-gray-500 dark:text-gray-400">
-                  At
-                </span>
                 <span className="text-2xl font-medium text-black dark:text-white">
                   {product.price}
                 </span>
