@@ -22,7 +22,7 @@ export const products: Product[] = [
     id: 1,
     title: "Lightts",
     label: "Giveaway Ticket Included",
-    price: "₹199",
+    price: "₹59",
     image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
     additionalImages: ["/earbuds-product.png"],
     description: "Unlock a world of digital surprises with exclusive content, software, and digital goodies.",
