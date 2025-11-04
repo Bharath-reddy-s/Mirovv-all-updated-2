@@ -35,12 +35,9 @@ export const products: Product[] = [
       "Money-Back Guarantee"
     ],
     whatsInTheBox: [
-      "Premium Software License (up to ₹5,000 value)",
-      "Digital Course Access (3 months)",
-      "E-Book Collection (5+ titles)",
-      "Stock Photo Subscription",
-      "Digital Wallpaper Pack",
-      "Exclusive Digital Stickers"
+      "A Mystery item (something you would not expect)",
+      "A Letter (guide to use the product)",
+      "GIVEAWAY TICKET (UNDERSTAND IF YOU ARE SMART)"
     ],
     specifications: [
       { label: "Delivery", value: "Instant Digital Download" },
@@ -65,12 +62,9 @@ export const products: Product[] = [
       "100% Satisfaction Guaranteed"
     ],
     whatsInTheBox: [
-      "Wireless Earbuds or Headphones",
-      "Phone Accessories (Cable, Case, or Stand)",
-      "Smart LED Light Strip",
-      "Portable Power Bank (10,000mAh)",
-      "USB Hub or Tech Organizer",
-      "Mystery Premium Tech Item"
+      "A Mystery item (something you would not expect)",
+      "A Letter (guide to use the product)",
+      "GIVEAWAY TICKET (UNDERSTAND IF YOU ARE SMART)"
     ],
     specifications: [
       { label: "Delivery", value: "3-5 Business Days" },
@@ -95,13 +89,9 @@ export const products: Product[] = [
       "VIP Access Chances"
     ],
     whatsInTheBox: [
-      "Official Band T-Shirt or Hoodie",
-      "Limited Edition Poster (signed)",
-      "Concert Ticket Voucher (select events)",
-      "Exclusive Vinyl Record or CD",
-      "VIP Meet & Greet Pass (lucky winners)",
-      "Festival Accessories Pack",
-      "Mystery Artist Collaboration Item"
+      "A Mystery item (something you would not expect)",
+      "A Letter (guide to use the product)",
+      "GIVEAWAY TICKET (UNDERSTAND IF YOU ARE SMART)"
     ],
     specifications: [
       { label: "Delivery", value: "5-7 Business Days" },
