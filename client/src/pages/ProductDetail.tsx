@@ -262,14 +262,17 @@ export default function ProductDetailPage() {
                 What's in the Box?
               </h3>
               <div className="space-y-3">
-                {product.whatsInTheBox.map((item, index) => (
-                  <div key={index} className="flex items-start py-2 border-b border-gray-200 dark:border-neutral-800 last:border-0">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium flex-shrink-0 mr-2">
-                      •
-                    </span>
-                    <span className="text-gray-900 dark:text-gray-100">{item}</span>
-                  </div>
-                ))}
+                {product.whatsInTheBox.map((item, index) => {
+                  const isGiveaway = item.includes("GIVEAWAY TICKET");
+                  return (
+                    <div key={index} className={`flex items-start py-2 border-b border-gray-200 dark:border-neutral-800 last:border-0 ${isGiveaway ? 'bg-yellow-100 dark:bg-yellow-900/30 -mx-2 px-2 rounded-md' : ''}`}>
+                      <span className="text-gray-600 dark:text-gray-400 font-medium flex-shrink-0 mr-2">
+                        •
+                      </span>
+                      <span className={`${isGiveaway ? 'text-yellow-900 dark:text-yellow-200 font-bold' : 'text-gray-900 dark:text-gray-100'}`}>{item}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </motion.div>
