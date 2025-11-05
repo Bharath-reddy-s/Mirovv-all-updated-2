@@ -54,7 +54,7 @@ export const products: Product[] = [
     price: "₹499",
     image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
     description: "Experience cutting-edge technology with gadgets, accessories, and tech essentials in every box.",
-    longDescription: "The Tech Mystery Box delivers the latest in technology and gadget innovation straight to your doorstep. Perfect for tech enthusiasts and gadget lovers, each box contains a carefully selected collection of tech accessories, smart devices, and innovative gadgets that make your digital life easier and more exciting.",
+    longDescription: "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"",
     features: [
       "3-5 Tech Gadgets",
       "Premium Quality Accessories",
@@ -82,7 +82,7 @@ export const products: Product[] = [
     price: "₹999",
     image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
     description: "Get exclusive concert merchandise, VIP experiences, and music-related surprises.",
-    longDescription: "The Concert Mystery Box is the ultimate package for music lovers and concert enthusiasts. Each box includes exclusive merchandise, limited edition items, and potential access to amazing music experiences. From artist collaborations to VIP concert tickets, you never know what incredible surprise awaits inside.",
+    longDescription: "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"",
     features: [
       "Official Band Merchandise",
       "Limited Edition Collectibles",
