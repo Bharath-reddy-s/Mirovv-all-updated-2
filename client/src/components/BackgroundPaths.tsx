@@ -100,6 +100,14 @@ export default function BackgroundPaths({
                         ))}
                     </h1>
 
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 tracking-tighter">
+                        <span className="text-transparent bg-clip-text 
+                        bg-gradient-to-r from-neutral-900 to-neutral-700/80 
+                        dark:from-white dark:to-white/80">
+                            SPREADING HAPPINESS THROUGH OUR GIVEAWAYS AND MYSTERY BOXES
+                        </span>
+                    </h2>
+
                     <div
                         className="inline-block group relative bg-gradient-to-b from-black/10 to-white/10 
                         dark:from-white/10 dark:to-black/10 p-px rounded-2xl backdrop-blur-lg 
