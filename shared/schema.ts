@@ -37,7 +37,7 @@ export const products: Product[] = [
     whatsInTheBox: [
       "A Mystery item (something you would not expect)",
       "A Letter (guide to use the product)",
-      "GIVEAWAY TICKET (this)",
+      "GIVEAWAY TICKET (Its all about This)",
       "GIVEAWAY products are not sent in mystery box"
     ],
     specifications: [
@@ -65,7 +65,7 @@ export const products: Product[] = [
     whatsInTheBox: [
       "A Mystery item (something you would not expect)",
       "A Letter (guide to use the product)",
-      "GIVEAWAY TICKET (this)",
+      "GIVEAWAY TICKET (Its all about This)",
       "GIVEAWAY products are not sent in mystery box"
     ],
     specifications: [
@@ -93,7 +93,7 @@ export const products: Product[] = [
     whatsInTheBox: [
       "A Mystery item (something you would not expect)",
       "A Letter (guide to use the product)",
-      "GIVEAWAY TICKET (this)",
+      "GIVEAWAY TICKET (Its all about This)",
       "GIVEAWAY products are not sent in mystery box"
     ],
     specifications: [
