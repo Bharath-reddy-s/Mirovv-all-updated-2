@@ -23,7 +23,7 @@ export default function Home() {
                 </p>
                 
                 <p className="text-left text-lg font-semibold text-foreground">
-                  Our goal is to help fulfil students' dreams through our exclusive giveaways.
+                  Our goal is to get a smile on your face with every order
                 </p>
               </CardContent>
             </Card>
