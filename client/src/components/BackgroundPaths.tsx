@@ -116,7 +116,7 @@ export default function BackgroundPaths({
                                 data-testid="button-discover-excellence"
                             >
                                 <span className="opacity-90 group-hover:opacity-100 transition-opacity">
-                                    Discover Excellence
+                                    Experience The Ultimate
                                 </span>
                                 <span
                                     className="ml-3 opacity-70 group-hover:opacity-100 group-hover:translate-x-1.5 
