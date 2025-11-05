@@ -42,7 +42,7 @@ export default function ShopPage() {
           className="text-center mb-12"
         >
           <h1 className="text-4xl md:text-6xl font-bold mb-3 text-black dark:text-white">
-            Spreading happiness through our Giveaway and Mystery box
+            Explore Mystery Boxes
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
             Choose your adventure and unlock exclusive surprises
