@@ -22,7 +22,7 @@ export default function Home() {
                   We sell Mystery Boxes that include a surprise item, a letter, and a lucky draw ticket that gives you free entry into our exclusive giveaway. Winners are picked live on Instagram every few days, and prizes may include earphones, AirPods, and more — depending on the box you choose.
                 </p>
                 
-                <p className="text-left text-lg font-semibold text-foreground">
+                <p className="text-center text-lg font-semibold text-foreground">
                   Our goal is to get a smile on your face with every order
                 </p>
               </CardContent>
