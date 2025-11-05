@@ -45,7 +45,7 @@ export default function ShopPage() {
             Explore Mystery Boxes
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Choose your adventure and unlock exclusive surprises
+            Spreading happiness through our Giveaway and Mystery box
           </p>
         </motion.div>
 
