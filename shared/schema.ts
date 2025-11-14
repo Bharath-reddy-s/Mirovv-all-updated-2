@@ -25,7 +25,7 @@ export const products: Product[] = [
     price: "₹59",
     image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
     additionalImages: ["/earbuds-product.png"],
-    description: "Get a Mystery box and 'GET A GIVEAWAY TICKET TO WIN BOAT NIRVANA ION' at a cost of 3.5 LIGHTS",
+    description: "Had a breakup or feeling lonely this can fix it all Listening, Paro in Nirvana Ion with a hot Chai and Lights . Get a chance to win Boat Nirvana Ion by ordering Lightts Mystery box.",
     longDescription: "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"",
     features: [
       "5+ Premium Digital Products",
