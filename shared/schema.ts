@@ -83,7 +83,7 @@ export const products: Product[] = [
     price: "₹999",
     image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
     additionalImages: ["/image_1763056963689.png"],
-    description: "You are a Rider pro max but without a good Helmet? Ufff . Get A chance to win this AXOR Helmet by getting The Rider Mystery box today.",
+    description: "You are a Rider pro max but without a good Helmet? Ufff . Get A chance to win this AXOR Helmet by ordering The Rider Mystery box today.",
     longDescription: "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"",
     features: [
       "Official Band Merchandise",
