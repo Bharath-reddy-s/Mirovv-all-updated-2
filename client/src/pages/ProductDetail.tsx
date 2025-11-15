@@ -7,7 +7,7 @@ import { useCart } from "@/contexts/CartContext";
 import { getProductById } from "@shared/schema";
 import { ArrowLeft, Share2, ShoppingCart, Zap, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -16,6 +16,10 @@ export default function ProductDetailPage() {
   const [isSharing, setIsSharing] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { toast } = useToast();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   const productId = parseInt(params.id as string);
   const product = getProductById(productId);
