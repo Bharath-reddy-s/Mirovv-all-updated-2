@@ -22,7 +22,7 @@ export const products: Product[] = [
     id: 1,
     title: "Lightts",
     label: "Giveaway Ticket Included",
-    price: "₹59",
+    price: "₹49",
     image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
     additionalImages: ["/earbuds-product.png"],
     description: "Had a breakup? or feeling lonely this can fix it all Listening, Paro in Nirvana Ion with a Hot Chai and a Lights . Get a chance to win Boat Nirvana Ion by ordering Lightts Mystery box.",
