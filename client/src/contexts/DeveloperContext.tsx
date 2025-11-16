@@ -1,8 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-
-interface StockStatus {
-  [productId: number]: boolean;
-}
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import type { StockStatus } from "@shared/schema";
 
 interface DeveloperContextType {
   isDeveloperMode: boolean;
@@ -15,9 +14,22 @@ const DeveloperContext = createContext<DeveloperContextType | undefined>(undefin
 export function DeveloperProvider({ children }: { children: ReactNode }) {
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
   const [keySequence, setKeySequence] = useState("");
-  const [stockStatus, setStockStatus] = useState<StockStatus>(() => {
-    const saved = localStorage.getItem("stockStatus");
-    return saved ? JSON.parse(saved) : { 1: true, 2: true, 3: false };
+
+  const { data: stockStatus = { 1: true, 2: true, 3: false } } = useQuery<StockStatus>({
+    queryKey: ["/api/stock"],
+  });
+
+  const updateStockMutation = useMutation({
+    mutationFn: async ({ productId, isInStock }: { productId: number; isInStock: boolean }) => {
+      return apiRequest("/api/stock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, isInStock }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/stock"] });
+    },
   });
 
   const secretPhrase = "dormamu is a aunty";
@@ -41,15 +53,12 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keypress", handleKeyPress);
   }, [keySequence]);
 
-  useEffect(() => {
-    localStorage.setItem("stockStatus", JSON.stringify(stockStatus));
-  }, [stockStatus]);
-
   const toggleStockStatus = (productId: number) => {
-    setStockStatus((prev) => ({
-      ...prev,
-      [productId]: !prev[productId],
-    }));
+    const currentStatus = stockStatus[productId] ?? true;
+    updateStockMutation.mutate({
+      productId,
+      isInStock: !currentStatus,
+    });
   };
 
   return (
