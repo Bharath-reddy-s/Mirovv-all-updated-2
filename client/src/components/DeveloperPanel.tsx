@@ -1,30 +1,19 @@
 import { useDeveloper } from "@/contexts/DeveloperContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
 import { products } from "@shared/schema";
-import { useState } from "react";
 
 export default function DeveloperPanel() {
   const { isDeveloperMode, stockStatus, toggleStockStatus } = useDeveloper();
-  const [isVisible, setIsVisible] = useState(true);
 
-  if (!isDeveloperMode || !isVisible) return null;
+  if (!isDeveloperMode) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-50" data-testid="developer-panel">
       <Card className="p-4 w-80 shadow-lg bg-black dark:bg-white text-white dark:text-black border-2 border-yellow-500">
-        <div className="flex items-center justify-between mb-3">
+        <div className="mb-3">
           <h3 className="font-bold text-lg">🛠️ Developer Mode</h3>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => setIsVisible(false)}
-            className="h-6 w-6"
-            data-testid="button-close-dev-panel"
-          >
-            <X className="w-4 h-4" />
-          </Button>
+          <p className="text-xs opacity-60 italic mt-1">Type secret code to toggle</p>
         </div>
         <p className="text-xs mb-3 opacity-80">Toggle product stock availability</p>
         <div className="space-y-2">
