@@ -103,19 +103,21 @@ export default function ShopPage() {
                 </div>
               </Link>
               
-              <div className="px-6 pb-6">
-                <Button
-                  variant="ghost"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    addToCart(box);
-                  }}
-                  className="w-full bg-[#3a3a3a] hover:bg-[#4a4a4a] text-white rounded-xl h-12 text-sm font-medium"
-                  data-testid={`button-add-to-cart-${box.id}`}
-                >
-                  Add to Cart
-                </Button>
-              </div>
+              {box.id !== 4 && (
+                <div className="px-6 pb-6">
+                  <Button
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      addToCart(box);
+                    }}
+                    className="w-full bg-[#3a3a3a] hover:bg-[#4a4a4a] text-white rounded-xl h-12 text-sm font-medium"
+                    data-testid={`button-add-to-cart-${box.id}`}
+                  >
+                    Add to Cart
+                  </Button>
+                </div>
+              )}
             </motion.div>
           ))}
         </div>
