@@ -54,12 +54,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validation = createProductSchema.safeParse(req.body);
       if (!validation.success) {
+        console.error("Validation failed:", validation.error);
         return res.status(400).json({ error: validation.error });
       }
 
       const product = await storage.createProduct(validation.data);
       res.json(product);
     } catch (error) {
+      console.error("Failed to create product:", error);
       res.status(500).json({ error: "Failed to create product" });
     }
   });
