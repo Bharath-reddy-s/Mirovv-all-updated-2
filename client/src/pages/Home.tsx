@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import BackgroundPaths from "@/components/BackgroundPaths";
 import { Card, CardContent } from "@/components/ui/card";
-import videoSrc from "@assets/Mystery_Box_Rotation_Video_1761850460895.mp4";
+import videoSrc from "@assets/_ copy_1763317377238.mp4";
 
 export default function Home() {
   return (
