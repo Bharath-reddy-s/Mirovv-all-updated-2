@@ -21,11 +21,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
 
   const updateStockMutation = useMutation({
     mutationFn: async ({ productId, isInStock }: { productId: number; isInStock: boolean }) => {
-      return apiRequest("/api/stock", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, isInStock }),
-      });
+      return apiRequest("POST", "/api/stock", { productId, isInStock });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/stock"] });
