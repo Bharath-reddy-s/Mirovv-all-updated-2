@@ -112,6 +112,36 @@ export const products: Product[] = [
       { label: "Items", value: "5-7 Music Products" },
       { label: "Authenticity", value: "100% Official Merchandise" }
     ]
+  },
+  {
+    id: 4,
+    title: "Future give aways",
+    label: "Giveaway Ticket Included",
+    price: "₹99",
+    originalPrice: "₹149",
+    pricingText: "( Unlock Future Surprises )",
+    image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
+    description: "Stay ahead of the game! Get exclusive access to upcoming giveaways and mystery surprises. Be the first to know what's coming next.",
+    longDescription: "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"",
+    features: [
+      "Early Access to New Giveaways",
+      "Exclusive Future Products",
+      "Priority Notifications",
+      "Special Member Benefits",
+      "Surprise Bonus Items"
+    ],
+    whatsInTheBox: [
+      "A Mystery item (something you would not expect)",
+      "A Letter (guide to use the product)",
+      "GIVEAWAY TICKET (Its all about This)",
+      "GIVEAWAY products are not sent in mystery box"
+    ],
+    specifications: [
+      { label: "Delivery", value: "Instant Digital Access" },
+      { label: "Value", value: "Up to ₹5,000" },
+      { label: "Items", value: "Varies by Season" },
+      { label: "Updates", value: "Monthly New Giveaways" }
+    ]
   }
 ];
 
