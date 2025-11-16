@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { products as initialProducts, productsTable } from "@shared/schema";
+import { sql as sqlOp } from "drizzle-orm";
 import ws from "ws";
 
 async function setupDatabase() {
@@ -11,19 +12,40 @@ async function setupDatabase() {
     }
 
     console.log("Connecting to database...");
-    const sql = drizzle({
+    const db = drizzle({
       connection: process.env.DATABASE_URL,
       ws: ws,
     });
 
-    console.log("Checking if products table exists and has data...");
-    const existingProducts = await sql.select().from(productsTable);
+    console.log("Creating products table if it doesn't exist...");
+    await db.execute(sqlOp`
+      CREATE TABLE IF NOT EXISTS "products" (
+        "id" serial PRIMARY KEY NOT NULL,
+        "title" text NOT NULL,
+        "label" text NOT NULL,
+        "price" text NOT NULL,
+        "original_price" text,
+        "pricing_text" text,
+        "image" text NOT NULL,
+        "additional_images" text[],
+        "description" text NOT NULL,
+        "long_description" text NOT NULL,
+        "features" text[],
+        "whats_in_the_box" text[] NOT NULL,
+        "specifications" jsonb,
+        "product_link" text,
+        "is_in_stock" boolean DEFAULT true NOT NULL
+      );
+    `);
+
+    console.log("Checking if products table has data...");
+    const existingProducts = await db.select().from(productsTable);
     
     console.log(`Found ${existingProducts.length} existing products`);
 
     if (existingProducts.length === 0) {
       console.log("Seeding database with initial products...");
-      await sql.insert(productsTable).values(initialProducts);
+      await db.insert(productsTable).values(initialProducts);
       console.log("Database seeded successfully!");
     } else {
       console.log("Database already has products, skipping seed.");
