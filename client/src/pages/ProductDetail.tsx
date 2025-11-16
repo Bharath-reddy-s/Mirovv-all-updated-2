@@ -265,6 +265,14 @@ export default function ProductDetailPage() {
             </div>
 
             {product.id !== 4 && (
+              <div className="mb-6">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Product Link
+                </p>
+              </div>
+            )}
+
+            {product.id !== 4 && (
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <div className="flex gap-4 flex-1">
                   <Button
