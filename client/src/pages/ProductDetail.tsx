@@ -204,9 +204,14 @@ export default function ProductDetailPage() {
             className="flex flex-col"
           >
             <div className="mb-6">
-              <span className="inline-block px-3 py-1 bg-gray-200 text-black text-sm font-medium rounded-full mb-3">
-                {product.label}
-              </span>
+              <div className="flex items-center gap-2 mb-3 flex-wrap">
+                <span className="inline-block px-3 py-1 bg-gray-200 text-black text-sm font-medium rounded-full">
+                  {product.label}
+                </span>
+                <span className="text-xs font-medium text-green-600 dark:text-green-500" data-testid="text-stock-available">
+                  Stock Available
+                </span>
+              </div>
               <h1 className="text-4xl font-semibold mb-4 text-black dark:text-white">
                 {product.title}
               </h1>
