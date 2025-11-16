@@ -32,21 +32,23 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      const newSequence = (keySequence + e.key).toLowerCase();
-      setKeySequence(newSequence);
+      if (e.key.length === 1) {
+        const newSequence = (keySequence + e.key).toLowerCase();
+        setKeySequence(newSequence);
 
-      if (newSequence.includes(secretPhrase)) {
-        setIsDeveloperMode(true);
-        setKeySequence("");
-      }
+        if (newSequence.includes(secretPhrase)) {
+          setIsDeveloperMode(true);
+          setKeySequence("");
+        }
 
-      if (newSequence.length > secretPhrase.length) {
-        setKeySequence(newSequence.slice(-secretPhrase.length));
+        if (newSequence.length > secretPhrase.length) {
+          setKeySequence(newSequence.slice(-secretPhrase.length));
+        }
       }
     };
 
-    window.addEventListener("keypress", handleKeyPress);
-    return () => window.removeEventListener("keypress", handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
   }, [keySequence]);
 
   const toggleStockStatus = (productId: number) => {
