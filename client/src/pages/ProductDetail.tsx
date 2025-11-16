@@ -266,18 +266,14 @@ export default function ProductDetailPage() {
 
             {product.id !== 4 && product.productLink && (
               <div className="mb-6">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                  Product Link:
-                </p>
-                <a 
-                  href={product.productLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
-                  data-testid="link-product"
+                <Button
+                  onClick={() => window.open(product.productLink, '_blank', 'noopener,noreferrer')}
+                  variant="outline"
+                  className="rounded-full"
+                  data-testid="button-product-link"
                 >
-                  {product.productLink}
-                </a>
+                  View Product
+                </Button>
               </div>
             )}
 
