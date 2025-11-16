@@ -3,8 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Plus, Edit, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { X, Plus, Edit, Upload } from "lucide-react";
+import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -22,12 +22,21 @@ import {
 import { Label } from "@/components/ui/label";
 import type { Product } from "@shared/schema";
 
+const DEFAULT_LONG_DESCRIPTION = "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"";
+
+const DEFAULT_WHATS_IN_BOX = `A Mystery item (something you would not expect)
+A Letter (guide to use the product)
+GIVEAWAY TICKET (Its all about This)
+GIVEAWAY products are not sent in mystery box`;
+
 export default function DeveloperPanel() {
   const { isDeveloperMode, stockStatus, products, toggleStockStatus, createProduct, updateProduct, isCreatingProduct, isUpdatingProduct } = useDeveloper();
   const [isVisible, setIsVisible] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const { toast } = useToast();
+  const mainImageInputRef = useRef<HTMLInputElement>(null);
+  const additionalImagesInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -38,14 +47,67 @@ export default function DeveloperPanel() {
     image: "",
     additionalImages: "",
     description: "",
-    longDescription: "",
+    longDescription: DEFAULT_LONG_DESCRIPTION,
     features: "",
-    whatsInTheBox: "",
+    whatsInTheBox: DEFAULT_WHATS_IN_BOX,
     specifications: "",
     productLink: "",
   });
 
   if (!isDeveloperMode || !isVisible) return null;
+
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleMainImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const base64 = await convertFileToBase64(file);
+        setFormData({ ...formData, image: base64 });
+        toast({
+          title: "Image uploaded",
+          description: "Main image has been uploaded successfully.",
+        });
+      } catch (error) {
+        toast({
+          title: "Upload failed",
+          description: "Failed to upload image. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleAdditionalImagesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      try {
+        const base64Images = await Promise.all(
+          Array.from(files).map(file => convertFileToBase64(file))
+        );
+        const currentImages = formData.additionalImages ? formData.additionalImages.split("\n").filter(Boolean) : [];
+        const allImages = [...currentImages, ...base64Images].join("\n");
+        setFormData({ ...formData, additionalImages: allImages });
+        toast({
+          title: "Images uploaded",
+          description: `${files.length} additional image(s) uploaded successfully.`,
+        });
+      } catch (error) {
+        toast({
+          title: "Upload failed",
+          description: "Failed to upload images. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -57,9 +119,9 @@ export default function DeveloperPanel() {
       image: "",
       additionalImages: "",
       description: "",
-      longDescription: "",
+      longDescription: DEFAULT_LONG_DESCRIPTION,
       features: "",
-      whatsInTheBox: "",
+      whatsInTheBox: DEFAULT_WHATS_IN_BOX,
       specifications: "",
       productLink: "",
     });
@@ -74,19 +136,19 @@ export default function DeveloperPanel() {
   const openEditDialog = (product: Product) => {
     setEditingProduct(product);
     setFormData({
-      title: product.title,
-      label: product.label,
-      price: product.price,
-      originalPrice: product.originalPrice || "",
-      pricingText: product.pricingText || "",
-      image: product.image,
-      additionalImages: product.additionalImages?.join("\n") || "",
-      description: product.description,
-      longDescription: product.longDescription,
-      features: product.features.join("\n"),
-      whatsInTheBox: product.whatsInTheBox.join("\n"),
-      specifications: product.specifications.map(s => `${s.label}: ${s.value}`).join("\n"),
-      productLink: product.productLink || "",
+      title: product.title ?? "",
+      label: product.label ?? "",
+      price: product.price ?? "",
+      originalPrice: product.originalPrice ?? "",
+      pricingText: product.pricingText ?? "",
+      image: product.image ?? "",
+      additionalImages: product.additionalImages?.join("\n") ?? "",
+      description: product.description ?? "",
+      longDescription: product.longDescription ?? "",
+      features: product.features?.join("\n") ?? "",
+      whatsInTheBox: product.whatsInTheBox?.join("\n") ?? "",
+      specifications: product.specifications ? product.specifications.map(s => `${s.label}: ${s.value}`).join("\n") : "",
+      productLink: product.productLink ?? "",
     });
     setIsDialogOpen(true);
   };
@@ -328,19 +390,41 @@ export default function DeveloperPanel() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="image">Main Image URL *</Label>
-              <Input
-                id="image"
-                value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                placeholder="https://example.com/image.png"
-                required
-                data-testid="input-product-image"
-              />
+              <Label htmlFor="image">Main Image *</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="image"
+                  value={formData.image}
+                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  placeholder="https://example.com/image.png or upload below"
+                  required
+                  data-testid="input-product-image"
+                  className="flex-1"
+                />
+                <input
+                  ref={mainImageInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleMainImageUpload}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => mainImageInputRef.current?.click()}
+                  data-testid="button-upload-main-image"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Paste a URL or upload an image from your device
+              </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="additionalImages">Additional Images (one URL per line)</Label>
+              <Label htmlFor="additionalImages">Additional Images</Label>
               <Textarea
                 id="additionalImages"
                 value={formData.additionalImages}
@@ -349,6 +433,29 @@ export default function DeveloperPanel() {
                 rows={3}
                 data-testid="input-product-additional-images"
               />
+              <div className="flex gap-2">
+                <input
+                  ref={additionalImagesInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleAdditionalImagesUpload}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => additionalImagesInputRef.current?.click()}
+                  data-testid="button-upload-additional-images"
+                  className="w-full"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload Additional Images
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Paste URLs (one per line) or upload multiple images from your device
+              </p>
             </div>
 
             <div className="space-y-2">
