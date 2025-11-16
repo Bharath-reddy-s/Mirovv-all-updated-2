@@ -151,6 +151,16 @@ export default function DeveloperPanel() {
     e.preventDefault();
 
     try {
+      const isValidUrl = (url: string) => {
+        if (!url) return false;
+        try {
+          new URL(url);
+          return true;
+        } catch {
+          return false;
+        }
+      };
+
       const productData = {
         title: formData.title,
         label: formData.label,
@@ -164,7 +174,9 @@ export default function DeveloperPanel() {
         description: formData.description,
         longDescription: formData.longDescription,
         whatsInTheBox: formData.whatsInTheBox.split("\n").filter(Boolean),
-        productLink: formData.productLink || undefined,
+        productLink: formData.productLink && isValidUrl(formData.productLink) 
+          ? formData.productLink 
+          : undefined,
       };
 
       if (editingProduct) {
