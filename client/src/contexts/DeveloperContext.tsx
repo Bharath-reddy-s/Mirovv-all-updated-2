@@ -59,7 +59,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key.length === 1) {
+      if (e.key && e.key.length === 1) {
         const newSequence = (keySequence + e.key).toLowerCase();
         setKeySequence(newSequence);
 
