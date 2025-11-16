@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
+import { useDeveloper } from "@/contexts/DeveloperContext";
 import { getProductById } from "@shared/schema";
 import { ArrowLeft, Share2, ShoppingCart, Zap, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +14,7 @@ export default function ProductDetailPage() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const { addToCart } = useCart();
+  const { stockStatus } = useDeveloper();
   const [isSharing, setIsSharing] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { toast } = useToast();
@@ -23,6 +25,7 @@ export default function ProductDetailPage() {
   
   const productId = parseInt(params.id as string);
   const product = getProductById(productId);
+  const isInStock = stockStatus[productId] ?? true;
   
   const allImages = product 
     ? [product.image, ...(product.additionalImages || [])]
@@ -208,13 +211,16 @@ export default function ProductDetailPage() {
                 <span className="inline-block px-3 py-1 bg-gray-200 text-black text-sm font-medium rounded-full">
                   {product.label}
                 </span>
-                {product.id === 3 ? (
-                  <span className="inline-block px-3 py-1 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 text-sm font-medium rounded-full" data-testid="text-stock-not-available">
-                    Stock not Available
-                  </span>
-                ) : product.id <= 2 && (
-                  <span className="inline-block px-3 py-1 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 text-sm font-medium rounded-full" data-testid="text-stock-available">
-                    Stock Available
+                {product.id <= 3 && (
+                  <span 
+                    className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
+                      isInStock
+                        ? "bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400"
+                        : "bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400"
+                    }`}
+                    data-testid={isInStock ? "text-stock-available" : "text-stock-not-available"}
+                  >
+                    {isInStock ? "Stock Available" : "Stock not Available"}
                   </span>
                 )}
               </div>
