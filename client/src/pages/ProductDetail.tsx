@@ -253,7 +253,7 @@ export default function ProductDetailPage() {
                       animate={{ opacity: 1 }}
                       transition={{ duration: 0.5, delay: 1.1 }}
                     >
-                      ( Just at a price of 3 Lights )
+                      ( Satisfaction for the price of an ice cream )
                     </motion.span>
                   </>
                 )}
