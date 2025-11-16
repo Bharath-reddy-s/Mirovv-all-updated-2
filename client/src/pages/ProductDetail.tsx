@@ -294,7 +294,7 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {product.id !== 4 && (
+            {product.id !== 4 && isInStock && (
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <div className="flex gap-4 flex-1">
                   <Button
@@ -326,6 +326,22 @@ export default function ProductDetailPage() {
                 >
                   <Share2 className="w-5 h-5" />
                   <span className="sm:hidden ml-2">Share</span>
+                </Button>
+              </div>
+            )}
+
+            {product.id !== 4 && !isInStock && (
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <Button
+                  onClick={handleShare}
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full h-14 w-full border-2"
+                  disabled={isSharing}
+                  data-testid="button-share"
+                >
+                  <Share2 className="w-5 h-5" />
+                  <span className="ml-2">Share</span>
                 </Button>
               </div>
             )}
