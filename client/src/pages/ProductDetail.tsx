@@ -248,7 +248,7 @@ export default function ProductDetailPage() {
                       </motion.span>
                     </motion.span>
                     <motion.span
-                      className="text-sm text-gray-500 dark:text-gray-400"
+                      className="text-sm text-black dark:text-white"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ duration: 0.5, delay: 1.1 }}
