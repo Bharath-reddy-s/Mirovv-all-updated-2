@@ -1,20 +1,21 @@
-import { type User, type InsertUser } from "@shared/schema";
+import { type User, type InsertUser, type StockStatus } from "@shared/schema";
 import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  getStockStatus(): Promise<StockStatus>;
+  updateStockStatus(productId: number, isInStock: boolean): Promise<StockStatus>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
+  private stockStatus: StockStatus;
 
   constructor() {
     this.users = new Map();
+    this.stockStatus = { 1: true, 2: true, 3: false };
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -32,6 +33,15 @@ export class MemStorage implements IStorage {
     const user: User = { ...insertUser, id };
     this.users.set(id, user);
     return user;
+  }
+
+  async getStockStatus(): Promise<StockStatus> {
+    return { ...this.stockStatus };
+  }
+
+  async updateStockStatus(productId: number, isInStock: boolean): Promise<StockStatus> {
+    this.stockStatus[productId] = isInStock;
+    return { ...this.stockStatus };
   }
 }
 
