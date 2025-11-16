@@ -17,6 +17,7 @@ export interface Product {
     label: string;
     value: string;
   }[];
+  productLink?: string;
 }
 
 export const products: Product[] = [
@@ -31,6 +32,7 @@ export const products: Product[] = [
     additionalImages: ["/earbuds-product.png"],
     description: "Had a breakup? or feeling lonely this can fix it all Listening, Paro in Nirvana Ion with a Hot Chai and a Lights . Get a chance to win Boat Nirvana Ion by ordering Lightts Mystery box.",
     longDescription: "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"",
+    productLink: "https://www.boat-lifestyle.com/products/nirvana-ion-bluetooth-wireless-earbuds?variant=40281089048674&country=IN&currency=INR&gad_source=1&gad_campaignid=21766993129&gbraid=0AAAAADCnhlzGBYwBhrtiFFKoGiOszNPst&gclid=Cj0KCQiAiebIBhDmARIsAE8PGNKctZTVKdhYF4Cqi2uX0K5xAkVZdReEkiZmPwGu_Gk8ihgf8VmkVI4aAj0jEALw_wcB",
     features: [
       "5+ Premium Digital Products",
       "Exclusive Software Licenses",

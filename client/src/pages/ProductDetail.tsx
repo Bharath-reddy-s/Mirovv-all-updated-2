@@ -264,11 +264,20 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {product.id !== 4 && (
+            {product.id !== 4 && product.productLink && (
               <div className="mb-6">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Product Link
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  Product Link:
                 </p>
+                <a 
+                  href={product.productLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
+                  data-testid="link-product"
+                >
+                  {product.productLink}
+                </a>
               </div>
             )}
 
