@@ -221,32 +221,32 @@ export default function ProductDetailPage() {
                 ))}
               </p>
               <div className="flex items-baseline gap-3">
+                <motion.span 
+                  className="text-3xl font-bold text-black dark:text-white"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                >
+                  {product.price}
+                </motion.span>
                 {product.originalPrice && (
                   <motion.span 
                     className="text-xl text-gray-400 dark:text-gray-500 relative"
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
+                    transition={{ duration: 0.5, delay: 0.6 }}
                   >
                     {product.originalPrice}
                     <motion.span
                       className="absolute inset-0 flex items-center justify-center"
                       initial={{ scaleX: 0 }}
                       animate={{ scaleX: 1 }}
-                      transition={{ duration: 0.6, delay: 0.6 }}
+                      transition={{ duration: 0.6, delay: 0.9 }}
                     >
                       <span className="w-full h-0.5 bg-red-500" />
                     </motion.span>
                   </motion.span>
                 )}
-                <motion.span 
-                  className="text-3xl font-bold text-black dark:text-white"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.8 }}
-                >
-                  {product.price}
-                </motion.span>
               </div>
             </div>
 
