@@ -15,6 +15,7 @@ export interface IStorage {
   getProductById(id: number): Promise<Product | undefined>;
   createProduct(product: CreateProduct): Promise<Product>;
   updateProduct(id: number, updates: Partial<UpdateProduct>): Promise<Product | undefined>;
+  deleteProduct(id: number): Promise<boolean>;
 }
 
 export class DBStorage implements IStorage {
@@ -57,6 +58,13 @@ export class DBStorage implements IStorage {
       .where(eq(productsTable.id, id))
       .returning();
     return updated as Product | undefined;
+  }
+
+  async deleteProduct(id: number): Promise<boolean> {
+    const result = await sql.delete(productsTable)
+      .where(eq(productsTable.id, id))
+      .returning();
+    return result.length > 0;
   }
 }
 

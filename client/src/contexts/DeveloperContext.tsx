@@ -10,8 +10,10 @@ interface DeveloperContextType {
   toggleStockStatus: (productId: number) => void;
   createProduct: (product: CreateProduct) => Promise<any>;
   updateProduct: (id: number, updates: Partial<UpdateProduct>) => Promise<any>;
+  deleteProduct: (id: number) => Promise<any>;
   isCreatingProduct: boolean;
   isUpdatingProduct: boolean;
+  isDeletingProduct: boolean;
 }
 
 const DeveloperContext = createContext<DeveloperContextType | undefined>(undefined);
@@ -49,6 +51,15 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
   const updateProductMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: number; updates: Partial<UpdateProduct> }) => {
       return apiRequest("PATCH", `/api/products/${id}`, updates);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+    },
+  });
+
+  const deleteProductMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return apiRequest("DELETE", `/api/products/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
@@ -95,6 +106,10 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     return updateProductMutation.mutateAsync({ id, updates });
   };
 
+  const deleteProduct = async (id: number) => {
+    return deleteProductMutation.mutateAsync(id);
+  };
+
   return (
     <DeveloperContext.Provider 
       value={{ 
@@ -104,8 +119,10 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         toggleStockStatus, 
         createProduct,
         updateProduct,
+        deleteProduct,
         isCreatingProduct: createProductMutation.isPending,
         isUpdatingProduct: updateProductMutation.isPending,
+        isDeletingProduct: deleteProductMutation.isPending,
       }}
     >
       {children}

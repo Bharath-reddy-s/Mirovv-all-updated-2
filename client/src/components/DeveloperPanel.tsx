@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Plus, Edit, Upload } from "lucide-react";
+import { X, Plus, Edit, Upload, Trash2 } from "lucide-react";
 import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -30,7 +30,7 @@ GIVEAWAY TICKET (Its all about This)
 GIVEAWAY products are not sent in mystery box`;
 
 export default function DeveloperPanel() {
-  const { isDeveloperMode, stockStatus, products, toggleStockStatus, createProduct, updateProduct, isCreatingProduct, isUpdatingProduct } = useDeveloper();
+  const { isDeveloperMode, stockStatus, products, toggleStockStatus, createProduct, updateProduct, deleteProduct, isCreatingProduct, isUpdatingProduct, isDeletingProduct } = useDeveloper();
   const [isVisible, setIsVisible] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -199,6 +199,26 @@ export default function DeveloperPanel() {
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to save product. Please check your inputs.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!editingProduct) return;
+
+    try {
+      await deleteProduct(editingProduct.id);
+      toast({
+        title: "Product Deleted",
+        description: "The product has been deleted successfully.",
+      });
+      setIsDialogOpen(false);
+      resetForm();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete product.",
         variant: "destructive",
       });
     }
@@ -495,11 +515,29 @@ export default function DeveloperPanel() {
               <Button
                 type="submit"
                 className="flex-1"
-                disabled={isCreatingProduct || isUpdatingProduct}
+                disabled={isCreatingProduct || isUpdatingProduct || isDeletingProduct}
                 data-testid="button-save-product"
               >
                 {isCreatingProduct || isUpdatingProduct ? "Saving..." : editingProduct ? "Update Product" : "Create Product"}
               </Button>
+              {editingProduct && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={isDeletingProduct || isCreatingProduct || isUpdatingProduct}
+                  data-testid="button-delete-product"
+                >
+                  {isDeletingProduct ? (
+                    "Deleting..."
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </>
+                  )}
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="outline"
