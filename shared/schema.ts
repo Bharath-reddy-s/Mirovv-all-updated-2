@@ -31,6 +31,48 @@ export const updateStockStatusSchema = z.object({
 
 export type UpdateStockStatus = z.infer<typeof updateStockStatusSchema>;
 
+export const createProductSchema = z.object({
+  title: z.string().min(1),
+  label: z.string().min(1),
+  price: z.string().min(1),
+  originalPrice: z.string().optional(),
+  pricingText: z.string().optional(),
+  image: z.string().url(),
+  additionalImages: z.array(z.string().url()).optional(),
+  description: z.string().min(1),
+  longDescription: z.string().min(1),
+  features: z.array(z.string()),
+  whatsInTheBox: z.array(z.string()),
+  specifications: z.array(z.object({
+    label: z.string(),
+    value: z.string(),
+  })),
+  productLink: z.string().url().optional(),
+});
+
+export const updateProductSchema = z.object({
+  id: z.number(),
+  title: z.string().min(1).optional(),
+  label: z.string().min(1).optional(),
+  price: z.string().min(1).optional(),
+  originalPrice: z.string().optional(),
+  pricingText: z.string().optional(),
+  image: z.string().url().optional(),
+  additionalImages: z.array(z.string().url()).optional(),
+  description: z.string().min(1).optional(),
+  longDescription: z.string().min(1).optional(),
+  features: z.array(z.string()).optional(),
+  whatsInTheBox: z.array(z.string()).optional(),
+  specifications: z.array(z.object({
+    label: z.string(),
+    value: z.string(),
+  })).optional(),
+  productLink: z.string().url().optional(),
+});
+
+export type CreateProduct = z.infer<typeof createProductSchema>;
+export type UpdateProduct = z.infer<typeof updateProductSchema>;
+
 export const products: Product[] = [
   {
     id: 1,
