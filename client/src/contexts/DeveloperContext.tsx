@@ -24,9 +24,8 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/stock"],
   });
 
-  const { data: products = [] } = useQuery<Product[]>({
+  const { data: products = [], refetch: refetchProducts } = useQuery<Product[]>({
     queryKey: ["/api/products"],
-    enabled: isDeveloperMode,
   });
 
   const updateStockMutation = useMutation({
@@ -67,6 +66,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         if (newSequence.includes(secretPhrase)) {
           setIsDeveloperMode(true);
           setKeySequence("");
+          refetchProducts();
         }
 
         if (newSequence.length > secretPhrase.length) {
@@ -77,7 +77,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [keySequence]);
+  }, [keySequence, refetchProducts]);
 
   const toggleStockStatus = (productId: number) => {
     const currentStatus = stockStatus[productId] ?? true;
