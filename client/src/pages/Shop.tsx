@@ -66,9 +66,11 @@ export default function ShopPage() {
                     {box.title}
                   </h2>
                   
-                  <p className="text-white/70 text-sm font-normal mb-1">
-                    Giveaway Ticket Included
-                  </p>
+                  {box.id !== 4 && (
+                    <p className="text-white/70 text-sm font-normal mb-1">
+                      Giveaway Ticket Included
+                    </p>
+                  )}
                   
                   {box.id !== 4 && (
                     <p className="text-white/70 text-sm font-normal mb-4">
