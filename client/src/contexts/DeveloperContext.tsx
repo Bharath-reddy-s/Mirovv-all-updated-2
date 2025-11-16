@@ -37,7 +37,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         setKeySequence(newSequence);
 
         if (newSequence.includes(secretPhrase)) {
-          setIsDeveloperMode(prev => !prev);
+          setIsDeveloperMode(true);
           setKeySequence("");
         }
 
