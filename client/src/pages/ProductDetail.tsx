@@ -247,14 +247,16 @@ export default function ProductDetailPage() {
                         <span className="w-full h-0.5 bg-gray-400 dark:bg-gray-500" />
                       </motion.span>
                     </motion.span>
-                    <motion.span
-                      className="text-sm text-black dark:text-white"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.5, delay: 1.1 }}
-                    >
-                      ( Satisfaction for the price of an ice cream )
-                    </motion.span>
+                    {product.pricingText && (
+                      <motion.span
+                        className="text-sm text-black dark:text-white"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5, delay: 1.1 }}
+                      >
+                        {product.pricingText}
+                      </motion.span>
+                    )}
                   </>
                 )}
               </div>
