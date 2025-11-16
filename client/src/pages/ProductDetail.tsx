@@ -220,46 +220,48 @@ export default function ProductDetailPage() {
                   ) : part
                 ))}
               </p>
-              <div className="flex items-baseline gap-3 flex-wrap">
-                <motion.span 
-                  className="text-3xl font-bold text-black dark:text-white"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                >
-                  {product.price}
-                </motion.span>
-                {product.originalPrice && (
-                  <>
-                    <motion.span 
-                      className="text-xl text-gray-400 dark:text-gray-500 relative"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: 0.6 }}
-                    >
-                      {product.originalPrice}
-                      <motion.span
-                        className="absolute inset-0 flex items-center justify-center"
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ duration: 0.6, delay: 0.9 }}
+              {product.id !== 4 && (
+                <div className="flex items-baseline gap-3 flex-wrap">
+                  <motion.span 
+                    className="text-3xl font-bold text-black dark:text-white"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                  >
+                    {product.price}
+                  </motion.span>
+                  {product.originalPrice && (
+                    <>
+                      <motion.span 
+                        className="text-xl text-gray-400 dark:text-gray-500 relative"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, delay: 0.6 }}
                       >
-                        <span className="w-full h-0.5 bg-gray-400 dark:bg-gray-500" />
+                        {product.originalPrice}
+                        <motion.span
+                          className="absolute inset-0 flex items-center justify-center"
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: 1 }}
+                          transition={{ duration: 0.6, delay: 0.9 }}
+                        >
+                          <span className="w-full h-0.5 bg-gray-400 dark:bg-gray-500" />
+                        </motion.span>
                       </motion.span>
-                    </motion.span>
-                    {product.pricingText && (
-                      <motion.span
-                        className="text-sm text-black dark:text-white"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.5, delay: 1.1 }}
-                      >
-                        {product.pricingText}
-                      </motion.span>
-                    )}
-                  </>
-                )}
-              </div>
+                      {product.pricingText && (
+                        <motion.span
+                          className="text-sm text-black dark:text-white"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.5, delay: 1.1 }}
+                        >
+                          {product.pricingText}
+                        </motion.span>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
