@@ -55,7 +55,7 @@ export const products: Product[] = [
     id: 2,
     title: "Aahhh!!!!",
     label: "Giveaway Ticket Included",
-    price: "69",
+    price: "₹69",
     originalPrice: "₹139",
     pricingText: "( Satisfaction for the price of an ice cream )",
     image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
