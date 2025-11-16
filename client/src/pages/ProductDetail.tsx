@@ -243,7 +243,7 @@ export default function ProductDetailPage() {
                       animate={{ scaleX: 1 }}
                       transition={{ duration: 0.6, delay: 0.9 }}
                     >
-                      <span className="w-full h-0.5 bg-red-500" />
+                      <span className="w-full h-0.5 bg-gray-400 dark:bg-gray-500" />
                     </motion.span>
                   </motion.span>
                 )}
