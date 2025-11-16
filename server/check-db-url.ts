@@ -1,0 +1,10 @@
+console.log("DATABASE_URL value:");
+console.log("=".repeat(50));
+console.log(process.env.DATABASE_URL);
+console.log("=".repeat(50));
+console.log("\nFirst character:", process.env.DATABASE_URL?.[0]);
+console.log("Last character:", process.env.DATABASE_URL?.[process.env.DATABASE_URL.length - 1]);
+console.log("\nShould start with: p");
+console.log("Should end with: e (from 'require')");
+console.log("\n❌ Problem: The URL appears to have quotes around it");
+console.log("✅ Solution: Remove the quotes - paste ONLY the URL");
