@@ -5,6 +5,7 @@ export interface Product {
   title: string;
   label: string;
   price: string;
+  originalPrice?: string;
   image: string;
   additionalImages?: string[];
   description: string;
@@ -23,6 +24,7 @@ export const products: Product[] = [
     title: "Lightts",
     label: "Giveaway Ticket Included",
     price: "₹49",
+    originalPrice: "₹79",
     image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
     additionalImages: ["/earbuds-product.png"],
     description: "Had a breakup? or feeling lonely this can fix it all Listening, Paro in Nirvana Ion with a Hot Chai and a Lights . Get a chance to win Boat Nirvana Ion by ordering Lightts Mystery box.",
@@ -81,6 +83,7 @@ export const products: Product[] = [
     title: "Rider PRO MAX",
     label: "Giveaway Ticket Included",
     price: "₹49",
+    originalPrice: "₹79",
     image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Oct-25-2025-02_30_59-AM-1761678796762.png?width=8000&height=8000&resize=contain",
     additionalImages: ["/image_1763056963689.png"],
     description: "You are a Rider pro max but without a good Helmet? Ufff . Get A chance to win this AXOR Helmet by ordering The Rider Mystery box today.",
