@@ -208,9 +208,11 @@ export default function ProductDetailPage() {
                 <span className="inline-block px-3 py-1 bg-gray-200 text-black text-sm font-medium rounded-full">
                   {product.label}
                 </span>
-                <span className="text-xs font-medium text-green-600 dark:text-green-500" data-testid="text-stock-available">
-                  Stock Available
-                </span>
+                {product.id <= 3 && (
+                  <span className="inline-block px-3 py-1 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 text-sm font-medium rounded-full" data-testid="text-stock-available">
+                    Stock Available
+                  </span>
+                )}
               </div>
               <h1 className="text-4xl font-semibold mb-4 text-black dark:text-white">
                 {product.title}
