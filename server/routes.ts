@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { updateStockStatusSchema } from "@shared/schema";
+import { updateStockStatusSchema, createProductSchema, updateProductSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/stock", async (req, res) => {
@@ -25,6 +25,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stockStatus);
     } catch (error) {
       res.status(500).json({ error: "Failed to update stock status" });
+    }
+  });
+
+  app.get("/api/products", async (req, res) => {
+    try {
+      const products = await storage.getProducts();
+      res.json(products);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get products" });
+    }
+  });
+
+  app.get("/api/products/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const product = await storage.getProductById(id);
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      res.json(product);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get product" });
+    }
+  });
+
+  app.post("/api/products", async (req, res) => {
+    try {
+      const validation = createProductSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const product = await storage.createProduct(validation.data);
+      res.json(product);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create product" });
+    }
+  });
+
+  app.patch("/api/products/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validation = updateProductSchema.safeParse({ ...req.body, id });
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const product = await storage.updateProduct(id, validation.data);
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      res.json(product);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update product" });
     }
   });
 
