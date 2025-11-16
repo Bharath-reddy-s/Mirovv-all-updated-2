@@ -11,9 +11,9 @@ export interface Product {
   additionalImages?: string[];
   description: string;
   longDescription: string;
-  features: string[];
+  features?: string[];
   whatsInTheBox: string[];
-  specifications: {
+  specifications?: {
     label: string;
     value: string;
   }[];

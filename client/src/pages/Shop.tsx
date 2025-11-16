@@ -2,13 +2,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
-import { products } from "@shared/schema";
+import { type Product } from "@shared/schema";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function ShopPage() {
   const { addToCart } = useCart();
   const [currentImageIndices, setCurrentImageIndices] = useState<{[key: number]: number}>({});
+  
+  const { data: products = [], isLoading } = useQuery<Product[]>({
+    queryKey: ["/api/products"],
+  });
 
   useEffect(() => {
     const intervals: {[key: number]: NodeJS.Timeout} = {};
@@ -28,7 +33,7 @@ export default function ShopPage() {
     return () => {
       Object.values(intervals).forEach(clearInterval);
     };
-  }, []);
+  }, [products]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-neutral-950">
@@ -49,8 +54,11 @@ export default function ShopPage() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px] mx-auto">
-          {products.map((box, index) => (
+        {isLoading ? (
+          <div className="text-center text-gray-600 dark:text-gray-400">Loading products...</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px] mx-auto">
+            {products.map((box, index) => (
             <motion.div
               key={box.id}
               initial={{ opacity: 0, y: 30 }}
@@ -119,8 +127,9 @@ export default function ShopPage() {
                 </div>
               )}
             </motion.div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
