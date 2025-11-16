@@ -5,10 +5,11 @@ import { Card } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
 import { useDeveloper } from "@/contexts/DeveloperContext";
-import { getProductById } from "@shared/schema";
+import { type Product } from "@shared/schema";
 import { ArrowLeft, Share2, ShoppingCart, Zap, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -24,7 +25,16 @@ export default function ProductDetailPage() {
   }, []);
   
   const productId = parseInt(params.id as string);
-  const product = getProductById(productId);
+  
+  const { data: product, isLoading } = useQuery<Product>({
+    queryKey: ["/api/products", productId],
+    queryFn: async () => {
+      const response = await fetch(`/api/products/${productId}`);
+      if (!response.ok) throw new Error("Product not found");
+      return response.json();
+    },
+  });
+  
   const isInStock = stockStatus[productId] ?? true;
   
   const allImages = product 
@@ -42,6 +52,17 @@ export default function ProductDetailPage() {
       prev === allImages.length - 1 ? 0 : prev + 1
     );
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-neutral-950">
+        <Navbar />
+        <div className="container mx-auto px-4 pt-32 pb-16 text-center">
+          <p className="text-gray-600 dark:text-gray-400">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
