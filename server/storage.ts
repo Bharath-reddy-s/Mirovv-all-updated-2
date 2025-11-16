@@ -1,4 +1,12 @@
-import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, products as initialProducts } from "@shared/schema";
+import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, products as initialProducts, productsTable } from "@shared/schema";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import { eq } from "drizzle-orm";
+import ws from "ws";
+
+const sql = drizzle({
+  connection: process.env.DATABASE_URL!,
+  ws: ws,
+});
 
 export interface IStorage {
   getStockStatus(): Promise<StockStatus>;
@@ -9,54 +17,47 @@ export interface IStorage {
   updateProduct(id: number, updates: Partial<UpdateProduct>): Promise<Product | undefined>;
 }
 
-export class MemStorage implements IStorage {
-  private stockStatus: StockStatus;
-  private products: Product[];
-  private nextProductId: number;
-
-  constructor() {
-    this.stockStatus = { 1: true, 2: true, 3: false };
-    this.products = [...initialProducts];
-    this.nextProductId = Math.max(...this.products.map(p => p.id), 0) + 1;
-  }
-
+export class DBStorage implements IStorage {
   async getStockStatus(): Promise<StockStatus> {
-    return { ...this.stockStatus };
+    const products = await sql.select().from(productsTable);
+    const status: StockStatus = {};
+    products.forEach(p => {
+      status[p.id] = p.isInStock;
+    });
+    return status;
   }
 
   async updateStockStatus(productId: number, isInStock: boolean): Promise<StockStatus> {
-    this.stockStatus[productId] = isInStock;
-    return { ...this.stockStatus };
+    await sql.update(productsTable)
+      .set({ isInStock })
+      .where(eq(productsTable.id, productId));
+    return this.getStockStatus();
   }
 
   async getProducts(): Promise<Product[]> {
-    return [...this.products];
+    const products = await sql.select().from(productsTable);
+    return products as Product[];
   }
 
   async getProductById(id: number): Promise<Product | undefined> {
-    return this.products.find(p => p.id === id);
+    const [product] = await sql.select().from(productsTable).where(eq(productsTable.id, id));
+    return product as Product | undefined;
   }
 
   async createProduct(productData: CreateProduct): Promise<Product> {
-    const newProduct: Product = {
-      id: this.nextProductId++,
-      ...productData,
-    };
-    this.products.push(newProduct);
-    this.stockStatus[newProduct.id] = true;
-    return newProduct;
+    const [newProduct] = await sql.insert(productsTable)
+      .values(productData)
+      .returning();
+    return newProduct as Product;
   }
 
   async updateProduct(id: number, updates: Partial<UpdateProduct>): Promise<Product | undefined> {
-    const index = this.products.findIndex(p => p.id === id);
-    if (index === -1) return undefined;
-    
-    this.products[index] = {
-      ...this.products[index],
-      ...updates,
-    };
-    return this.products[index];
+    const [updated] = await sql.update(productsTable)
+      .set(updates)
+      .where(eq(productsTable.id, id))
+      .returning();
+    return updated as Product | undefined;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DBStorage();

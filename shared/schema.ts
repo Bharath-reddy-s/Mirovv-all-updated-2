@@ -1,24 +1,28 @@
 import { z } from "zod";
+import { pgTable, serial, text, boolean, jsonb } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
 
-export interface Product {
-  id: number;
-  title: string;
-  label: string;
-  price: string;
-  originalPrice?: string;
-  pricingText?: string;
-  image: string;
-  additionalImages?: string[];
-  description: string;
-  longDescription: string;
-  features?: string[];
-  whatsInTheBox: string[];
-  specifications?: {
-    label: string;
-    value: string;
-  }[];
-  productLink?: string;
-}
+export const productsTable = pgTable("products", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  label: text("label").notNull(),
+  price: text("price").notNull(),
+  originalPrice: text("original_price"),
+  pricingText: text("pricing_text"),
+  image: text("image").notNull(),
+  additionalImages: text("additional_images").array(),
+  description: text("description").notNull(),
+  longDescription: text("long_description").notNull(),
+  features: text("features").array(),
+  whatsInTheBox: text("whats_in_the_box").array().notNull(),
+  specifications: jsonb("specifications").$type<{ label: string; value: string; }[]>(),
+  productLink: text("product_link"),
+  isInStock: boolean("is_in_stock").notNull().default(true),
+});
+
+export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, isInStock: true });
+export type InsertProduct = z.infer<typeof insertProductSchema>;
+export type Product = typeof productsTable.$inferSelect;
 
 export interface StockStatus {
   [productId: number]: boolean;
@@ -104,7 +108,8 @@ export const products: Product[] = [
       { label: "Value", value: "Up to ₹8,000" },
       { label: "Items", value: "5-8 Digital Products" },
       { label: "Validity", value: "Lifetime Access" }
-    ]
+    ],
+    isInStock: true
   },
   {
     id: 2,
@@ -136,7 +141,8 @@ export const products: Product[] = [
       { label: "Value", value: "Up to ₹3,500" },
       { label: "Items", value: "3-5 Tech Products" },
       { label: "Warranty", value: "Manufacturer Warranty" }
-    ]
+    ],
+    isInStock: true
   },
   {
     id: 3,
@@ -168,7 +174,8 @@ export const products: Product[] = [
       { label: "Value", value: "Up to ₹10,000" },
       { label: "Items", value: "5-7 Music Products" },
       { label: "Authenticity", value: "100% Official Merchandise" }
-    ]
+    ],
+    isInStock: true
   },
   {
     id: 4,
@@ -181,6 +188,7 @@ export const products: Product[] = [
     additionalImages: ["/image_1763301139652.png", "/image_1763301155394.png"],
     description: "THIS The Giveaways of Future",
     longDescription: "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"",
+    productLink: null,
     features: [
       "Early Access to New Giveaways",
       "Exclusive Future Products",
@@ -199,7 +207,8 @@ export const products: Product[] = [
       { label: "Value", value: "Up to ₹5,000" },
       { label: "Items", value: "Varies by Season" },
       { label: "Updates", value: "Monthly New Giveaways" }
-    ]
+    ],
+    isInStock: true
   }
 ];
 
