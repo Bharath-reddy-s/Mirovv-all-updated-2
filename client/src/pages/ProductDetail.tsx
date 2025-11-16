@@ -264,39 +264,41 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <div className="flex gap-4 flex-1">
+            {product.id !== 4 && (
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <div className="flex gap-4 flex-1">
+                  <Button
+                    onClick={handleBuyNow}
+                    size="lg"
+                    className="flex-1 bg-gray-200 dark:bg-gray-800 text-black dark:text-white rounded-full h-14 text-lg font-semibold border-2 border-gray-200 dark:border-gray-800"
+                    data-testid="button-buy-now"
+                  >
+                    Buy Now
+                  </Button>
+                  <Button
+                    onClick={handleAddToCart}
+                    size="lg"
+                    variant="outline"
+                    className="flex-1 rounded-full h-14 text-lg font-semibold gap-2 border-2"
+                    data-testid="button-add-to-cart"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    Add to Cart
+                  </Button>
+                </div>
                 <Button
-                  onClick={handleBuyNow}
-                  size="lg"
-                  className="flex-1 bg-gray-200 dark:bg-gray-800 text-black dark:text-white rounded-full h-14 text-lg font-semibold border-2 border-gray-200 dark:border-gray-800"
-                  data-testid="button-buy-now"
-                >
-                  Buy Now
-                </Button>
-                <Button
-                  onClick={handleAddToCart}
+                  onClick={handleShare}
                   size="lg"
                   variant="outline"
-                  className="flex-1 rounded-full h-14 text-lg font-semibold gap-2 border-2"
-                  data-testid="button-add-to-cart"
+                  className="rounded-full h-14 w-full sm:w-14 p-0 border-2"
+                  disabled={isSharing}
+                  data-testid="button-share"
                 >
-                  <ShoppingCart className="w-5 h-5" />
-                  Add to Cart
+                  <Share2 className="w-5 h-5" />
+                  <span className="sm:hidden ml-2">Share</span>
                 </Button>
               </div>
-              <Button
-                onClick={handleShare}
-                size="lg"
-                variant="outline"
-                className="rounded-full h-14 w-full sm:w-14 p-0 border-2"
-                disabled={isSharing}
-                data-testid="button-share"
-              >
-                <Share2 className="w-5 h-5" />
-                <span className="sm:hidden ml-2">Share</span>
-              </Button>
-            </div>
+            )}
 
             <div className="p-6 mb-6 bg-gray-50 dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 rounded-lg">
               <h3 className="text-xl font-bold mb-4 text-black dark:text-white">
