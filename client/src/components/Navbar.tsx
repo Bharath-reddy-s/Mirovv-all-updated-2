@@ -1,4 +1,4 @@
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Link, useLocation } from "wouter";
@@ -9,7 +9,16 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800">
-      <div className="container mx-auto px-6 h-16 flex items-center justify-end gap-1">
+      <div className="container mx-auto px-6 h-16 flex items-center justify-between gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            data-testid="button-search"
+          >
+            <Search className="w-5 h-5 text-black dark:text-white" />
+          </Button>
+
+          <div className="flex items-center gap-1">
           <Link href="/" onClick={() => setIsCartOpen(false)}>
             <Button 
               className={`rounded-full px-6 h-9 text-sm font-medium ${
@@ -52,6 +61,7 @@ export default function Navbar() {
               </span>
             )}
           </Button>
+        </div>
       </div>
     </nav>
   );
