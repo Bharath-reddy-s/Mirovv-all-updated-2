@@ -115,7 +115,7 @@ export const products: Product[] = [
   },
   {
     id: 4,
-    title: "Future give aways",
+    title: "Future Giveaways",
     label: "Giveaway Ticket Included",
     price: "₹99",
     originalPrice: "₹149",
