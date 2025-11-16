@@ -70,11 +70,13 @@ export default function ShopPage() {
                     Giveaway Ticket Included
                   </p>
                   
-                  <p className="text-white/70 text-sm font-normal mb-4">
-                    At {box.price}
-                  </p>
+                  {box.id !== 4 && (
+                    <p className="text-white/70 text-sm font-normal mb-4">
+                      At {box.price}
+                    </p>
+                  )}
                   
-                  <div className="relative w-full flex-1 flex items-center justify-center min-h-[300px] mb-4 overflow-hidden">
+                  <div className={`relative w-full flex-1 flex items-center justify-center min-h-[300px] mb-4 overflow-hidden ${box.id === 4 ? 'mt-4' : ''}`}>
                     <AnimatePresence mode="wait">
                       {(() => {
                         const allImages = [box.image, ...(box.additionalImages || [])];
