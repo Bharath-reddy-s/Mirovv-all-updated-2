@@ -41,12 +41,12 @@ export const createProductSchema = z.object({
   additionalImages: z.array(z.string().url()).optional(),
   description: z.string().min(1),
   longDescription: z.string().min(1),
-  features: z.array(z.string()),
+  features: z.array(z.string()).optional(),
   whatsInTheBox: z.array(z.string()),
   specifications: z.array(z.object({
     label: z.string(),
     value: z.string(),
-  })),
+  })).optional(),
   productLink: z.string().url().optional(),
 });
 

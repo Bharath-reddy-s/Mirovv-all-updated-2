@@ -48,9 +48,7 @@ export default function DeveloperPanel() {
     additionalImages: "",
     description: "",
     longDescription: DEFAULT_LONG_DESCRIPTION,
-    features: "",
     whatsInTheBox: DEFAULT_WHATS_IN_BOX,
-    specifications: "",
     productLink: "",
   });
 
@@ -120,9 +118,7 @@ export default function DeveloperPanel() {
       additionalImages: "",
       description: "",
       longDescription: DEFAULT_LONG_DESCRIPTION,
-      features: "",
       whatsInTheBox: DEFAULT_WHATS_IN_BOX,
-      specifications: "",
       productLink: "",
     });
     setEditingProduct(null);
@@ -145,9 +141,7 @@ export default function DeveloperPanel() {
       additionalImages: product.additionalImages?.join("\n") ?? "",
       description: product.description ?? "",
       longDescription: product.longDescription ?? "",
-      features: product.features?.join("\n") ?? "",
       whatsInTheBox: product.whatsInTheBox?.join("\n") ?? "",
-      specifications: product.specifications ? product.specifications.map(s => `${s.label}: ${s.value}`).join("\n") : "",
       productLink: product.productLink ?? "",
     });
     setIsDialogOpen(true);
@@ -155,27 +149,6 @@ export default function DeveloperPanel() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const specLines = formData.specifications.split("\n").filter(Boolean);
-    const invalidSpecs = specLines.filter(line => !line.includes(":"));
-    
-    if (invalidSpecs.length > 0) {
-      toast({
-        title: "Invalid Specifications",
-        description: `Each specification must be in the format "label: value". Invalid lines: ${invalidSpecs.join(", ")}`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const specifications = specLines.map(spec => {
-      const [label, ...valueParts] = spec.split(":");
-      const value = valueParts.join(":").trim();
-      if (!label.trim() || !value) {
-        throw new Error("Invalid specification format");
-      }
-      return { label: label.trim(), value };
-    });
 
     try {
       const productData = {
@@ -190,9 +163,7 @@ export default function DeveloperPanel() {
           : undefined,
         description: formData.description,
         longDescription: formData.longDescription,
-        features: formData.features.split("\n").filter(Boolean),
         whatsInTheBox: formData.whatsInTheBox.split("\n").filter(Boolean),
-        specifications,
         productLink: formData.productLink || undefined,
       };
 
@@ -485,19 +456,6 @@ export default function DeveloperPanel() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="features">Features (one per line) *</Label>
-              <Textarea
-                id="features"
-                value={formData.features}
-                onChange={(e) => setFormData({ ...formData, features: e.target.value })}
-                placeholder="5+ Premium Digital Products&#10;Exclusive Software Licenses&#10;Digital Content Access"
-                required
-                rows={4}
-                data-testid="input-product-features"
-              />
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="whatsInTheBox">What's in the Box (one per line) *</Label>
               <Textarea
                 id="whatsInTheBox"
@@ -507,19 +465,6 @@ export default function DeveloperPanel() {
                 required
                 rows={4}
                 data-testid="input-product-whats-in-box"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="specifications">Specifications (label: value, one per line) *</Label>
-              <Textarea
-                id="specifications"
-                value={formData.specifications}
-                onChange={(e) => setFormData({ ...formData, specifications: e.target.value })}
-                placeholder="Delivery: Instant Digital Download&#10;Value: Up to ₹8,000&#10;Items: 5-8 Digital Products"
-                required
-                rows={4}
-                data-testid="input-product-specifications"
               />
             </div>
 
