@@ -11,9 +11,11 @@ interface DeveloperContextType {
   createProduct: (product: CreateProduct) => Promise<any>;
   updateProduct: (id: number, updates: Partial<UpdateProduct>) => Promise<any>;
   deleteProduct: (id: number) => Promise<any>;
+  reorderProduct: (productId: number, direction: 'up' | 'down') => Promise<void>;
   isCreatingProduct: boolean;
   isUpdatingProduct: boolean;
   isDeletingProduct: boolean;
+  isReordering: boolean;
 }
 
 const DeveloperContext = createContext<DeveloperContextType | undefined>(undefined);
@@ -66,6 +68,15 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const reorderProductMutation = useMutation({
+    mutationFn: async ({ productId, direction }: { productId: number; direction: 'up' | 'down' }) => {
+      return apiRequest("POST", "/api/products/reorder", { productId, direction });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+    },
+  });
+
   const secretPhrase = "dormamu is a aunty";
 
   useEffect(() => {
@@ -110,6 +121,10 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     return deleteProductMutation.mutateAsync(id);
   };
 
+  const reorderProduct = async (productId: number, direction: 'up' | 'down') => {
+    await reorderProductMutation.mutateAsync({ productId, direction });
+  };
+
   return (
     <DeveloperContext.Provider 
       value={{ 
@@ -120,9 +135,11 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         createProduct,
         updateProduct,
         deleteProduct,
+        reorderProduct,
         isCreatingProduct: createProductMutation.isPending,
         isUpdatingProduct: updateProductMutation.isPending,
         isDeletingProduct: deleteProductMutation.isPending,
+        isReordering: reorderProductMutation.isPending,
       }}
     >
       {children}

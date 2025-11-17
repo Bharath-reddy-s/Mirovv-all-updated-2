@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Plus, Edit, Upload, Trash2 } from "lucide-react";
+import { X, Plus, Edit, Upload, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -30,7 +30,7 @@ GIVEAWAY TICKET (Its all about This)
 GIVEAWAY products are not sent in mystery box`;
 
 export default function DeveloperPanel() {
-  const { isDeveloperMode, stockStatus, products, toggleStockStatus, createProduct, updateProduct, deleteProduct, isCreatingProduct, isUpdatingProduct, isDeletingProduct } = useDeveloper();
+  const { isDeveloperMode, stockStatus, products, toggleStockStatus, createProduct, updateProduct, deleteProduct, reorderProduct, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering } = useDeveloper();
   const [isVisible, setIsVisible] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -285,11 +285,33 @@ export default function DeveloperPanel() {
                 </Button>
 
                 <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                  {products.map((product) => (
+                  {products.map((product, index) => (
                     <div
                       key={product.id}
-                      className="flex items-center justify-between p-2 rounded bg-gray-800 dark:bg-gray-200"
+                      className="flex items-center gap-2 p-2 rounded bg-gray-800 dark:bg-gray-200"
                     >
+                      <div className="flex flex-col gap-1">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => reorderProduct(product.id, 'up')}
+                          disabled={index === 0 || isReordering}
+                          className="h-5 w-5 p-0"
+                          data-testid={`button-reorder-up-${product.id}`}
+                        >
+                          <ChevronUp className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => reorderProduct(product.id, 'down')}
+                          disabled={index === products.length - 1 || isReordering}
+                          className="h-5 w-5 p-0"
+                          data-testid={`button-reorder-down-${product.id}`}
+                        >
+                          <ChevronDown className="w-3 h-3" />
+                        </Button>
+                      </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{product.title}</p>
                         <p className="text-xs opacity-70">{product.price}</p>
@@ -297,7 +319,7 @@ export default function DeveloperPanel() {
                       <Button
                         size="sm"
                         onClick={() => openEditDialog(product)}
-                        className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white ml-2"
+                        className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white"
                         data-testid={`button-edit-product-${product.id}`}
                       >
                         <Edit className="w-3 h-3" />
