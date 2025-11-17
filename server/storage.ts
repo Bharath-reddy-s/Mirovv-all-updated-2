@@ -1,6 +1,6 @@
 import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, products as initialProducts, productsTable } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
-import { eq } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 import ws from "ws";
 
 const dbUrl = process.env.DATABASE_URL!.replace(/^['"]|['"]$/g, '');
@@ -18,6 +18,7 @@ export interface IStorage {
   createProduct(product: CreateProduct): Promise<Product>;
   updateProduct(id: number, updates: Partial<UpdateProduct>): Promise<Product | undefined>;
   deleteProduct(id: number): Promise<boolean>;
+  reorderProducts(productId: number, direction: 'up' | 'down'): Promise<Product[]>;
 }
 
 export class DBStorage implements IStorage {
@@ -38,7 +39,7 @@ export class DBStorage implements IStorage {
   }
 
   async getProducts(): Promise<Product[]> {
-    const products = await sql.select().from(productsTable);
+    const products = await sql.select().from(productsTable).orderBy(asc(productsTable.displayOrder));
     return products as Product[];
   }
 
@@ -67,6 +68,34 @@ export class DBStorage implements IStorage {
       .where(eq(productsTable.id, id))
       .returning();
     return result.length > 0;
+  }
+
+  async reorderProducts(productId: number, direction: 'up' | 'down'): Promise<Product[]> {
+    const allProducts = await sql.select().from(productsTable).orderBy(asc(productsTable.displayOrder));
+    const currentIndex = allProducts.findIndex(p => p.id === productId);
+    
+    if (currentIndex === -1) {
+      throw new Error('Product not found');
+    }
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    
+    if (targetIndex < 0 || targetIndex >= allProducts.length) {
+      return allProducts;
+    }
+
+    const currentProduct = allProducts[currentIndex];
+    const targetProduct = allProducts[targetIndex];
+
+    await sql.update(productsTable)
+      .set({ displayOrder: targetProduct.displayOrder })
+      .where(eq(productsTable.id, currentProduct.id));
+
+    await sql.update(productsTable)
+      .set({ displayOrder: currentProduct.displayOrder })
+      .where(eq(productsTable.id, targetProduct.id));
+
+    return this.getProducts();
   }
 }
 
