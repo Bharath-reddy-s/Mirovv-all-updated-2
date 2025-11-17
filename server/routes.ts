@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { updateStockStatusSchema, createProductSchema, updateProductSchema } from "@shared/schema";
+import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/stock", async (req, res) => {
@@ -95,6 +96,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to delete product:", error);
       res.status(500).json({ error: "Failed to delete product" });
+    }
+  });
+
+  app.post("/api/products/reorder", async (req, res) => {
+    try {
+      const schema = z.object({
+        productId: z.number(),
+        direction: z.enum(['up', 'down'])
+      });
+
+      const validation = schema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const { productId, direction } = validation.data;
+      const products = await storage.reorderProducts(productId, direction);
+      res.json(products);
+    } catch (error) {
+      console.error("Failed to reorder products:", error);
+      res.status(500).json({ error: "Failed to reorder products" });
     }
   });
 
