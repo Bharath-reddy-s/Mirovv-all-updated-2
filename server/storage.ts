@@ -3,8 +3,10 @@ import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq } from "drizzle-orm";
 import ws from "ws";
 
+const dbUrl = process.env.DATABASE_URL!.replace(/^['"]|['"]$/g, '');
+
 const sql = drizzle({
-  connection: process.env.DATABASE_URL!,
+  connection: dbUrl,
   ws: ws,
 });
 
