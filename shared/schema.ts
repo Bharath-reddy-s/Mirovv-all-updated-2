@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { pgTable, serial, text, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, boolean, jsonb, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 
 export const productsTable = pgTable("products", {
@@ -18,9 +18,10 @@ export const productsTable = pgTable("products", {
   specifications: jsonb("specifications").$type<{ label: string; value: string; }[]>(),
   productLink: text("product_link"),
   isInStock: boolean("is_in_stock").notNull().default(true),
+  displayOrder: integer("display_order").notNull().default(0),
 });
 
-export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, isInStock: true });
+export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, isInStock: true, displayOrder: true });
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof productsTable.$inferSelect;
 
@@ -109,7 +110,8 @@ export const products: Product[] = [
       { label: "Items", value: "5-8 Digital Products" },
       { label: "Validity", value: "Lifetime Access" }
     ],
-    isInStock: true
+    isInStock: true,
+    displayOrder: 1
   },
   {
     id: 2,
@@ -142,7 +144,8 @@ export const products: Product[] = [
       { label: "Items", value: "3-5 Tech Products" },
       { label: "Warranty", value: "Manufacturer Warranty" }
     ],
-    isInStock: true
+    isInStock: true,
+    displayOrder: 2
   },
   {
     id: 3,
@@ -175,7 +178,8 @@ export const products: Product[] = [
       { label: "Items", value: "5-7 Music Products" },
       { label: "Authenticity", value: "100% Official Merchandise" }
     ],
-    isInStock: true
+    isInStock: true,
+    displayOrder: 3
   },
   {
     id: 4,
@@ -208,7 +212,8 @@ export const products: Product[] = [
       { label: "Items", value: "Varies by Season" },
       { label: "Updates", value: "Monthly New Giveaways" }
     ],
-    isInStock: true
+    isInStock: true,
+    displayOrder: 4
   }
 ];
 
