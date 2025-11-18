@@ -9,7 +9,7 @@ export default function Home() {
       <Navbar />
       <BackgroundPaths title="Mystery Boxes Await" />
       
-      <section className="min-h-screen bg-gray-50 dark:bg-neutral-900 py-20 px-4">
+      <section id="about-us" className="min-h-screen bg-gray-50 dark:bg-neutral-900 py-20 px-4">
         <div className="container mx-auto max-w-7xl">
           <h2 className="text-5xl font-bold text-center mb-12 text-black dark:text-white" data-testid="heading-about-us">
             About Us

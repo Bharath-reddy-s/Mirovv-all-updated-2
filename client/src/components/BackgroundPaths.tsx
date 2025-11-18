@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { ChevronDown } from "lucide-react";
 
 function FloatingPaths({ position }: { position: number }) {
     const paths = Array.from({ length: 36 }, (_, i) => ({
@@ -129,6 +130,29 @@ export default function BackgroundPaths({
                     </div>
                 </motion.div>
             </div>
+
+            <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.5, duration: 1 }}
+                className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
+            >
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                        document.getElementById('about-us')?.scrollIntoView({ 
+                            behavior: 'smooth' 
+                        });
+                    }}
+                    className="rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm
+                    border border-black/10 dark:border-white/10 hover:bg-white dark:hover:bg-black
+                    animate-bounce"
+                    data-testid="button-scroll-to-about"
+                >
+                    <ChevronDown className="h-5 w-5 text-black dark:text-white" />
+                </Button>
+            </motion.div>
         </div>
     );
 }
