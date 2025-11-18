@@ -36,8 +36,15 @@ async function setupDatabase() {
         "whats_in_the_box" text[] NOT NULL,
         "specifications" jsonb,
         "product_link" text,
-        "is_in_stock" boolean DEFAULT true NOT NULL
+        "is_in_stock" boolean DEFAULT true NOT NULL,
+        "display_order" integer DEFAULT 0 NOT NULL
       );
+    `);
+
+    console.log("Adding display_order column if it doesn't exist...");
+    await db.execute(sqlOp`
+      ALTER TABLE "products" 
+      ADD COLUMN IF NOT EXISTS "display_order" integer DEFAULT 0 NOT NULL;
     `);
 
     console.log("Checking if products table has data...");
