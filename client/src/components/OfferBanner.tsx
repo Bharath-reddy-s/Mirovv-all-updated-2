@@ -34,7 +34,7 @@ export default function OfferBanner() {
 
   return (
     <div
-      className="w-full bg-black text-white py-3 px-4 flex items-center justify-center gap-4"
+      className="fixed top-16 left-0 right-0 z-40 w-full bg-black text-white py-3 px-4 flex items-center justify-center gap-4"
       data-testid="banner-offer"
     >
       <span className="text-lg md:text-xl font-semibold" data-testid="text-offer-title">

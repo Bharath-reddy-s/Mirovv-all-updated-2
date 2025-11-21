@@ -7,6 +7,8 @@ import { CartProvider } from "@/contexts/CartContext";
 import { DeveloperProvider } from "@/contexts/DeveloperContext";
 import CartSheet from "@/components/CartSheet";
 import DeveloperPanel from "@/components/DeveloperPanel";
+import Navbar from "@/components/Navbar";
+import OfferBanner from "@/components/OfferBanner";
 import Home from "@/pages/Home";
 import Shop from "@/pages/Shop";
 import ProductDetail from "@/pages/ProductDetail";
@@ -42,6 +44,8 @@ function App() {
             <Toaster />
             <CartSheet />
             <DeveloperPanel />
+            <Navbar />
+            <OfferBanner />
             <Router />
           </CartProvider>
         </DeveloperProvider>
