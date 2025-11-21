@@ -34,13 +34,13 @@ export default function OfferBanner() {
 
   return (
     <div
-      className="fixed top-16 left-0 right-0 z-40 w-full bg-black text-white py-3 px-4 flex items-center justify-center gap-4"
+      className="fixed top-16 left-0 right-0 z-40 w-full bg-black text-white py-4 px-4 flex flex-col items-center justify-center gap-2"
       data-testid="banner-offer"
     >
       <span className="text-lg md:text-xl font-semibold" data-testid="text-offer-title">
         ₹10 off on every product
       </span>
-      <div className="flex items-center gap-1 font-mono text-2xl md:text-3xl font-bold tabular-nums" data-testid="container-timer">
+      <div className="flex items-center gap-1 font-mono text-xl md:text-2xl font-bold tabular-nums" data-testid="container-timer">
         <span data-testid="text-hours">{timeLeft.hours}</span>
         <span>:</span>
         <span data-testid="text-minutes">{timeLeft.minutes}</span>
