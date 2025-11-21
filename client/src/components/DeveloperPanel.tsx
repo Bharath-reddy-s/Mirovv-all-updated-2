@@ -30,7 +30,7 @@ GIVEAWAY TICKET (Its all about This)
 GIVEAWAY products are not sent in mystery box`;
 
 export default function DeveloperPanel() {
-  const { isDeveloperMode, stockStatus, products, priceFilters, offerBannerText, offerTimerDays, toggleStockStatus, createProduct, updateProduct, deleteProduct, reorderProduct, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters } = useDeveloper();
+  const { isDeveloperMode, stockStatus, products, priceFilters, offerBannerText, offerTimerHours, offerTimerMinutes, offerTimerSeconds, toggleStockStatus, createProduct, updateProduct, deleteProduct, reorderProduct, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters } = useDeveloper();
   const [isVisible, setIsVisible] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -38,15 +38,19 @@ export default function DeveloperPanel() {
   const [editingFilterId, setEditingFilterId] = useState<number | null>(null);
   const [editingFilterValue, setEditingFilterValue] = useState("");
   const [bannerText, setBannerText] = useState(offerBannerText);
-  const [timerDays, setTimerDays] = useState(offerTimerDays.toString());
+  const [timerHours, setTimerHours] = useState(offerTimerHours?.toString() || "168");
+  const [timerMinutes, setTimerMinutes] = useState(offerTimerMinutes?.toString() || "0");
+  const [timerSeconds, setTimerSeconds] = useState(offerTimerSeconds?.toString() || "0");
   const { toast } = useToast();
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const additionalImagesInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setBannerText(offerBannerText);
-    setTimerDays(offerTimerDays.toString());
-  }, [offerBannerText, offerTimerDays]);
+    setTimerHours(offerTimerHours?.toString() || "168");
+    setTimerMinutes(offerTimerMinutes?.toString() || "0");
+    setTimerSeconds(offerTimerSeconds?.toString() || "0");
+  }, [offerBannerText, offerTimerHours, offerTimerMinutes, offerTimerSeconds]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -518,31 +522,64 @@ export default function DeveloperPanel() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="timer-days">Timer Duration (days)</Label>
-                  <Input
-                    id="timer-days"
-                    type="number"
-                    min="1"
-                    max="365"
-                    value={timerDays}
-                    onChange={(e) => setTimerDays(e.target.value)}
-                    placeholder="e.g., 7"
-                    data-testid="input-timer-days"
-                  />
+                  <Label>Timer Duration</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <Label htmlFor="timer-hours" className="text-xs">Hours</Label>
+                      <Input
+                        id="timer-hours"
+                        type="number"
+                        min="0"
+                        max="8760"
+                        value={timerHours}
+                        onChange={(e) => setTimerHours(e.target.value)}
+                        placeholder="168"
+                        data-testid="input-timer-hours"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="timer-minutes" className="text-xs">Minutes</Label>
+                      <Input
+                        id="timer-minutes"
+                        type="number"
+                        min="0"
+                        max="59"
+                        value={timerMinutes}
+                        onChange={(e) => setTimerMinutes(e.target.value)}
+                        placeholder="0"
+                        data-testid="input-timer-minutes"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="timer-seconds" className="text-xs">Seconds</Label>
+                      <Input
+                        id="timer-seconds"
+                        type="number"
+                        min="0"
+                        max="59"
+                        value={timerSeconds}
+                        onChange={(e) => setTimerSeconds(e.target.value)}
+                        placeholder="0"
+                        data-testid="input-timer-seconds"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <Button
                   onClick={() => {
-                    const days = parseInt(timerDays);
-                    if (!bannerText || !timerDays || days <= 0 || days > 365) {
+                    const hours = parseInt(timerHours);
+                    const minutes = parseInt(timerMinutes);
+                    const seconds = parseInt(timerSeconds);
+                    if (!bannerText || isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
                       toast({
                         title: "Invalid values",
-                        description: "Please enter valid banner text and timer duration (1-365 days)",
+                        description: "Please enter valid banner text and timer duration",
                         variant: "destructive",
                       });
                       return;
                     }
-                    updateOfferBanner(bannerText, days);
+                    updateOfferBanner(bannerText, hours, minutes, seconds);
                     toast({
                       title: "Banner updated",
                       description: "Offer banner settings have been saved",
@@ -557,7 +594,7 @@ export default function DeveloperPanel() {
                 <div className="mt-3 p-3 rounded bg-gray-800 dark:bg-gray-200">
                   <p className="text-xs font-semibold mb-2">Preview:</p>
                   <p className="text-sm">{bannerText || "Enter banner text"}</p>
-                  <p className="text-xs opacity-70 mt-1">Timer: {timerDays || "0"} days from now</p>
+                  <p className="text-xs opacity-70 mt-1">Timer: {timerHours || "0"}h {timerMinutes || "0"}m {timerSeconds || "0"}s</p>
                 </div>
               </div>
             </TabsContent>
