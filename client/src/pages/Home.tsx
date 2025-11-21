@@ -1,10 +1,12 @@
 import BackgroundPaths from "@/components/BackgroundPaths";
+import OfferBanner from "@/components/OfferBanner";
 import { Card, CardContent } from "@/components/ui/card";
 import videoSrc from "@assets/_ copy_1763317377238.mp4";
 
 export default function Home() {
   return (
     <>
+      <OfferBanner />
       <div className="pt-16">
         <BackgroundPaths title="Mystery Boxes Await" />
       </div>
