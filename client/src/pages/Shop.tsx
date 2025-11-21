@@ -62,29 +62,31 @@ export default function ShopPage() {
             Explore Mystery Boxes
           </h1>
           
-          <div className="flex flex-wrap justify-center gap-4 mt-6">
-            <button
-              onClick={() => setSelectedPriceFilter(null)}
-              className={`w-24 h-24 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
-                selectedPriceFilter === null ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
-              }`}
-              data-testid="button-filter-all"
-            >
-              <span className="text-sm">All</span>
-            </button>
-            {priceFilterOptions.map((price) => (
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex gap-3 mt-6 px-4 justify-start min-w-max">
               <button
-                key={price}
-                onClick={() => setSelectedPriceFilter(price)}
-                className={`w-24 h-24 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
-                  selectedPriceFilter === price ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
+                onClick={() => setSelectedPriceFilter(null)}
+                className={`w-20 h-20 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
+                  selectedPriceFilter === null ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
                 }`}
-                data-testid={`button-filter-${price}`}
+                data-testid="button-filter-all"
               >
-                <span className="text-sm font-normal">Under</span>
-                <span className="text-3xl font-bold">₹{price}</span>
+                <span className="text-xs">All</span>
               </button>
-            ))}
+              {priceFilterOptions.map((price) => (
+                <button
+                  key={price}
+                  onClick={() => setSelectedPriceFilter(price)}
+                  className={`w-20 h-20 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
+                    selectedPriceFilter === price ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
+                  }`}
+                  data-testid={`button-filter-${price}`}
+                >
+                  <span className="text-xs font-normal">Under</span>
+                  <span className="text-2xl font-bold">₹{price}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </motion.div>
 
