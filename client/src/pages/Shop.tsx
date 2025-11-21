@@ -62,25 +62,28 @@ export default function ShopPage() {
             Explore Mystery Boxes
           </h1>
           
-          <div className="flex flex-wrap justify-center gap-3 mt-6">
-            <Button
-              variant={selectedPriceFilter === null ? "default" : "outline"}
+          <div className="flex flex-wrap justify-center gap-4 mt-6">
+            <button
               onClick={() => setSelectedPriceFilter(null)}
-              className="rounded-full"
+              className={`w-24 h-24 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
+                selectedPriceFilter === null ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
+              }`}
               data-testid="button-filter-all"
             >
-              All
-            </Button>
+              <span className="text-sm">All</span>
+            </button>
             {priceFilterOptions.map((price) => (
-              <Button
+              <button
                 key={price}
-                variant={selectedPriceFilter === price ? "default" : "outline"}
                 onClick={() => setSelectedPriceFilter(price)}
-                className="rounded-full"
+                className={`w-24 h-24 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
+                  selectedPriceFilter === price ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
+                }`}
                 data-testid={`button-filter-${price}`}
               >
-                Under ₹{price}
-              </Button>
+                <span className="text-sm font-normal">Under</span>
+                <span className="text-3xl font-bold">₹{price}</span>
+              </button>
             ))}
           </div>
         </motion.div>
