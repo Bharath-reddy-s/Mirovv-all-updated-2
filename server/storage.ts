@@ -1,6 +1,6 @@
-import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, products as initialProducts, productsTable } from "@shared/schema";
+import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, products as initialProducts, productsTable, reviewsTable } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
 import ws from "ws";
 
 const dbUrl = process.env.DATABASE_URL!.replace(/^['"]|['"]$/g, '');
@@ -19,6 +19,9 @@ export interface IStorage {
   updateProduct(id: number, updates: Partial<UpdateProduct>): Promise<Product | undefined>;
   deleteProduct(id: number): Promise<boolean>;
   reorderProducts(productId: number, direction: 'up' | 'down'): Promise<Product[]>;
+  getReviews(productId: number): Promise<Review[]>;
+  createReview(review: InsertReview): Promise<Review>;
+  getReviewStats(productId: number): Promise<{ averageRating: number; totalReviews: number }>;
 }
 
 export class DBStorage implements IStorage {
@@ -96,6 +99,35 @@ export class DBStorage implements IStorage {
       .where(eq(productsTable.id, targetProduct.id));
 
     return this.getProducts();
+  }
+
+  async getReviews(productId: number): Promise<Review[]> {
+    const reviews = await sql.select()
+      .from(reviewsTable)
+      .where(eq(reviewsTable.productId, productId))
+      .orderBy(desc(reviewsTable.createdAt));
+    return reviews as Review[];
+  }
+
+  async createReview(reviewData: InsertReview): Promise<Review> {
+    const [newReview] = await sql.insert(reviewsTable)
+      .values(reviewData)
+      .returning();
+    return newReview as Review;
+  }
+
+  async getReviewStats(productId: number): Promise<{ averageRating: number; totalReviews: number }> {
+    const [result] = await sql.select({
+      averageRating: avg(reviewsTable.rating),
+      totalReviews: count(reviewsTable.id),
+    })
+    .from(reviewsTable)
+    .where(eq(reviewsTable.productId, productId));
+    
+    return {
+      averageRating: result?.averageRating ? Number(result.averageRating) : 0,
+      totalReviews: result?.totalReviews ? Number(result.totalReviews) : 0,
+    };
   }
 }
 

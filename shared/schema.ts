@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { pgTable, serial, text, boolean, jsonb, integer } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, boolean, jsonb, integer, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 
 export const productsTable = pgTable("products", {
@@ -21,9 +21,26 @@ export const productsTable = pgTable("products", {
   displayOrder: integer("display_order").notNull().default(0),
 });
 
+export const reviewsTable = pgTable("reviews", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").notNull().references(() => productsTable.id),
+  rating: integer("rating").notNull(),
+  reviewerName: text("reviewer_name"),
+  reviewText: text("review_text").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, isInStock: true, displayOrder: true });
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof productsTable.$inferSelect;
+
+export const insertReviewSchema = createInsertSchema(reviewsTable).omit({ id: true, createdAt: true }).extend({
+  rating: z.number().min(1).max(5),
+  reviewText: z.string().min(10, "Review must be at least 10 characters"),
+  reviewerName: z.string().optional(),
+});
+export type InsertReview = z.infer<typeof insertReviewSchema>;
+export type Review = typeof reviewsTable.$inferSelect;
 
 export interface StockStatus {
   [productId: number]: boolean;

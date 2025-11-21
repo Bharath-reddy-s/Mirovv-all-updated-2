@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { updateStockStatusSchema, createProductSchema, updateProductSchema } from "@shared/schema";
+import { updateStockStatusSchema, createProductSchema, updateProductSchema, insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -117,6 +117,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to reorder products:", error);
       res.status(500).json({ error: "Failed to reorder products" });
+    }
+  });
+
+  app.get("/api/products/:id/reviews", async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const [reviews, stats] = await Promise.all([
+        storage.getReviews(productId),
+        storage.getReviewStats(productId),
+      ]);
+      res.json({ reviews, stats });
+    } catch (error) {
+      console.error("Failed to get reviews:", error);
+      res.status(500).json({ error: "Failed to get reviews" });
+    }
+  });
+
+  app.post("/api/products/:id/reviews", async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const validation = insertReviewSchema.safeParse({ ...req.body, productId });
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const review = await storage.createReview(validation.data);
+      res.json(review);
+    } catch (error) {
+      console.error("Failed to create review:", error);
+      res.status(500).json({ error: "Failed to create review" });
     }
   });
 

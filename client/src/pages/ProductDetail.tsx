@@ -2,14 +2,24 @@ import { useParams, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
 import { useDeveloper } from "@/contexts/DeveloperContext";
-import { type Product } from "@shared/schema";
+import { type Product, type Review, insertReviewSchema } from "@shared/schema";
 import { ArrowLeft, Share2, ShoppingCart, Zap, Package, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { z } from "zod";
+
+const reviewFormSchema = insertReviewSchema.omit({ productId: true });
+type ReviewFormData = z.infer<typeof reviewFormSchema>;
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -18,6 +28,7 @@ export default function ProductDetailPage() {
   const { stockStatus } = useDeveloper();
   const [isSharing, setIsSharing] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedRating, setSelectedRating] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -34,6 +45,62 @@ export default function ProductDetailPage() {
       return response.json();
     },
   });
+
+  const { data: reviewData, isLoading: reviewsLoading } = useQuery<{
+    reviews: Review[];
+    stats: { averageRating: number; totalReviews: number };
+  }>({
+    queryKey: ["/api/products", productId, "reviews"],
+    queryFn: async () => {
+      const response = await fetch(`/api/products/${productId}/reviews`);
+      if (!response.ok) throw new Error("Failed to fetch reviews");
+      return response.json();
+    },
+  });
+
+  const form = useForm<ReviewFormData>({
+    resolver: zodResolver(reviewFormSchema),
+    defaultValues: {
+      rating: 1,
+      reviewText: "",
+      reviewerName: "",
+    },
+  });
+
+  const reviewMutation = useMutation({
+    mutationFn: async (data: ReviewFormData) => {
+      return apiRequest("POST", `/api/products/${productId}/reviews`, { ...data, productId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products", productId, "reviews"] });
+      form.reset();
+      setSelectedRating(0);
+      toast({
+        title: "Review submitted!",
+        description: "Thank you for your feedback.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Failed to submit review",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmitReview = (data: ReviewFormData) => {
+    if (selectedRating === 0) {
+      toast({
+        title: "Please select a rating",
+        description: "Click on the stars to rate this product.",
+        variant: "destructive",
+      });
+      return;
+    }
+    form.setValue("rating", selectedRating);
+    reviewMutation.mutate({ ...data, rating: selectedRating });
+  };
   
   const isInStock = stockStatus[productId] ?? true;
   
@@ -233,11 +300,20 @@ export default function ProductDetailPage() {
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
-                      className="w-5 h-5 fill-none text-black dark:text-white"
+                      className={`w-5 h-5 ${
+                        reviewData?.stats && star <= Math.round(reviewData.stats.averageRating)
+                          ? 'fill-black text-black dark:fill-white dark:text-white'
+                          : 'fill-none text-black dark:text-white'
+                      }`}
                       data-testid={`star-${star}`}
                     />
                   ))}
                 </div>
+                {reviewData?.stats && reviewData.stats.totalReviews > 0 && (
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {reviewData.stats.totalReviews} {reviewData.stats.totalReviews === 1 ? 'review' : 'reviews'}
+                  </span>
+                )}
                 {product.id <= 3 && (
                   <span 
                     className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
@@ -376,17 +452,127 @@ export default function ProductDetailPage() {
 
             <div className="p-6 mb-6 bg-gray-50 dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 rounded-lg">
               <h3 className="text-xl font-bold mb-4 text-black dark:text-white">
-                What's in the Box?
+                Customer Reviews
               </h3>
-              <div className="space-y-3">
-                {product.whatsInTheBox.map((item, index) => (
-                  <div key={index} className="flex items-start py-2 border-b border-gray-200 dark:border-neutral-800 last:border-0">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium flex-shrink-0 mr-2">
-                      •
-                    </span>
-                    <span className="text-gray-900 dark:text-gray-100">{item}</span>
+              
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleSubmitReview)} className="space-y-4 mb-6">
+                  <div>
+                    <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">Your Rating</FormLabel>
+                    <div className="flex gap-1 mt-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setSelectedRating(star)}
+                          className="focus:outline-none"
+                          data-testid={`button-rating-${star}`}
+                        >
+                          <Star
+                            className={`w-6 h-6 cursor-pointer transition-colors ${
+                              star <= selectedRating
+                                ? 'fill-black text-black dark:fill-white dark:text-white'
+                                : 'fill-none text-black dark:text-white hover:fill-gray-400 hover:text-gray-400'
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                ))}
+
+                  <FormField
+                    control={form.control}
+                    name="reviewText"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your Review</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Share your experience with this product..."
+                            className="min-h-[100px]"
+                            data-testid="input-review-text"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="reviewerName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your Name (Optional)</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter your name"
+                            data-testid="input-reviewer-name"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    type="submit"
+                    disabled={reviewMutation.isPending}
+                    className="w-full"
+                    data-testid="button-submit-review"
+                  >
+                    {reviewMutation.isPending ? "Submitting..." : "Submit Review"}
+                  </Button>
+                </form>
+              </Form>
+
+              <div className="border-t border-gray-200 dark:border-neutral-800 pt-6">
+                <h4 className="text-lg font-semibold mb-4 text-black dark:text-white">
+                  All Reviews
+                </h4>
+                {reviewsLoading ? (
+                  <p className="text-gray-600 dark:text-gray-400" data-testid="text-loading-reviews">Loading reviews...</p>
+                ) : reviewData?.reviews && reviewData.reviews.length > 0 ? (
+                  <div className="space-y-4">
+                    {reviewData.reviews.map((review) => (
+                      <div
+                        key={review.id}
+                        className="p-4 bg-white dark:bg-neutral-800 rounded-lg border border-gray-200 dark:border-neutral-700"
+                        data-testid={`review-${review.id}`}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`w-4 h-4 ${
+                                  star <= review.rating
+                                    ? 'fill-black text-black dark:fill-white dark:text-white'
+                                    : 'fill-none text-gray-300 dark:text-gray-600'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          {review.reviewerName && (
+                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {review.reviewerName}
+                            </span>
+                          )}
+                          <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto">
+                            {new Date(review.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-gray-700 dark:text-gray-300">{review.reviewText}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-600 dark:text-gray-400" data-testid="text-no-reviews">
+                    No reviews yet. Be the first to review this product!
+                  </p>
+                )}
               </div>
             </div>
           </motion.div>
