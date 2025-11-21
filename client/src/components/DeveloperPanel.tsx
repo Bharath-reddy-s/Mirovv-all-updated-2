@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { X, Plus, Edit, Upload, Trash2, ChevronUp, ChevronDown } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -30,16 +30,23 @@ GIVEAWAY TICKET (Its all about This)
 GIVEAWAY products are not sent in mystery box`;
 
 export default function DeveloperPanel() {
-  const { isDeveloperMode, stockStatus, products, priceFilters, toggleStockStatus, createProduct, updateProduct, deleteProduct, reorderProduct, createPriceFilter, updatePriceFilter, deletePriceFilter, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters } = useDeveloper();
+  const { isDeveloperMode, stockStatus, products, priceFilters, offerBannerText, offerTimerDays, toggleStockStatus, createProduct, updateProduct, deleteProduct, reorderProduct, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters } = useDeveloper();
   const [isVisible, setIsVisible] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [newFilterValue, setNewFilterValue] = useState("");
   const [editingFilterId, setEditingFilterId] = useState<number | null>(null);
   const [editingFilterValue, setEditingFilterValue] = useState("");
+  const [bannerText, setBannerText] = useState(offerBannerText);
+  const [timerDays, setTimerDays] = useState(offerTimerDays.toString());
   const { toast } = useToast();
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const additionalImagesInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setBannerText(offerBannerText);
+    setTimerDays(offerTimerDays.toString());
+  }, [offerBannerText, offerTimerDays]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -245,10 +252,11 @@ export default function DeveloperPanel() {
           </div>
 
           <Tabs defaultValue="stock" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-3">
+            <TabsList className="grid w-full grid-cols-4 mb-3">
               <TabsTrigger value="stock" data-testid="tab-stock">Stock</TabsTrigger>
               <TabsTrigger value="products" data-testid="tab-products">Products</TabsTrigger>
               <TabsTrigger value="filters" data-testid="tab-filters">Filters</TabsTrigger>
+              <TabsTrigger value="banner" data-testid="tab-banner">Banner</TabsTrigger>
             </TabsList>
 
             <TabsContent value="stock">
@@ -492,6 +500,65 @@ export default function DeveloperPanel() {
                     ))}
                   </div>
                 )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="banner">
+              <p className="text-xs mb-3 opacity-80">Edit offer banner text and timer duration</p>
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="banner-text">Banner Text</Label>
+                  <Input
+                    id="banner-text"
+                    value={bannerText}
+                    onChange={(e) => setBannerText(e.target.value)}
+                    placeholder="e.g., ₹10 off on every product"
+                    data-testid="input-banner-text"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="timer-days">Timer Duration (days)</Label>
+                  <Input
+                    id="timer-days"
+                    type="number"
+                    min="1"
+                    max="365"
+                    value={timerDays}
+                    onChange={(e) => setTimerDays(e.target.value)}
+                    placeholder="e.g., 7"
+                    data-testid="input-timer-days"
+                  />
+                </div>
+
+                <Button
+                  onClick={() => {
+                    const days = parseInt(timerDays);
+                    if (!bannerText || !timerDays || days <= 0 || days > 365) {
+                      toast({
+                        title: "Invalid values",
+                        description: "Please enter valid banner text and timer duration (1-365 days)",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    updateOfferBanner(bannerText, days);
+                    toast({
+                      title: "Banner updated",
+                      description: "Offer banner settings have been saved",
+                    });
+                  }}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  data-testid="button-save-banner"
+                >
+                  Save Banner Settings
+                </Button>
+
+                <div className="mt-3 p-3 rounded bg-gray-800 dark:bg-gray-200">
+                  <p className="text-xs font-semibold mb-2">Preview:</p>
+                  <p className="text-sm">{bannerText || "Enter banner text"}</p>
+                  <p className="text-xs opacity-70 mt-1">Timer: {timerDays || "0"} days from now</p>
+                </div>
               </div>
             </TabsContent>
           </Tabs>

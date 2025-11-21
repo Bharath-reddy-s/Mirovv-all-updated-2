@@ -8,6 +8,8 @@ interface DeveloperContextType {
   stockStatus: StockStatus;
   products: Product[];
   priceFilters: PriceFilter[];
+  offerBannerText: string;
+  offerTimerDays: number;
   toggleStockStatus: (productId: number) => void;
   createProduct: (product: CreateProduct) => Promise<any>;
   updateProduct: (id: number, updates: Partial<UpdateProduct>) => Promise<any>;
@@ -16,6 +18,7 @@ interface DeveloperContextType {
   createPriceFilter: (value: number) => Promise<any>;
   updatePriceFilter: (id: number, value: number) => Promise<any>;
   deletePriceFilter: (id: number) => Promise<any>;
+  updateOfferBanner: (text: string, days: number) => void;
   isCreatingProduct: boolean;
   isUpdatingProduct: boolean;
   isDeletingProduct: boolean;
@@ -29,6 +32,14 @@ const DeveloperContext = createContext<DeveloperContextType | undefined>(undefin
 export function DeveloperProvider({ children }: { children: ReactNode }) {
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
   const [keySequence, setKeySequence] = useState("");
+  const [offerBannerText, setOfferBannerText] = useState(() => {
+    const saved = localStorage.getItem("offerBannerText");
+    return saved || "₹10 off on every product";
+  });
+  const [offerTimerDays, setOfferTimerDays] = useState(() => {
+    const saved = localStorage.getItem("offerTimerDays");
+    return saved ? parseInt(saved) : 7;
+  });
 
   const { data: stockStatus = { 1: true, 2: true, 3: false } } = useQuery<StockStatus>({
     queryKey: ["/api/stock"],
@@ -174,6 +185,13 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     return deletePriceFilterMutation.mutateAsync(id);
   };
 
+  const updateOfferBanner = (text: string, days: number) => {
+    setOfferBannerText(text);
+    setOfferTimerDays(days);
+    localStorage.setItem("offerBannerText", text);
+    localStorage.setItem("offerTimerDays", days.toString());
+  };
+
   return (
     <DeveloperContext.Provider 
       value={{ 
@@ -181,6 +199,8 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         stockStatus, 
         products,
         priceFilters,
+        offerBannerText,
+        offerTimerDays,
         toggleStockStatus, 
         createProduct,
         updateProduct,
@@ -189,6 +209,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         createPriceFilter,
         updatePriceFilter,
         deletePriceFilter,
+        updateOfferBanner,
         isCreatingProduct: createProductMutation.isPending,
         isUpdatingProduct: updateProductMutation.isPending,
         isDeletingProduct: deleteProductMutation.isPending,

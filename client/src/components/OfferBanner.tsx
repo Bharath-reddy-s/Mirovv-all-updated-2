@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
+import { useDeveloper } from "@/contexts/DeveloperContext";
 
 export default function OfferBanner() {
+  const { offerBannerText, offerTimerDays } = useDeveloper();
   const [timeLeft, setTimeLeft] = useState({ hours: "00", minutes: "00", seconds: "00" });
 
   useEffect(() => {
     const calculateTimeLeft = () => {
       const targetDate = new Date();
-      targetDate.setDate(targetDate.getDate() + 7);
+      targetDate.setDate(targetDate.getDate() + offerTimerDays);
       targetDate.setHours(23, 59, 59, 0);
 
       const now = new Date().getTime();
@@ -30,7 +32,7 @@ export default function OfferBanner() {
     const timer = setInterval(calculateTimeLeft, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [offerTimerDays]);
 
   return (
     <div
@@ -38,7 +40,7 @@ export default function OfferBanner() {
       data-testid="banner-offer"
     >
       <span className="text-lg md:text-xl font-semibold" data-testid="text-offer-title">
-        ₹10 off on every product
+        {offerBannerText}
       </span>
       <div className="flex items-center gap-1 font-mono text-xl md:text-2xl font-bold tabular-nums" data-testid="container-timer">
         <span data-testid="text-hours">{timeLeft.hours}</span>
