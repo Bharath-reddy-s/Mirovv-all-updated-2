@@ -24,6 +24,7 @@ export interface IStorage {
   reorderProducts(productId: number, direction: 'up' | 'down'): Promise<Product[]>;
   getReviews(productId: number): Promise<Review[]>;
   createReview(review: InsertReview): Promise<Review>;
+  deleteReview(id: number): Promise<boolean>;
   getReviewStats(productId: number): Promise<{ averageRating: number; totalReviews: number }>;
   getPriceFilters(): Promise<PriceFilter[]>;
   createPriceFilter(filter: InsertPriceFilter): Promise<PriceFilter>;
@@ -121,6 +122,13 @@ export class DBStorage implements IStorage {
       .values(reviewData)
       .returning();
     return newReview as Review;
+  }
+
+  async deleteReview(id: number): Promise<boolean> {
+    const result = await sql.delete(reviewsTable)
+      .where(eq(reviewsTable.id, id))
+      .returning();
+    return result.length > 0;
   }
 
   async getReviewStats(productId: number): Promise<{ averageRating: number; totalReviews: number }> {

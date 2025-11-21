@@ -150,6 +150,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/reviews/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteReview(id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Review not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete review:", error);
+      res.status(500).json({ error: "Failed to delete review" });
+    }
+  });
+
   app.get("/api/price-filters", async (req, res) => {
     try {
       const filters = await storage.getPriceFilters();

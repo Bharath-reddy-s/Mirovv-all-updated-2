@@ -9,7 +9,7 @@ import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
 import { useDeveloper } from "@/contexts/DeveloperContext";
 import { type Product, type Review, insertReviewSchema } from "@shared/schema";
-import { ArrowLeft, Share2, ShoppingCart, Zap, Package, ChevronLeft, ChevronRight, Star, ChevronDown } from "lucide-react";
+import { ArrowLeft, Share2, ShoppingCart, Zap, Package, ChevronLeft, ChevronRight, Star, ChevronDown, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -25,7 +25,7 @@ export default function ProductDetailPage() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const { addToCart } = useCart();
-  const { stockStatus } = useDeveloper();
+  const { stockStatus, isDeveloperMode } = useDeveloper();
   const [isSharing, setIsSharing] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedRating, setSelectedRating] = useState(0);
@@ -89,6 +89,32 @@ export default function ProductDetailPage() {
       });
     },
   });
+
+  const deleteReviewMutation = useMutation({
+    mutationFn: async (reviewId: number) => {
+      return apiRequest("DELETE", `/api/reviews/${reviewId}`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products", productId, "reviews"] });
+      toast({
+        title: "Review deleted",
+        description: "The review has been removed.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Failed to delete review",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteReview = (reviewId: number) => {
+    if (window.confirm("Are you sure you want to delete this review?")) {
+      deleteReviewMutation.mutate(reviewId);
+    }
+  };
 
   const handleSubmitReview = (data: ReviewFormData) => {
     if (selectedRating === 0) {
@@ -563,6 +589,18 @@ export default function ProductDetailPage() {
                           <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto">
                             {new Date(review.createdAt).toLocaleDateString()}
                           </span>
+                          {isDeveloperMode && (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => handleDeleteReview(review.id)}
+                              disabled={deleteReviewMutation.isPending}
+                              className="h-8 w-8"
+                              data-testid={`button-delete-review-${review.id}`}
+                            >
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                            </Button>
+                          )}
                         </div>
                         <p className="text-gray-700 dark:text-gray-300">{review.reviewText}</p>
                       </div>
