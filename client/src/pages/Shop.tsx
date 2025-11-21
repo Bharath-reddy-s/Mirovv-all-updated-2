@@ -103,28 +103,28 @@ export default function ShopPage() {
               animate={{ opacity: 1, y: 0 }}
               whileHover={{ scale: 1.02, y: -8 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-black rounded-[24px] overflow-hidden flex flex-col"
+              className="bg-black rounded-lg overflow-hidden flex flex-col h-full"
               data-testid={`card-product-${box.id}`}
             >
               <Link href={`/shop/${box.id}`}>
-                <div className="p-6 pb-0 flex flex-col flex-1 cursor-pointer transition-opacity">
-                  <h2 className="text-white text-[22px] font-bold mb-2 leading-tight">
+                <div className="p-4 flex flex-col flex-1 cursor-pointer transition-opacity">
+                  <h2 className="text-white text-base md:text-lg font-bold mb-1 leading-tight line-clamp-2">
                     {box.title}
                   </h2>
                   
                   {box.id !== 4 && (
-                    <p className="text-white/70 text-sm font-normal mb-1">
+                    <p className="text-white/70 text-xs font-normal mb-1">
                       Giveaway Ticket Included
                     </p>
                   )}
                   
                   {box.id !== 4 && (
-                    <p className="text-white/70 text-sm font-normal mb-4">
+                    <p className="text-white/70 text-xs font-normal mb-3">
                       At {box.price}
                     </p>
                   )}
                   
-                  <div className={`relative w-full flex-1 flex items-center justify-center min-h-[300px] mb-4 overflow-hidden ${box.id === 4 ? 'mt-4' : ''}`}>
+                  <div className={`relative w-full flex-1 flex items-center justify-center h-40 md:h-48 mb-3 overflow-hidden rounded bg-gray-900 ${box.id === 4 ? 'mt-2' : ''}`}>
                     <AnimatePresence mode="wait">
                       {(() => {
                         const allImages = [box.image, ...(box.additionalImages || [])];
@@ -136,7 +136,7 @@ export default function ShopPage() {
                             key={`${box.id}-${currentIndex}`}
                             src={currentImage}
                             alt={box.title}
-                            className="w-full h-full object-contain drop-shadow-2xl absolute"
+                            className="w-full h-full object-contain drop-shadow-lg absolute"
                             initial={{ x: "100%", opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             exit={{ x: "-100%", opacity: 0 }}
@@ -150,14 +150,14 @@ export default function ShopPage() {
               </Link>
               
               {box.id !== 4 && (
-                <div className="px-6 pb-6">
+                <div className="px-4 pb-4">
                   <Button
                     variant="ghost"
                     onClick={(e) => {
                       e.preventDefault();
                       addToCart(box);
                     }}
-                    className="w-full bg-[#3a3a3a] hover:bg-[#4a4a4a] text-white rounded-xl h-12 text-sm font-medium"
+                    className="w-full bg-[#3a3a3a] hover:bg-[#4a4a4a] text-white rounded-lg h-10 text-sm font-medium"
                     data-testid={`button-add-to-cart-${box.id}`}
                   >
                     Add to Cart
