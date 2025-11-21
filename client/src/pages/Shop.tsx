@@ -6,6 +6,7 @@ import { type Product, type PriceFilter } from "@shared/schema";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { ChevronRight } from "lucide-react";
 
 export default function ShopPage() {
   const { addToCart } = useCart();
@@ -68,32 +69,39 @@ export default function ShopPage() {
             Explore Mystery Boxes
           </h1>
           
-          <div className="flex justify-center">
-            <div className="overflow-x-auto scrollbar-hide">
-              <div className="flex gap-2 mt-6 px-4 min-w-max md:min-w-fit md:justify-center">
-              <button
-                onClick={() => setSelectedPriceFilter(null)}
-                className={`w-14 h-14 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
-                  selectedPriceFilter === null ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
-                }`}
-                data-testid="button-filter-all"
-              >
-                <span className="text-[10px]">All</span>
-              </button>
-              {priceFilterOptions.map((price) => (
-                <button
-                  key={price}
-                  onClick={() => setSelectedPriceFilter(price)}
-                  className={`w-14 h-14 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
-                    selectedPriceFilter === price ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
-                  }`}
-                  data-testid={`button-filter-${price}`}
-                >
-                  <span className="text-[9px] font-normal">Under</span>
-                  <span className="text-lg font-bold">₹{price}</span>
-                </button>
-              ))}
+          <div className="flex justify-center items-center gap-2">
+            <div className="relative">
+              <div className="w-80 overflow-x-auto scrollbar-hide">
+                <div className="flex gap-2 mt-6 px-4 min-w-max">
+                  <button
+                    onClick={() => setSelectedPriceFilter(null)}
+                    className={`w-14 h-14 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
+                      selectedPriceFilter === null ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
+                    }`}
+                    data-testid="button-filter-all"
+                  >
+                    <span className="text-[10px]">All</span>
+                  </button>
+                  {priceFilterOptions.map((price) => (
+                    <button
+                      key={price}
+                      onClick={() => setSelectedPriceFilter(price)}
+                      className={`w-14 h-14 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
+                        selectedPriceFilter === price ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
+                      }`}
+                      data-testid={`button-filter-${price}`}
+                    >
+                      <span className="text-[9px] font-normal">Under</span>
+                      <span className="text-lg font-bold">₹{price}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
+              {priceFilterOptions.length > 4 && (
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none bg-gradient-to-l from-white dark:from-neutral-950 to-transparent pl-6 pr-2 h-16 flex items-center">
+                  <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-600 animate-pulse" />
+                </div>
+              )}
             </div>
           </div>
         </motion.div>
