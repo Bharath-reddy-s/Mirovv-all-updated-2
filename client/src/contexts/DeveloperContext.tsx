@@ -1,21 +1,27 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { StockStatus, Product, CreateProduct, UpdateProduct } from "@shared/schema";
+import type { StockStatus, Product, CreateProduct, UpdateProduct, PriceFilter } from "@shared/schema";
 
 interface DeveloperContextType {
   isDeveloperMode: boolean;
   stockStatus: StockStatus;
   products: Product[];
+  priceFilters: PriceFilter[];
   toggleStockStatus: (productId: number) => void;
   createProduct: (product: CreateProduct) => Promise<any>;
   updateProduct: (id: number, updates: Partial<UpdateProduct>) => Promise<any>;
   deleteProduct: (id: number) => Promise<any>;
   reorderProduct: (productId: number, direction: 'up' | 'down') => Promise<void>;
+  createPriceFilter: (value: number) => Promise<any>;
+  updatePriceFilter: (id: number, value: number) => Promise<any>;
+  deletePriceFilter: (id: number) => Promise<any>;
   isCreatingProduct: boolean;
   isUpdatingProduct: boolean;
   isDeletingProduct: boolean;
   isReordering: boolean;
+  isManagingFilters: boolean;
+  isLoadingFilters: boolean;
 }
 
 const DeveloperContext = createContext<DeveloperContextType | undefined>(undefined);
@@ -30,6 +36,10 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
 
   const { data: products = [], refetch: refetchProducts } = useQuery<Product[]>({
     queryKey: ["/api/products"],
+  });
+
+  const { data: priceFilters = [], isLoading: isLoadingFilters } = useQuery<PriceFilter[]>({
+    queryKey: ["/api/price-filters"],
   });
 
   const updateStockMutation = useMutation({
@@ -74,6 +84,33 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+    },
+  });
+
+  const createPriceFilterMutation = useMutation({
+    mutationFn: async (value: number) => {
+      return apiRequest("POST", "/api/price-filters", { value });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/price-filters"] });
+    },
+  });
+
+  const updatePriceFilterMutation = useMutation({
+    mutationFn: async ({ id, value }: { id: number; value: number }) => {
+      return apiRequest("PATCH", `/api/price-filters/${id}`, { value });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/price-filters"] });
+    },
+  });
+
+  const deletePriceFilterMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return apiRequest("DELETE", `/api/price-filters/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/price-filters"] });
     },
   });
 
@@ -125,21 +162,39 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     await reorderProductMutation.mutateAsync({ productId, direction });
   };
 
+  const createPriceFilter = async (value: number) => {
+    return createPriceFilterMutation.mutateAsync(value);
+  };
+
+  const updatePriceFilter = async (id: number, value: number) => {
+    return updatePriceFilterMutation.mutateAsync({ id, value });
+  };
+
+  const deletePriceFilter = async (id: number) => {
+    return deletePriceFilterMutation.mutateAsync(id);
+  };
+
   return (
     <DeveloperContext.Provider 
       value={{ 
         isDeveloperMode, 
         stockStatus, 
         products,
+        priceFilters,
         toggleStockStatus, 
         createProduct,
         updateProduct,
         deleteProduct,
         reorderProduct,
+        createPriceFilter,
+        updatePriceFilter,
+        deletePriceFilter,
         isCreatingProduct: createProductMutation.isPending,
         isUpdatingProduct: updateProductMutation.isPending,
         isDeletingProduct: deleteProductMutation.isPending,
         isReordering: reorderProductMutation.isPending,
+        isManagingFilters: createPriceFilterMutation.isPending || updatePriceFilterMutation.isPending || deletePriceFilterMutation.isPending,
+        isLoadingFilters,
       }}
     >
       {children}

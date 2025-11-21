@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
-import { type Product } from "@shared/schema";
+import { type Product, type PriceFilter } from "@shared/schema";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -16,7 +16,13 @@ export default function ShopPage() {
     queryKey: ["/api/products"],
   });
 
-  const priceFilterOptions = [9, 29, 49, 79, 99, 149, 199];
+  const { data: priceFilters = [], isLoading: isLoadingFilters } = useQuery<PriceFilter[]>({
+    queryKey: ["/api/price-filters"],
+  });
+
+  const priceFilterOptions = priceFilters.length > 0 
+    ? priceFilters.map(filter => filter.value)
+    : [9, 29, 49, 79, 99, 149, 199];
 
   const extractPrice = (priceString: string): number => {
     const match = priceString.match(/\d+/);

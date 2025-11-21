@@ -30,10 +30,13 @@ GIVEAWAY TICKET (Its all about This)
 GIVEAWAY products are not sent in mystery box`;
 
 export default function DeveloperPanel() {
-  const { isDeveloperMode, stockStatus, products, toggleStockStatus, createProduct, updateProduct, deleteProduct, reorderProduct, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering } = useDeveloper();
+  const { isDeveloperMode, stockStatus, products, priceFilters, toggleStockStatus, createProduct, updateProduct, deleteProduct, reorderProduct, createPriceFilter, updatePriceFilter, deletePriceFilter, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters } = useDeveloper();
   const [isVisible, setIsVisible] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [newFilterValue, setNewFilterValue] = useState("");
+  const [editingFilterId, setEditingFilterId] = useState<number | null>(null);
+  const [editingFilterValue, setEditingFilterValue] = useState("");
   const { toast } = useToast();
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const additionalImagesInputRef = useRef<HTMLInputElement>(null);
@@ -242,9 +245,10 @@ export default function DeveloperPanel() {
           </div>
 
           <Tabs defaultValue="stock" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-3">
+            <TabsList className="grid w-full grid-cols-3 mb-3">
               <TabsTrigger value="stock" data-testid="tab-stock">Stock</TabsTrigger>
               <TabsTrigger value="products" data-testid="tab-products">Products</TabsTrigger>
+              <TabsTrigger value="filters" data-testid="tab-filters">Filters</TabsTrigger>
             </TabsList>
 
             <TabsContent value="stock">
@@ -327,6 +331,167 @@ export default function DeveloperPanel() {
                     </div>
                   ))}
                 </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="filters">
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    value={newFilterValue}
+                    onChange={(e) => setNewFilterValue(e.target.value)}
+                    placeholder="e.g., 99"
+                    className="flex-1"
+                    data-testid="input-new-filter-value"
+                  />
+                  <Button
+                    onClick={async () => {
+                      if (!newFilterValue || parseInt(newFilterValue) <= 0) {
+                        toast({
+                          title: "Invalid value",
+                          description: "Please enter a positive number",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      try {
+                        await createPriceFilter(parseInt(newFilterValue));
+                        setNewFilterValue("");
+                        toast({
+                          title: "Filter added",
+                          description: `Price filter ₹${newFilterValue} added successfully`,
+                        });
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to add price filter",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    disabled={isManagingFilters}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    data-testid="button-add-filter"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {isLoadingFilters ? (
+                  <p className="text-xs text-center py-4 opacity-70">
+                    Loading price filters...
+                  </p>
+                ) : priceFilters.length === 0 ? (
+                  <p className="text-xs text-center py-4 opacity-70">
+                    No price filters yet. Add one above to get started.
+                  </p>
+                ) : (
+                  <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                    {priceFilters.map((filter) => (
+                    <div
+                      key={filter.id}
+                      className="flex items-center gap-2 p-2 rounded bg-gray-800 dark:bg-gray-200"
+                    >
+                      {editingFilterId === filter.id ? (
+                        <>
+                          <Input
+                            type="number"
+                            value={editingFilterValue}
+                            onChange={(e) => setEditingFilterValue(e.target.value)}
+                            className="flex-1"
+                            data-testid={`input-edit-filter-${filter.id}`}
+                          />
+                          <Button
+                            size="sm"
+                            onClick={async () => {
+                              if (!editingFilterValue || parseInt(editingFilterValue) <= 0) {
+                                toast({
+                                  title: "Invalid value",
+                                  description: "Please enter a positive number",
+                                  variant: "destructive",
+                                });
+                                return;
+                              }
+                              try {
+                                await updatePriceFilter(filter.id, parseInt(editingFilterValue));
+                                setEditingFilterId(null);
+                                setEditingFilterValue("");
+                                toast({
+                                  title: "Filter updated",
+                                  description: "Price filter updated successfully",
+                                });
+                              } catch (error) {
+                                toast({
+                                  title: "Error",
+                                  description: "Failed to update price filter",
+                                  variant: "destructive",
+                                });
+                              }
+                            }}
+                            disabled={isManagingFilters}
+                            className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700 text-white"
+                            data-testid={`button-save-filter-${filter.id}`}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              setEditingFilterId(null);
+                              setEditingFilterValue("");
+                            }}
+                            className="h-8 px-3 text-xs"
+                            data-testid={`button-cancel-filter-${filter.id}`}
+                          >
+                            Cancel
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">Under ₹{filter.value}</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              setEditingFilterId(filter.id);
+                              setEditingFilterValue(filter.value.toString());
+                            }}
+                            className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white"
+                            data-testid={`button-edit-filter-${filter.id}`}
+                          >
+                            <Edit className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={async () => {
+                              try {
+                                await deletePriceFilter(filter.id);
+                                toast({
+                                  title: "Filter deleted",
+                                  description: "Price filter deleted successfully",
+                                });
+                              } catch (error) {
+                                toast({
+                                  title: "Error",
+                                  description: "Failed to delete price filter",
+                                  variant: "destructive",
+                                });
+                              }
+                            }}
+                            disabled={isManagingFilters}
+                            className="h-8 px-3 text-xs bg-red-600 hover:bg-red-700 text-white"
+                            data-testid={`button-delete-filter-${filter.id}`}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>

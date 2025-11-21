@@ -30,6 +30,12 @@ export const reviewsTable = pgTable("reviews", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const priceFiltersTable = pgTable("price_filters", {
+  id: serial("id").primaryKey(),
+  value: integer("value").notNull(),
+  displayOrder: integer("display_order").notNull().default(0),
+});
+
 export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, isInStock: true, displayOrder: true });
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof productsTable.$inferSelect;
@@ -41,6 +47,12 @@ export const insertReviewSchema = createInsertSchema(reviewsTable).omit({ id: tr
 });
 export type InsertReview = z.infer<typeof insertReviewSchema>;
 export type Review = typeof reviewsTable.$inferSelect;
+
+export const insertPriceFilterSchema = createInsertSchema(priceFiltersTable).omit({ id: true, displayOrder: true }).extend({
+  value: z.number().positive("Price filter value must be positive"),
+});
+export type InsertPriceFilter = z.infer<typeof insertPriceFilterSchema>;
+export type PriceFilter = typeof priceFiltersTable.$inferSelect;
 
 export interface StockStatus {
   [productId: number]: boolean;

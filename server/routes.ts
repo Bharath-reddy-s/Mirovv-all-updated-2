@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { updateStockStatusSchema, createProductSchema, updateProductSchema, insertReviewSchema } from "@shared/schema";
+import { updateStockStatusSchema, createProductSchema, updateProductSchema, insertReviewSchema, insertPriceFilterSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -147,6 +147,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to create review:", error);
       res.status(500).json({ error: "Failed to create review" });
+    }
+  });
+
+  app.get("/api/price-filters", async (req, res) => {
+    try {
+      const filters = await storage.getPriceFilters();
+      res.json(filters);
+    } catch (error) {
+      console.error("Failed to get price filters:", error);
+      res.status(500).json({ error: "Failed to get price filters" });
+    }
+  });
+
+  app.post("/api/price-filters", async (req, res) => {
+    try {
+      const validation = insertPriceFilterSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const filter = await storage.createPriceFilter(validation.data);
+      res.json(filter);
+    } catch (error) {
+      console.error("Failed to create price filter:", error);
+      res.status(500).json({ error: "Failed to create price filter" });
+    }
+  });
+
+  app.patch("/api/price-filters/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validation = insertPriceFilterSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const filter = await storage.updatePriceFilter(id, validation.data.value);
+      if (!filter) {
+        return res.status(404).json({ error: "Price filter not found" });
+      }
+      res.json(filter);
+    } catch (error) {
+      console.error("Failed to update price filter:", error);
+      res.status(500).json({ error: "Failed to update price filter" });
+    }
+  });
+
+  app.delete("/api/price-filters/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deletePriceFilter(id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Price filter not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete price filter:", error);
+      res.status(500).json({ error: "Failed to delete price filter" });
     }
   });
 

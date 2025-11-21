@@ -1,4 +1,4 @@
-import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, products as initialProducts, productsTable, reviewsTable } from "@shared/schema";
+import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, products as initialProducts, productsTable, reviewsTable, priceFiltersTable } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
 import ws from "ws";
@@ -22,6 +22,10 @@ export interface IStorage {
   getReviews(productId: number): Promise<Review[]>;
   createReview(review: InsertReview): Promise<Review>;
   getReviewStats(productId: number): Promise<{ averageRating: number; totalReviews: number }>;
+  getPriceFilters(): Promise<PriceFilter[]>;
+  createPriceFilter(filter: InsertPriceFilter): Promise<PriceFilter>;
+  updatePriceFilter(id: number, value: number): Promise<PriceFilter | undefined>;
+  deletePriceFilter(id: number): Promise<boolean>;
 }
 
 export class DBStorage implements IStorage {
@@ -128,6 +132,36 @@ export class DBStorage implements IStorage {
       averageRating: result?.averageRating ? Number(result.averageRating) : 0,
       totalReviews: result?.totalReviews ? Number(result.totalReviews) : 0,
     };
+  }
+
+  async getPriceFilters(): Promise<PriceFilter[]> {
+    const filters = await sql.select().from(priceFiltersTable).orderBy(asc(priceFiltersTable.displayOrder));
+    return filters as PriceFilter[];
+  }
+
+  async createPriceFilter(filterData: InsertPriceFilter): Promise<PriceFilter> {
+    const maxOrder = await sql.select({ max: sqlOp<number>`max(${priceFiltersTable.displayOrder})` }).from(priceFiltersTable);
+    const nextOrder = (maxOrder[0]?.max ?? -1) + 1;
+    
+    const [newFilter] = await sql.insert(priceFiltersTable)
+      .values({ ...filterData, displayOrder: nextOrder })
+      .returning();
+    return newFilter as PriceFilter;
+  }
+
+  async updatePriceFilter(id: number, value: number): Promise<PriceFilter | undefined> {
+    const [updated] = await sql.update(priceFiltersTable)
+      .set({ value })
+      .where(eq(priceFiltersTable.id, id))
+      .returning();
+    return updated as PriceFilter | undefined;
+  }
+
+  async deletePriceFilter(id: number): Promise<boolean> {
+    const result = await sql.delete(priceFiltersTable)
+      .where(eq(priceFiltersTable.id, id))
+      .returning();
+    return result.length > 0;
   }
 }
 
