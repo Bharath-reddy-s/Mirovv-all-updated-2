@@ -520,7 +520,7 @@ export default function ProductDetailPage() {
                   <Button
                     type="submit"
                     disabled={reviewMutation.isPending}
-                    className="w-full"
+                    className="w-full bg-black dark:bg-white text-white dark:text-black border-black dark:border-white"
                     data-testid="button-submit-review"
                   >
                     {reviewMutation.isPending ? "Submitting..." : "Submit Review"}
