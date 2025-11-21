@@ -36,6 +36,12 @@ export const priceFiltersTable = pgTable("price_filters", {
   displayOrder: integer("display_order").notNull().default(0),
 });
 
+export const promotionalSettingsTable = pgTable("promotional_settings", {
+  id: serial("id").primaryKey(),
+  bannerText: text("banner_text").notNull().default("₹10 off on every product"),
+  timerDays: integer("timer_days").notNull().default(7),
+});
+
 export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, isInStock: true, displayOrder: true });
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof productsTable.$inferSelect;
@@ -53,6 +59,13 @@ export const insertPriceFilterSchema = createInsertSchema(priceFiltersTable).omi
 });
 export type InsertPriceFilter = z.infer<typeof insertPriceFilterSchema>;
 export type PriceFilter = typeof priceFiltersTable.$inferSelect;
+
+export const insertPromotionalSettingsSchema = createInsertSchema(promotionalSettingsTable).omit({ id: true }).extend({
+  bannerText: z.string().min(1, "Banner text is required"),
+  timerDays: z.number().positive("Timer days must be positive").max(365, "Timer days cannot exceed 365"),
+});
+export type InsertPromotionalSettings = z.infer<typeof insertPromotionalSettingsSchema>;
+export type PromotionalSettings = typeof promotionalSettingsTable.$inferSelect;
 
 export interface StockStatus {
   [productId: number]: boolean;

@@ -1,4 +1,4 @@
-import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, products as initialProducts, productsTable, reviewsTable, priceFiltersTable } from "@shared/schema";
+import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
 import { Pool, neonConfig } from "@neondatabase/serverless";
@@ -30,6 +30,8 @@ export interface IStorage {
   createPriceFilter(filter: InsertPriceFilter): Promise<PriceFilter>;
   updatePriceFilter(id: number, value: number): Promise<PriceFilter | undefined>;
   deletePriceFilter(id: number): Promise<boolean>;
+  getPromotionalSettings(): Promise<PromotionalSettings>;
+  updatePromotionalSettings(bannerText: string, timerDays: number): Promise<PromotionalSettings>;
 }
 
 export class DBStorage implements IStorage {
@@ -173,6 +175,26 @@ export class DBStorage implements IStorage {
       .where(eq(priceFiltersTable.id, id))
       .returning();
     return result.length > 0;
+  }
+
+  async getPromotionalSettings(): Promise<PromotionalSettings> {
+    const [settings] = await sql.select().from(promotionalSettingsTable).limit(1);
+    if (!settings) {
+      const [newSettings] = await sql.insert(promotionalSettingsTable).values({
+        bannerText: "₹10 off on every product",
+        timerDays: 7,
+      }).returning();
+      return newSettings as PromotionalSettings;
+    }
+    return settings as PromotionalSettings;
+  }
+
+  async updatePromotionalSettings(bannerText: string, timerDays: number): Promise<PromotionalSettings> {
+    const [updated] = await sql.update(promotionalSettingsTable)
+      .set({ bannerText, timerDays })
+      .where(eq(promotionalSettingsTable.id, 1))
+      .returning();
+    return updated as PromotionalSettings;
   }
 }
 
