@@ -63,27 +63,27 @@ export default function ShopPage() {
           </h1>
           
           <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex gap-3 mt-6 px-4 justify-start min-w-max">
+            <div className="flex gap-2 mt-6 px-4 justify-start min-w-max">
               <button
                 onClick={() => setSelectedPriceFilter(null)}
-                className={`w-20 h-20 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
+                className={`w-14 h-14 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
                   selectedPriceFilter === null ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
                 }`}
                 data-testid="button-filter-all"
               >
-                <span className="text-xs">All</span>
+                <span className="text-[10px]">All</span>
               </button>
               {priceFilterOptions.map((price) => (
                 <button
                   key={price}
                   onClick={() => setSelectedPriceFilter(price)}
-                  className={`w-20 h-20 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
+                  className={`w-14 h-14 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
                     selectedPriceFilter === price ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
                   }`}
                   data-testid={`button-filter-${price}`}
                 >
-                  <span className="text-xs font-normal">Under</span>
-                  <span className="text-2xl font-bold">₹{price}</span>
+                  <span className="text-[9px] font-normal">Under</span>
+                  <span className="text-lg font-bold">₹{price}</span>
                 </button>
               ))}
             </div>
