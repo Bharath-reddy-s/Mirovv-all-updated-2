@@ -135,7 +135,7 @@ export default function BackgroundPaths({
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.5, duration: 1 }}
-                className="absolute bottom-32 left-1/2 -translate-x-1/2 z-20"
+                className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20"
             >
                 <Button
                     variant="ghost"
