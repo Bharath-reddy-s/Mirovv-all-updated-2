@@ -9,7 +9,9 @@ interface DeveloperContextType {
   products: Product[];
   priceFilters: PriceFilter[];
   offerBannerText: string;
-  offerTimerDays: number;
+  offerTimerHours: number;
+  offerTimerMinutes: number;
+  offerTimerSeconds: number;
   toggleStockStatus: (productId: number) => void;
   createProduct: (product: CreateProduct) => Promise<any>;
   updateProduct: (id: number, updates: Partial<UpdateProduct>) => Promise<any>;
@@ -18,7 +20,7 @@ interface DeveloperContextType {
   createPriceFilter: (value: number) => Promise<any>;
   updatePriceFilter: (id: number, value: number) => Promise<any>;
   deletePriceFilter: (id: number) => Promise<any>;
-  updateOfferBanner: (text: string, days: number) => void;
+  updateOfferBanner: (text: string, hours: number, minutes: number, seconds: number) => void;
   isCreatingProduct: boolean;
   isUpdatingProduct: boolean;
   isDeletingProduct: boolean;
@@ -36,9 +38,17 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem("offerBannerText");
     return saved || "₹10 off on every product";
   });
-  const [offerTimerDays, setOfferTimerDays] = useState(() => {
-    const saved = localStorage.getItem("offerTimerDays");
-    return saved ? parseInt(saved) : 7;
+  const [offerTimerHours, setOfferTimerHours] = useState(() => {
+    const saved = localStorage.getItem("offerTimerHours");
+    return saved ? parseInt(saved) : 168; // Default 7 days = 168 hours
+  });
+  const [offerTimerMinutes, setOfferTimerMinutes] = useState(() => {
+    const saved = localStorage.getItem("offerTimerMinutes");
+    return saved ? parseInt(saved) : 0;
+  });
+  const [offerTimerSeconds, setOfferTimerSeconds] = useState(() => {
+    const saved = localStorage.getItem("offerTimerSeconds");
+    return saved ? parseInt(saved) : 0;
   });
 
   const { data: stockStatus = { 1: true, 2: true, 3: false } } = useQuery<StockStatus>({
@@ -185,11 +195,15 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     return deletePriceFilterMutation.mutateAsync(id);
   };
 
-  const updateOfferBanner = (text: string, days: number) => {
+  const updateOfferBanner = (text: string, hours: number, minutes: number, seconds: number) => {
     setOfferBannerText(text);
-    setOfferTimerDays(days);
+    setOfferTimerHours(hours);
+    setOfferTimerMinutes(minutes);
+    setOfferTimerSeconds(seconds);
     localStorage.setItem("offerBannerText", text);
-    localStorage.setItem("offerTimerDays", days.toString());
+    localStorage.setItem("offerTimerHours", hours.toString());
+    localStorage.setItem("offerTimerMinutes", minutes.toString());
+    localStorage.setItem("offerTimerSeconds", seconds.toString());
   };
 
   return (
@@ -200,7 +214,9 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         products,
         priceFilters,
         offerBannerText,
-        offerTimerDays,
+        offerTimerHours,
+        offerTimerMinutes,
+        offerTimerSeconds,
         toggleStockStatus, 
         createProduct,
         updateProduct,
