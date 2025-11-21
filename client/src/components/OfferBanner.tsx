@@ -32,14 +32,13 @@ export default function OfferBanner() {
 
   return (
     <div
-      className="bg-black text-white py-2 px-4 text-center text-sm md:text-base"
+      className="w-full bg-black text-white py-2 px-4 text-center text-sm"
+      style={{ display: 'block' }}
       data-testid="banner-offer"
     >
-      <p className="inline-block">
-        <span className="font-semibold">₹10 off on every product</span>
-        <span className="mx-3 text-gray-400">•</span>
-        <span className="font-mono font-bold">{timeLeft}</span>
-      </p>
+      <span className="font-semibold">₹10 off on every product</span>
+      <span className="mx-3">•</span>
+      <span className="font-mono font-bold">{timeLeft}</span>
     </div>
   );
 }
