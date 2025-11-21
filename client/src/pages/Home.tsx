@@ -1,6 +1,5 @@
 import Navbar from "@/components/Navbar";
 import BackgroundPaths from "@/components/BackgroundPaths";
-import OfferBanner from "@/components/OfferBanner";
 import { Card, CardContent } from "@/components/ui/card";
 import videoSrc from "@assets/_ copy_1763317377238.mp4";
 
@@ -8,7 +7,6 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <OfferBanner />
       <BackgroundPaths title="Mystery Boxes Await" />
       
       <section id="about-us" className="min-h-screen bg-gray-50 dark:bg-neutral-900 py-20 px-4">

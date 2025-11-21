@@ -33,36 +33,19 @@ export default function OfferBanner() {
   }, []);
 
   return (
-    <div className="w-full flex justify-center px-4 py-3 bg-gray-50 dark:bg-neutral-900">
-      <div
-        className="relative w-full max-w-4xl bg-black text-white rounded-b-[2rem] overflow-hidden shadow-2xl"
-        data-testid="banner-offer"
-      >
-        <div className="py-6 px-8 text-center">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4" data-testid="text-offer-title">
-            ₹10 off on every product
-          </h2>
-          
-          <div className="flex justify-center items-center gap-1" data-testid="container-timer">
-            <div className="flex items-baseline">
-              <span className="text-5xl md:text-6xl lg:text-7xl font-bold tabular-nums" data-testid="text-hours">
-                {timeLeft.hours}
-              </span>
-              <span className="text-4xl md:text-5xl lg:text-6xl font-bold mx-1">:</span>
-            </div>
-            <div className="flex items-baseline">
-              <span className="text-5xl md:text-6xl lg:text-7xl font-bold tabular-nums" data-testid="text-minutes">
-                {timeLeft.minutes}
-              </span>
-              <span className="text-4xl md:text-5xl lg:text-6xl font-bold mx-1">:</span>
-            </div>
-            <div className="flex items-baseline">
-              <span className="text-5xl md:text-6xl lg:text-7xl font-bold tabular-nums" data-testid="text-seconds">
-                {timeLeft.seconds}
-              </span>
-            </div>
-          </div>
-        </div>
+    <div
+      className="w-full bg-black text-white py-3 px-4 flex items-center justify-center gap-4"
+      data-testid="banner-offer"
+    >
+      <span className="text-lg md:text-xl font-semibold" data-testid="text-offer-title">
+        ₹10 off on every product
+      </span>
+      <div className="flex items-center gap-1 font-mono text-2xl md:text-3xl font-bold tabular-nums" data-testid="container-timer">
+        <span data-testid="text-hours">{timeLeft.hours}</span>
+        <span>:</span>
+        <span data-testid="text-minutes">{timeLeft.minutes}</span>
+        <span>:</span>
+        <span data-testid="text-seconds">{timeLeft.seconds}</span>
       </div>
     </div>
   );
