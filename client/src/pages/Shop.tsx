@@ -10,10 +10,22 @@ import { useQuery } from "@tanstack/react-query";
 export default function ShopPage() {
   const { addToCart } = useCart();
   const [currentImageIndices, setCurrentImageIndices] = useState<{[key: number]: number}>({});
+  const [selectedPriceFilter, setSelectedPriceFilter] = useState<number | null>(null);
   
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
+
+  const priceFilterOptions = [9, 29, 49, 79, 99, 149, 199];
+
+  const extractPrice = (priceString: string): number => {
+    const match = priceString.match(/\d+/);
+    return match ? parseInt(match[0]) : 0;
+  };
+
+  const filteredProducts = selectedPriceFilter
+    ? products.filter((product) => extractPrice(product.price) <= selectedPriceFilter)
+    : products;
 
   useEffect(() => {
     const intervals: {[key: number]: NodeJS.Timeout} = {};
@@ -46,16 +58,40 @@ export default function ShopPage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl md:text-6xl font-bold mb-3 text-black dark:text-white">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-black dark:text-white">
             Explore Mystery Boxes
           </h1>
+          
+          <div className="flex flex-wrap justify-center gap-3 mt-6">
+            <Button
+              variant={selectedPriceFilter === null ? "default" : "outline"}
+              onClick={() => setSelectedPriceFilter(null)}
+              className="rounded-full"
+              data-testid="button-filter-all"
+            >
+              All
+            </Button>
+            {priceFilterOptions.map((price) => (
+              <Button
+                key={price}
+                variant={selectedPriceFilter === price ? "default" : "outline"}
+                onClick={() => setSelectedPriceFilter(price)}
+                className="rounded-full"
+                data-testid={`button-filter-${price}`}
+              >
+                Under ₹{price}
+              </Button>
+            ))}
+          </div>
         </motion.div>
 
         {isLoading ? (
           <div className="text-center text-gray-600 dark:text-gray-400">Loading products...</div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="text-center text-gray-600 dark:text-gray-400">No products found in this price range.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px] mx-auto">
-            {products.map((box, index) => (
+            {filteredProducts.map((box, index) => (
             <motion.div
               key={box.id}
               initial={{ opacity: 0, y: 30 }}
