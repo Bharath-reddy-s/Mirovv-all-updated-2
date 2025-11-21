@@ -591,7 +591,7 @@ export default function DeveloperPanel() {
                   Save Banner Settings
                 </Button>
 
-                <div className="mt-3 p-3 rounded bg-gray-800 dark:bg-gray-200">
+                <div className="mt-3 p-3 rounded bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900">
                   <p className="text-xs font-semibold mb-2">Preview:</p>
                   <p className="text-sm">{bannerText || "Enter banner text"}</p>
                   <p className="text-xs opacity-70 mt-1">Timer: {timerHours || "0"}h {timerMinutes || "0"}m {timerSeconds || "0"}s</p>
