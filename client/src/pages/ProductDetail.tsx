@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
 import { useDeveloper } from "@/contexts/DeveloperContext";
 import { type Product } from "@shared/schema";
-import { ArrowLeft, Share2, ShoppingCart, Zap, Package, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Share2, ShoppingCart, Zap, Package, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -228,10 +228,21 @@ export default function ProductDetailPage() {
             className="flex flex-col"
           >
             <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3 flex-wrap">
-                <span className="inline-block px-3 py-1 bg-gray-200 text-black text-sm font-medium rounded-full">
-                  {product.label}
-                </span>
+              <div className="flex items-center gap-3 mb-3 flex-wrap">
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`w-5 h-5 ${
+                        star <= 4 
+                          ? 'fill-black text-black dark:fill-black dark:text-black' 
+                          : 'fill-gray-300 text-gray-300 dark:fill-gray-600 dark:text-gray-600'
+                      }`}
+                      data-testid={`star-${star}`}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">26 reviews</span>
                 {product.id <= 3 && (
                   <span 
                     className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
