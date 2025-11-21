@@ -69,7 +69,7 @@ export default function ShopPage() {
           </h1>
           
           <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex gap-1 mt-6 min-w-max px-4">
+            <div className="flex gap-1 mt-6 min-w-max md:min-w-0 px-4 md:justify-center md:w-full">
               <button
                 onClick={() => setSelectedPriceFilter(null)}
                 className={`w-14 h-14 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
