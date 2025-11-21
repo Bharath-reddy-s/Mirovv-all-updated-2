@@ -517,6 +517,7 @@ export default function DeveloperPanel() {
                     value={bannerText}
                     onChange={(e) => setBannerText(e.target.value)}
                     placeholder="e.g., ₹10 off on every product"
+                    className="bg-black text-white"
                     data-testid="input-banner-text"
                   />
                 </div>
@@ -534,6 +535,7 @@ export default function DeveloperPanel() {
                         value={timerHours}
                         onChange={(e) => setTimerHours(e.target.value)}
                         placeholder="168"
+                        className="bg-black text-white"
                         data-testid="input-timer-hours"
                       />
                     </div>
@@ -547,6 +549,7 @@ export default function DeveloperPanel() {
                         value={timerMinutes}
                         onChange={(e) => setTimerMinutes(e.target.value)}
                         placeholder="0"
+                        className="bg-black text-white"
                         data-testid="input-timer-minutes"
                       />
                     </div>
@@ -560,6 +563,7 @@ export default function DeveloperPanel() {
                         value={timerSeconds}
                         onChange={(e) => setTimerSeconds(e.target.value)}
                         placeholder="0"
+                        className="bg-black text-white"
                         data-testid="input-timer-seconds"
                       />
                     </div>
