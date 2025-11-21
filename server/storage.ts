@@ -1,14 +1,17 @@
 import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, products as initialProducts, productsTable, reviewsTable, priceFiltersTable } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
+import { Pool, neonConfig } from "@neondatabase/serverless";
 import ws from "ws";
 
 const dbUrl = process.env.DATABASE_URL!.replace(/^['"]|['"]$/g, '');
 
-const sql = drizzle({
-  connection: dbUrl,
-  ws: ws,
-});
+neonConfig.webSocketConstructor = ws;
+
+const pool = new Pool({ connectionString: dbUrl });
+pool.on('error', (err) => console.error('Database pool error:', err));
+
+const sql = drizzle({ client: pool });
 
 export interface IStorage {
   getStockStatus(): Promise<StockStatus>;
