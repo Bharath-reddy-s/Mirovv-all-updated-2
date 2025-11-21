@@ -9,7 +9,7 @@ import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
 import { useDeveloper } from "@/contexts/DeveloperContext";
 import { type Product, type Review, insertReviewSchema } from "@shared/schema";
-import { ArrowLeft, Share2, ShoppingCart, Zap, Package, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { ArrowLeft, Share2, ShoppingCart, Zap, Package, ChevronLeft, ChevronRight, Star, ChevronDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -29,6 +29,7 @@ export default function ProductDetailPage() {
   const [isSharing, setIsSharing] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedRating, setSelectedRating] = useState(0);
+  const [showReviews, setShowReviews] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -529,10 +530,22 @@ export default function ProductDetailPage() {
               </Form>
 
               <div className="border-t border-gray-200 dark:border-neutral-800 pt-6">
-                <h4 className="text-lg font-semibold mb-4 text-black dark:text-white">
-                  All Reviews
-                </h4>
-                {reviewsLoading ? (
+                <div 
+                  className="flex items-center justify-between mb-4 cursor-pointer hover-elevate active-elevate-2 p-2 -m-2 rounded-md"
+                  onClick={() => setShowReviews(!showReviews)}
+                  data-testid="button-toggle-reviews"
+                >
+                  <h4 className="text-lg font-semibold text-black dark:text-white">
+                    All Reviews
+                  </h4>
+                  <ChevronDown 
+                    className={`w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${
+                      showReviews ? 'rotate-0' : '-rotate-90'
+                    }`}
+                    data-testid="icon-reviews-toggle"
+                  />
+                </div>
+                {showReviews && (reviewsLoading ? (
                   <p className="text-gray-600 dark:text-gray-400" data-testid="text-loading-reviews">Loading reviews...</p>
                 ) : reviewData?.reviews && reviewData.reviews.length > 0 ? (
                   <div className="space-y-4">
@@ -572,7 +585,7 @@ export default function ProductDetailPage() {
                   <p className="text-gray-600 dark:text-gray-400" data-testid="text-no-reviews">
                     No reviews yet. Be the first to review this product!
                   </p>
-                )}
+                ))}
               </div>
             </div>
           </motion.div>
