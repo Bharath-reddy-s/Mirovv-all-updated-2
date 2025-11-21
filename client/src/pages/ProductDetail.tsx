@@ -375,19 +375,6 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {product.productLink && (
-              <div className="mb-6">
-                <Button
-                  onClick={() => product.productLink && window.open(product.productLink, '_blank', 'noopener,noreferrer')}
-                  variant="outline"
-                  className="rounded-full"
-                  data-testid="button-product-link"
-                >
-                  View Product
-                </Button>
-              </div>
-            )}
-
             {product.id !== 4 && isInStock && (
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <div className="flex gap-4 flex-1">
