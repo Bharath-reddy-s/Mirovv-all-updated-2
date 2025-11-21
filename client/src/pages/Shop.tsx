@@ -49,9 +49,6 @@ export default function ShopPage() {
           <h1 className="text-4xl md:text-6xl font-bold mb-3 text-black dark:text-white">
             Explore Mystery Boxes
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Spreading happiness through our Giveaway and Mystery box
-          </p>
         </motion.div>
 
         {isLoading ? (
