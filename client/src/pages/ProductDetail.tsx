@@ -286,26 +286,16 @@ export default function ProductDetailPage() {
                           <span className="w-full h-0.5 bg-gray-400 dark:bg-gray-500" />
                         </motion.span>
                       </motion.span>
-                      {product.pricingText && (
-                        <motion.span
-                          className="text-sm text-black dark:text-white"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.5, delay: 1.1 }}
-                        >
-                          {product.pricingText}
-                        </motion.span>
-                      )}
                     </>
                   )}
                 </div>
               )}
             </div>
 
-            {product.id !== 4 && product.productLink && (
+            {product.productLink && (
               <div className="mb-6">
                 <Button
-                  onClick={() => window.open(product.productLink, '_blank', 'noopener,noreferrer')}
+                  onClick={() => product.productLink && window.open(product.productLink, '_blank', 'noopener,noreferrer')}
                   variant="outline"
                   className="rounded-full"
                   data-testid="button-product-link"
