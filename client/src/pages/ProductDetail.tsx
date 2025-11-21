@@ -233,16 +233,11 @@ export default function ProductDetailPage() {
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
-                      className={`w-5 h-5 ${
-                        star <= 4 
-                          ? 'fill-black text-black dark:fill-black dark:text-black' 
-                          : 'fill-gray-300 text-gray-300 dark:fill-gray-600 dark:text-gray-600'
-                      }`}
+                      className="w-5 h-5 fill-none text-black dark:text-white"
                       data-testid={`star-${star}`}
                     />
                   ))}
                 </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">26 reviews</span>
                 {product.id <= 3 && (
                   <span 
                     className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
