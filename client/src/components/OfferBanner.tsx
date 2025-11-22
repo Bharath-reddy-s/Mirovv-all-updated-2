@@ -2,18 +2,16 @@ import { useState, useEffect } from "react";
 import { useDeveloper } from "@/contexts/DeveloperContext";
 
 export default function OfferBanner() {
-  const { offerBannerText, offerTimerDays } = useDeveloper();
+  const { offerBannerText, offerTimerHours, offerTimerMinutes, offerTimerSeconds } = useDeveloper();
   const [timeLeft, setTimeLeft] = useState({ hours: "00", minutes: "00", seconds: "00" });
 
   useEffect(() => {
-    const calculateTimeLeft = () => {
-      const targetDate = new Date();
-      targetDate.setDate(targetDate.getDate() + offerTimerDays);
-      targetDate.setHours(23, 59, 59, 0);
+    const totalSeconds = (offerTimerHours * 3600) + (offerTimerMinutes * 60) + offerTimerSeconds;
+    const endTime = Date.now() + (totalSeconds * 1000);
 
-      const now = new Date().getTime();
-      const target = targetDate.getTime();
-      const difference = target - now;
+    const calculateTimeLeft = () => {
+      const now = Date.now();
+      const difference = endTime - now;
 
       if (difference > 0) {
         const hours = Math.floor((difference / (1000 * 60 * 60)));
@@ -25,6 +23,12 @@ export default function OfferBanner() {
           minutes: String(minutes).padStart(2, "0"),
           seconds: String(seconds).padStart(2, "0")
         });
+      } else {
+        setTimeLeft({
+          hours: "00",
+          minutes: "00",
+          seconds: "00"
+        });
       }
     };
 
@@ -32,7 +36,7 @@ export default function OfferBanner() {
     const timer = setInterval(calculateTimeLeft, 1000);
 
     return () => clearInterval(timer);
-  }, [offerTimerDays]);
+  }, [offerTimerHours, offerTimerMinutes, offerTimerSeconds]);
 
   return (
     <div
