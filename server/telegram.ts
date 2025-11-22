@@ -105,15 +105,30 @@ ${itemsList}
 
 🕐 *Ordered on:* ${orderTime}`.trim();
 
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: message,
-        parse_mode: 'Markdown',
-      }),
-    });
+    const productImage = items[0]?.image;
+
+    if (productImage && productImage.startsWith('http')) {
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          photo: productImage,
+          caption: message,
+          parse_mode: 'Markdown',
+        }),
+      });
+    } else {
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          parse_mode: 'Markdown',
+        }),
+      });
+    }
 
     console.log(`Order #${order.orderNumber} details sent to chat ${chatId}`);
   } catch (error) {
