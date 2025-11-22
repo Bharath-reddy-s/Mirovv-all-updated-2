@@ -44,6 +44,12 @@ export default function CheckoutPage() {
   };
 
   const handleCloseDialog = () => {
+    const orderNumber = orderDetails?.orderNumber;
+    const message = `Order Number: #${orderNumber}`;
+    const instagramDMUrl = `https://ig.me/m/mordensale?text=${encodeURIComponent(message)}`;
+    
+    window.open(instagramDMUrl, '_blank');
+    
     setShowOrderSuccess(false);
     clearCart();
     setLocation("/");
