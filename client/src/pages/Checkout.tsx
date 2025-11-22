@@ -140,7 +140,6 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-neutral-950">
       <Navbar />
-      
       <main className="container mx-auto px-4 py-24 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <motion.div
@@ -249,7 +248,6 @@ export default function CheckoutPage() {
           </motion.div>
         </div>
       </main>
-
       <Dialog open={showOrderSuccess} onOpenChange={setShowOrderSuccess}>
         <DialogContent className="sm:max-w-sm max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -322,9 +320,7 @@ export default function CheckoutPage() {
               onClick={handleCloseDialog}
               className="w-full h-10 bg-black hover:bg-neutral-800 text-white rounded-full text-sm"
               data-testid="button-close-order-success"
-            >
-              Done
-            </Button>
+            >Instagram DM</Button>
           </div>
         </DialogContent>
       </Dialog>
