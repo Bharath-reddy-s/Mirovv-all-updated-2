@@ -97,7 +97,7 @@ export default function Navbar() {
               placeholder="Search for products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full"
+              className="w-full focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
               autoFocus
               data-testid="input-search"
             />
