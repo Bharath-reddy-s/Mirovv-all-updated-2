@@ -256,7 +256,7 @@ export default function CheckoutPage() {
             </div>
             <DialogTitle className="text-center text-xl">Order Placed!</DialogTitle>
             <DialogDescription className="text-center text-sm">
-              Send the order number to us on Instagram
+              Send the order number to us on Instagram and Recive the payment link to confirm order
             </DialogDescription>
           </DialogHeader>
           
