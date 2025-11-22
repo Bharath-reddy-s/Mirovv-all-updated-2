@@ -317,7 +317,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="text-center">
-              <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+              <p className="text-xs text-red-600 dark:text-red-400 italic">
                 Note: Orders are only confirmed when the order number is sent to Instagram DM
               </p>
             </div>
