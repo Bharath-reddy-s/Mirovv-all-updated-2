@@ -192,8 +192,9 @@ export class DBStorage implements IStorage {
   }
 
   async updatePromotionalSettings(bannerText: string, timerDays: number): Promise<PromotionalSettings> {
+    const timerEndTime = new Date(Date.now() + (timerDays * 24 * 60 * 60 * 1000));
     const [updated] = await sql.update(promotionalSettingsTable)
-      .set({ bannerText, timerDays })
+      .set({ bannerText, timerDays, timerEndTime })
       .where(eq(promotionalSettingsTable.id, 1))
       .returning();
     return updated as PromotionalSettings;

@@ -223,6 +223,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/promotional-settings", async (req, res) => {
+    try {
+      const settings = await storage.getPromotionalSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Failed to get promotional settings:", error);
+      res.status(500).json({ error: "Failed to get promotional settings" });
+    }
+  });
+
+  app.patch("/api/promotional-settings", async (req, res) => {
+    try {
+      const validation = insertPromotionalSettingsSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const { bannerText, timerDays } = validation.data;
+      const settings = await storage.updatePromotionalSettings(bannerText, timerDays);
+      res.json(settings);
+    } catch (error) {
+      console.error("Failed to update promotional settings:", error);
+      res.status(500).json({ error: "Failed to update promotional settings" });
+    }
+  });
+
   app.post("/api/orders", async (req, res) => {
     try {
       const validation = insertOrderSchema.safeParse(req.body);

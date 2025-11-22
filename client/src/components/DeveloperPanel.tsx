@@ -30,27 +30,25 @@ GIVEAWAY TICKET (Its all about This)
 GIVEAWAY products are not sent in mystery box`;
 
 export default function DeveloperPanel() {
-  const { isDeveloperMode, stockStatus, products, priceFilters, offerBannerText, offerTimerHours, offerTimerMinutes, offerTimerSeconds, toggleStockStatus, createProduct, updateProduct, deleteProduct, reorderProduct, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters } = useDeveloper();
+  const { isDeveloperMode, stockStatus, products, priceFilters, promotionalSettings, toggleStockStatus, createProduct, updateProduct, deleteProduct, reorderProduct, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters, isUpdatingPromotionalSettings } = useDeveloper();
   const [isVisible, setIsVisible] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [newFilterValue, setNewFilterValue] = useState("");
   const [editingFilterId, setEditingFilterId] = useState<number | null>(null);
   const [editingFilterValue, setEditingFilterValue] = useState("");
-  const [bannerText, setBannerText] = useState(offerBannerText);
-  const [timerHours, setTimerHours] = useState(offerTimerHours?.toString() || "168");
-  const [timerMinutes, setTimerMinutes] = useState(offerTimerMinutes?.toString() || "0");
-  const [timerSeconds, setTimerSeconds] = useState(offerTimerSeconds?.toString() || "0");
+  const [bannerText, setBannerText] = useState(promotionalSettings?.bannerText || "₹10 off on every product");
+  const [timerDays, setTimerDays] = useState(promotionalSettings?.timerDays?.toString() || "7");
   const { toast } = useToast();
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const additionalImagesInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setBannerText(offerBannerText);
-    setTimerHours(offerTimerHours?.toString() || "168");
-    setTimerMinutes(offerTimerMinutes?.toString() || "0");
-    setTimerSeconds(offerTimerSeconds?.toString() || "0");
-  }, [offerBannerText, offerTimerHours, offerTimerMinutes, offerTimerSeconds]);
+    if (promotionalSettings) {
+      setBannerText(promotionalSettings.bannerText);
+      setTimerDays(promotionalSettings.timerDays.toString());
+    }
+  }, [promotionalSettings]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -523,82 +521,57 @@ export default function DeveloperPanel() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Timer Duration</Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div>
-                      <Label htmlFor="timer-hours" className="text-xs">Hours</Label>
-                      <Input
-                        id="timer-hours"
-                        type="number"
-                        min="0"
-                        max="8760"
-                        value={timerHours}
-                        onChange={(e) => setTimerHours(e.target.value)}
-                        placeholder="168"
-                        className="bg-black text-white focus-visible:ring-0 focus-visible:border-gray-600"
-                        data-testid="input-timer-hours"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="timer-minutes" className="text-xs">Minutes</Label>
-                      <Input
-                        id="timer-minutes"
-                        type="number"
-                        min="0"
-                        max="59"
-                        value={timerMinutes}
-                        onChange={(e) => setTimerMinutes(e.target.value)}
-                        placeholder="0"
-                        className="bg-black text-white focus-visible:ring-0 focus-visible:border-gray-600"
-                        data-testid="input-timer-minutes"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="timer-seconds" className="text-xs">Seconds</Label>
-                      <Input
-                        id="timer-seconds"
-                        type="number"
-                        min="0"
-                        max="59"
-                        value={timerSeconds}
-                        onChange={(e) => setTimerSeconds(e.target.value)}
-                        placeholder="0"
-                        className="bg-black text-white focus-visible:ring-0 focus-visible:border-gray-600"
-                        data-testid="input-timer-seconds"
-                      />
-                    </div>
-                  </div>
+                  <Label htmlFor="timer-days">Timer Duration (Days)</Label>
+                  <Input
+                    id="timer-days"
+                    type="number"
+                    min="1"
+                    max="365"
+                    value={timerDays}
+                    onChange={(e) => setTimerDays(e.target.value)}
+                    placeholder="7"
+                    className="bg-black text-white focus-visible:ring-0 focus-visible:border-gray-600"
+                    data-testid="input-timer-days"
+                  />
+                  <p className="text-xs text-gray-400">Set how many days the offer countdown should run</p>
                 </div>
 
                 <Button
-                  onClick={() => {
-                    const hours = parseInt(timerHours);
-                    const minutes = parseInt(timerMinutes);
-                    const seconds = parseInt(timerSeconds);
-                    if (!bannerText || isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
+                  onClick={async () => {
+                    const days = parseInt(timerDays);
+                    if (!bannerText || isNaN(days) || days < 1 || days > 365) {
                       toast({
                         title: "Invalid values",
-                        description: "Please enter valid banner text and timer duration",
+                        description: "Please enter valid banner text and timer duration (1-365 days)",
                         variant: "destructive",
                       });
                       return;
                     }
-                    updateOfferBanner(bannerText, hours, minutes, seconds);
-                    toast({
-                      title: "Banner updated",
-                      description: "Offer banner settings have been saved",
-                    });
+                    try {
+                      await updateOfferBanner(bannerText, days);
+                      toast({
+                        title: "Banner updated",
+                        description: "Offer banner settings have been saved and timer has been reset",
+                      });
+                    } catch (error) {
+                      toast({
+                        title: "Update failed",
+                        description: "Failed to update banner settings",
+                        variant: "destructive",
+                      });
+                    }
                   }}
+                  disabled={isUpdatingPromotionalSettings}
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
                   data-testid="button-save-banner"
                 >
-                  Save Banner Settings
+                  {isUpdatingPromotionalSettings ? "Saving..." : "Save Banner Settings"}
                 </Button>
 
                 <div className="mt-3 p-3 rounded bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900">
                   <p className="text-xs font-semibold mb-2">Preview:</p>
                   <p className="text-sm">{bannerText || "Enter banner text"}</p>
-                  <p className="text-xs opacity-70 mt-1">Timer: {timerHours || "0"}h {timerMinutes || "0"}m {timerSeconds || "0"}s</p>
+                  <p className="text-xs opacity-70 mt-1">Timer: {timerDays || "0"} days</p>
                 </div>
               </div>
             </TabsContent>

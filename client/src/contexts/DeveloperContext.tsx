@@ -1,17 +1,14 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { StockStatus, Product, CreateProduct, UpdateProduct, PriceFilter } from "@shared/schema";
+import type { StockStatus, Product, CreateProduct, UpdateProduct, PriceFilter, PromotionalSettings } from "@shared/schema";
 
 interface DeveloperContextType {
   isDeveloperMode: boolean;
   stockStatus: StockStatus;
   products: Product[];
   priceFilters: PriceFilter[];
-  offerBannerText: string;
-  offerTimerHours: number;
-  offerTimerMinutes: number;
-  offerTimerSeconds: number;
+  promotionalSettings: PromotionalSettings | null;
   toggleStockStatus: (productId: number) => void;
   createProduct: (product: CreateProduct) => Promise<any>;
   updateProduct: (id: number, updates: Partial<UpdateProduct>) => Promise<any>;
@@ -20,13 +17,14 @@ interface DeveloperContextType {
   createPriceFilter: (value: number) => Promise<any>;
   updatePriceFilter: (id: number, value: number) => Promise<any>;
   deletePriceFilter: (id: number) => Promise<any>;
-  updateOfferBanner: (text: string, hours: number, minutes: number, seconds: number) => void;
+  updateOfferBanner: (text: string, days: number) => Promise<void>;
   isCreatingProduct: boolean;
   isUpdatingProduct: boolean;
   isDeletingProduct: boolean;
   isReordering: boolean;
   isManagingFilters: boolean;
   isLoadingFilters: boolean;
+  isUpdatingPromotionalSettings: boolean;
 }
 
 const DeveloperContext = createContext<DeveloperContextType | undefined>(undefined);
@@ -34,22 +32,6 @@ const DeveloperContext = createContext<DeveloperContextType | undefined>(undefin
 export function DeveloperProvider({ children }: { children: ReactNode }) {
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
   const [keySequence, setKeySequence] = useState("");
-  const [offerBannerText, setOfferBannerText] = useState(() => {
-    const saved = localStorage.getItem("offerBannerText");
-    return saved || "₹10 off on every product";
-  });
-  const [offerTimerHours, setOfferTimerHours] = useState(() => {
-    const saved = localStorage.getItem("offerTimerHours");
-    return saved ? parseInt(saved) : 168; // Default 7 days = 168 hours
-  });
-  const [offerTimerMinutes, setOfferTimerMinutes] = useState(() => {
-    const saved = localStorage.getItem("offerTimerMinutes");
-    return saved ? parseInt(saved) : 0;
-  });
-  const [offerTimerSeconds, setOfferTimerSeconds] = useState(() => {
-    const saved = localStorage.getItem("offerTimerSeconds");
-    return saved ? parseInt(saved) : 0;
-  });
 
   const { data: stockStatus = { 1: true, 2: true, 3: false } } = useQuery<StockStatus>({
     queryKey: ["/api/stock"],
@@ -61,6 +43,10 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
 
   const { data: priceFilters = [], isLoading: isLoadingFilters } = useQuery<PriceFilter[]>({
     queryKey: ["/api/price-filters"],
+  });
+
+  const { data: promotionalSettings = null } = useQuery<PromotionalSettings>({
+    queryKey: ["/api/promotional-settings"],
   });
 
   const updateStockMutation = useMutation({
@@ -135,6 +121,15 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const updatePromotionalSettingsMutation = useMutation({
+    mutationFn: async ({ bannerText, timerDays }: { bannerText: string; timerDays: number }) => {
+      return apiRequest("PATCH", "/api/promotional-settings", { bannerText, timerDays });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/promotional-settings"] });
+    },
+  });
+
   const secretPhrase = "dormamu is a aunty";
 
   useEffect(() => {
@@ -195,15 +190,8 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     return deletePriceFilterMutation.mutateAsync(id);
   };
 
-  const updateOfferBanner = (text: string, hours: number, minutes: number, seconds: number) => {
-    setOfferBannerText(text);
-    setOfferTimerHours(hours);
-    setOfferTimerMinutes(minutes);
-    setOfferTimerSeconds(seconds);
-    localStorage.setItem("offerBannerText", text);
-    localStorage.setItem("offerTimerHours", hours.toString());
-    localStorage.setItem("offerTimerMinutes", minutes.toString());
-    localStorage.setItem("offerTimerSeconds", seconds.toString());
+  const updateOfferBanner = async (text: string, days: number) => {
+    await updatePromotionalSettingsMutation.mutateAsync({ bannerText: text, timerDays: days });
   };
 
   return (
@@ -213,10 +201,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         stockStatus, 
         products,
         priceFilters,
-        offerBannerText,
-        offerTimerHours,
-        offerTimerMinutes,
-        offerTimerSeconds,
+        promotionalSettings,
         toggleStockStatus, 
         createProduct,
         updateProduct,
@@ -232,6 +217,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         isReordering: reorderProductMutation.isPending,
         isManagingFilters: createPriceFilterMutation.isPending || updatePriceFilterMutation.isPending || deletePriceFilterMutation.isPending,
         isLoadingFilters,
+        isUpdatingPromotionalSettings: updatePromotionalSettingsMutation.isPending,
       }}
     >
       {children}

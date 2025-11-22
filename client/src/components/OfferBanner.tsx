@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import { useDeveloper } from "@/contexts/DeveloperContext";
 
 export default function OfferBanner() {
-  const { offerBannerText, offerTimerHours, offerTimerMinutes, offerTimerSeconds } = useDeveloper();
+  const { promotionalSettings } = useDeveloper();
   const [timeLeft, setTimeLeft] = useState({ hours: "00", minutes: "00", seconds: "00" });
 
   useEffect(() => {
-    const totalSeconds = (offerTimerHours * 3600) + (offerTimerMinutes * 60) + offerTimerSeconds;
-    const endTime = Date.now() + (totalSeconds * 1000);
+    if (!promotionalSettings?.timerEndTime) {
+      return;
+    }
+
+    const endTime = new Date(promotionalSettings.timerEndTime).getTime();
 
     const calculateTimeLeft = () => {
       const now = Date.now();
@@ -36,7 +39,7 @@ export default function OfferBanner() {
     const timer = setInterval(calculateTimeLeft, 1000);
 
     return () => clearInterval(timer);
-  }, [offerTimerHours, offerTimerMinutes, offerTimerSeconds]);
+  }, [promotionalSettings?.timerEndTime]);
 
   return (
     <div
@@ -44,7 +47,7 @@ export default function OfferBanner() {
       data-testid="banner-offer"
     >
       <span className="text-lg md:text-xl font-semibold" data-testid="text-offer-title">
-        {offerBannerText}
+        {promotionalSettings?.bannerText || "₹10 off on every product"}
       </span>
       <div className="flex items-center gap-1 font-mono text-xl md:text-2xl font-bold tabular-nums" data-testid="container-timer">
         <span data-testid="text-hours">{timeLeft.hours}</span>
