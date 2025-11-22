@@ -248,8 +248,8 @@ export default function CheckoutPage() {
           </motion.div>
         </div>
       </main>
-      <Dialog open={showOrderSuccess} onOpenChange={setShowOrderSuccess}>
-        <DialogContent className="sm:max-w-sm max-h-[90vh] overflow-y-auto">
+      <Dialog open={showOrderSuccess} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-sm max-h-[90vh] overflow-y-auto [&>button]:hidden">
           <DialogHeader>
             <div className="flex justify-center mb-2">
               <CheckCircle2 className="w-12 h-12 text-green-500" />
