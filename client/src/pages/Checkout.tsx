@@ -245,79 +245,76 @@ export default function CheckoutPage() {
       </main>
 
       <Dialog open={showOrderSuccess} onOpenChange={setShowOrderSuccess}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-sm max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <div className="flex justify-center mb-4">
-              <CheckCircle2 className="w-16 h-16 text-green-500" />
+            <div className="flex justify-center mb-2">
+              <CheckCircle2 className="w-12 h-12 text-green-500" />
             </div>
-            <DialogTitle className="text-center text-2xl">Order Placed Successfully!</DialogTitle>
-            <DialogDescription className="text-center">
-              Your order has been confirmed. Please send the order number to us on Instagram.
+            <DialogTitle className="text-center text-xl">Order Placed!</DialogTitle>
+            <DialogDescription className="text-center text-sm">
+              Send the order number to us on Instagram
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-6">
-            <div className="bg-gray-50 dark:bg-neutral-900 rounded-lg p-6 space-y-4">
+          <div className="space-y-4">
+            <div className="bg-gray-50 dark:bg-neutral-900 rounded-lg p-4 space-y-3">
               <div className="text-center">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Your Order Number</p>
-                <div className="flex items-center justify-center gap-2">
-                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">#{orderDetails?.orderNumber}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Your Order Number</p>
+                <div className="flex items-center justify-center gap-1">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">#{orderDetails?.orderNumber}</p>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={copyOrderNumber}
                     data-testid="button-copy-order-number"
+                    className="h-8 w-8"
                   >
-                    {copied ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
+                    {copied ? <CheckCircle2 className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                   </Button>
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 dark:border-neutral-800 pt-4 space-y-2">
-                <div className="flex justify-between text-sm">
+              <div className="border-t border-gray-200 dark:border-neutral-800 pt-3 space-y-1.5">
+                <div className="flex justify-between text-xs">
                   <span className="text-gray-600 dark:text-gray-400">Customer:</span>
                   <span className="font-medium text-gray-900 dark:text-gray-100">{orderDetails?.customerName}</span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-xs">
                   <span className="text-gray-600 dark:text-gray-400">Mobile:</span>
                   <span className="font-medium text-gray-900 dark:text-gray-100">{orderDetails?.mobile}</span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-xs">
                   <span className="text-gray-600 dark:text-gray-400">Instagram:</span>
                   <span className="font-medium text-gray-900 dark:text-gray-100">@{orderDetails?.instagram}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Address:</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100 text-right">{orderDetails?.address}</span>
-                </div>
               </div>
 
-              <div className="border-t border-gray-200 dark:border-neutral-800 pt-4">
-                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Items:</p>
-                <div className="space-y-2">
+              <div className="border-t border-gray-200 dark:border-neutral-800 pt-3">
+                <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1.5">Items:</p>
+                <div className="space-y-1.5">
                   {orderDetails?.items?.map((item: any) => (
-                    <div key={item.id} className="flex justify-between text-sm">
+                    <div key={item.id} className="flex justify-between text-xs">
                       <span className="text-gray-600 dark:text-gray-400">{item.title} x{item.quantity}</span>
                       <span className="font-medium text-gray-900 dark:text-gray-100">{item.price}</span>
                     </div>
                   ))}
                 </div>
-                <div className="flex justify-between text-base font-bold mt-3 pt-3 border-t border-gray-200 dark:border-neutral-800">
+                <div className="flex justify-between text-sm font-bold mt-2 pt-2 border-t border-gray-200 dark:border-neutral-800">
                   <span className="text-gray-900 dark:text-gray-100">Total:</span>
                   <span className="text-gray-900 dark:text-gray-100">₹{orderDetails?.total}</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-              <p className="text-sm text-blue-900 dark:text-blue-100 text-center">
-                📸 Send order number <span className="font-bold">#{orderDetails?.orderNumber}</span> to our Instagram DM to receive your payment link
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+              <p className="text-xs text-blue-900 dark:text-blue-100 text-center">
+                📸 Send <span className="font-bold">#{orderDetails?.orderNumber}</span> to our Instagram DM
               </p>
             </div>
 
             <Button
               onClick={handleCloseDialog}
-              className="w-full h-12 bg-black hover:bg-neutral-800 text-white rounded-full"
+              className="w-full h-10 bg-black hover:bg-neutral-800 text-white rounded-full text-sm"
               data-testid="button-close-order-success"
             >
               Done
