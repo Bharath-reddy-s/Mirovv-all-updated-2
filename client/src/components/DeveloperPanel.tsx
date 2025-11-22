@@ -517,7 +517,7 @@ export default function DeveloperPanel() {
                     value={bannerText}
                     onChange={(e) => setBannerText(e.target.value)}
                     placeholder="e.g., ₹10 off on every product"
-                    className="bg-black text-white"
+                    className="bg-black text-white focus-visible:ring-0 focus-visible:border-gray-600"
                     data-testid="input-banner-text"
                   />
                 </div>
@@ -535,7 +535,7 @@ export default function DeveloperPanel() {
                         value={timerHours}
                         onChange={(e) => setTimerHours(e.target.value)}
                         placeholder="168"
-                        className="bg-black text-white"
+                        className="bg-black text-white focus-visible:ring-0 focus-visible:border-gray-600"
                         data-testid="input-timer-hours"
                       />
                     </div>
@@ -549,7 +549,7 @@ export default function DeveloperPanel() {
                         value={timerMinutes}
                         onChange={(e) => setTimerMinutes(e.target.value)}
                         placeholder="0"
-                        className="bg-black text-white"
+                        className="bg-black text-white focus-visible:ring-0 focus-visible:border-gray-600"
                         data-testid="input-timer-minutes"
                       />
                     </div>
@@ -563,7 +563,7 @@ export default function DeveloperPanel() {
                         value={timerSeconds}
                         onChange={(e) => setTimerSeconds(e.target.value)}
                         placeholder="0"
-                        className="bg-black text-white"
+                        className="bg-black text-white focus-visible:ring-0 focus-visible:border-gray-600"
                         data-testid="input-timer-seconds"
                       />
                     </div>
@@ -632,6 +632,7 @@ export default function DeveloperPanel() {
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="e.g., Lightts"
                 required
+                className="focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
                 data-testid="input-product-title"
               />
             </div>
@@ -644,6 +645,7 @@ export default function DeveloperPanel() {
                 onChange={(e) => setFormData({ ...formData, label: e.target.value })}
                 placeholder="e.g., Giveaway Ticket Included"
                 required
+                className="focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
                 data-testid="input-product-label"
               />
             </div>
@@ -657,6 +659,7 @@ export default function DeveloperPanel() {
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                   placeholder="e.g., ₹49"
                   required
+                  className="focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
                   data-testid="input-product-price"
                 />
               </div>
@@ -668,6 +671,7 @@ export default function DeveloperPanel() {
                   value={formData.originalPrice}
                   onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
                   placeholder="e.g., ₹79"
+                  className="focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
                   data-testid="input-product-original-price"
                 />
               </div>
@@ -680,6 +684,7 @@ export default function DeveloperPanel() {
                 value={formData.pricingText}
                 onChange={(e) => setFormData({ ...formData, pricingText: e.target.value })}
                 placeholder="e.g., ( Just at a price of 3 Lights )"
+                className="focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
                 data-testid="input-product-pricing-text"
               />
               <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -697,7 +702,7 @@ export default function DeveloperPanel() {
                   placeholder="https://example.com/image.png or upload below"
                   required
                   data-testid="input-product-image"
-                  className="flex-1"
+                  className="flex-1 focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
                 />
                 <input
                   ref={mainImageInputRef}
@@ -802,6 +807,7 @@ export default function DeveloperPanel() {
                 value={formData.productLink}
                 onChange={(e) => setFormData({ ...formData, productLink: e.target.value })}
                 placeholder="https://example.com/product"
+                className="focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
                 data-testid="input-product-link"
               />
             </div>
