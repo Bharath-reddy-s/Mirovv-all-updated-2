@@ -316,6 +316,12 @@ export default function CheckoutPage() {
               </p>
             </div>
 
+            <div className="text-center">
+              <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+                Note: Orders are only confirmed when the order number is sent to Instagram DM
+              </p>
+            </div>
+
             <Button
               onClick={handleCloseDialog}
               className="w-full h-10 bg-black hover:bg-neutral-800 text-white rounded-full text-sm"
