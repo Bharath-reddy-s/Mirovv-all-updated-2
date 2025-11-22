@@ -312,7 +312,7 @@ export default function CheckoutPage() {
 
             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
               <p className="text-xs text-blue-900 dark:text-blue-100 text-center">
-                📸 Send <span className="font-bold">#{orderDetails?.orderNumber}</span> to our Instagram DM
+                📸 Send <span className="font-bold">#{orderDetails?.orderNumber}</span> to our Instagram DM do the paymnet and confirm order
               </p>
             </div>
 
