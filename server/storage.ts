@@ -33,6 +33,7 @@ export interface IStorage {
   getPromotionalSettings(): Promise<PromotionalSettings>;
   updatePromotionalSettings(bannerText: string, timerDays: number): Promise<PromotionalSettings>;
   createOrder(order: InsertOrder): Promise<Order>;
+  getOrderByNumber(orderNumber: string): Promise<Order | undefined>;
 }
 
 export class DBStorage implements IStorage {
@@ -219,6 +220,14 @@ export class DBStorage implements IStorage {
       .values({ ...orderData, orderNumber } as any)
       .returning();
     return newOrder as Order;
+  }
+
+  async getOrderByNumber(orderNumber: string): Promise<Order | undefined> {
+    const [order] = await sql.select()
+      .from(ordersTable)
+      .where(eq(ordersTable.orderNumber, orderNumber))
+      .limit(1);
+    return order as Order | undefined;
   }
 }
 
