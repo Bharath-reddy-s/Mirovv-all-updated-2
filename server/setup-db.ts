@@ -47,6 +47,20 @@ async function setupDatabase() {
       ADD COLUMN IF NOT EXISTS "display_order" integer DEFAULT 0 NOT NULL;
     `);
 
+    console.log("Creating orders table if it doesn't exist...");
+    await db.execute(sqlOp`
+      CREATE TABLE IF NOT EXISTS "orders" (
+        "id" serial PRIMARY KEY NOT NULL,
+        "customer_name" text NOT NULL,
+        "mobile" text NOT NULL,
+        "address" text NOT NULL,
+        "instagram" text NOT NULL,
+        "items" jsonb NOT NULL,
+        "total" text NOT NULL,
+        "created_at" timestamp DEFAULT now() NOT NULL
+      );
+    `);
+
     console.log("Checking if products table has data...");
     const existingProducts = await db.select().from(productsTable);
     

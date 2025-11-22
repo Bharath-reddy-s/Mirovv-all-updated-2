@@ -6,11 +6,13 @@ import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function CheckoutPage() {
   const [, setLocation] = useLocation();
   const { items, subtotal, clearCart } = useCart();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     address: "",
@@ -18,7 +20,7 @@ export default function CheckoutPage() {
     instagram: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.firstName || !formData.address || !formData.mobile || !formData.instagram) {
@@ -29,11 +31,42 @@ export default function CheckoutPage() {
       return;
     }
 
-    toast({
-      title: "Order placed successfully!",
-    });
-    clearCart();
-    setLocation("/");
+    setIsSubmitting(true);
+
+    try {
+      const orderData = {
+        customerName: formData.firstName,
+        mobile: formData.mobile,
+        address: formData.address,
+        instagram: formData.instagram,
+        items: items.map(item => ({
+          productId: item.id,
+          title: item.title,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image,
+        })),
+        total: `₹${subtotal}`,
+      };
+
+      await apiRequest('POST', '/api/orders', orderData);
+
+      toast({
+        title: "Order placed successfully!",
+        description: "You'll receive your order confirmation on Telegram.",
+      });
+      clearCart();
+      setLocation("/");
+    } catch (error) {
+      console.error("Failed to place order:", error);
+      toast({
+        title: "Failed to place order",
+        description: "Please try again or contact support.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (items.length === 0) {
@@ -105,8 +138,9 @@ export default function CheckoutPage() {
                 type="submit"
                 className="w-full h-14 bg-black hover:bg-neutral-800 text-white rounded-full text-base font-medium"
                 data-testid="button-place-order"
+                disabled={isSubmitting}
               >
-                Place Order
+                {isSubmitting ? "Placing Order..." : "Place Order"}
               </Button>
             </form>
           </motion.div>

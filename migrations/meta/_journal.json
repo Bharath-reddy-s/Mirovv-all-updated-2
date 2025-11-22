@@ -8,6 +8,13 @@
       "when": 1763323530261,
       "tag": "0000_fixed_sheva_callister",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1763791603834,
+      "tag": "0001_loud_legion",
+      "breakpoints": true
     }
   ]
 }

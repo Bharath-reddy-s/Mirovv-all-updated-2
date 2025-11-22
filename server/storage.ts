@@ -1,4 +1,4 @@
-import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable } from "@shared/schema";
+import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
 import { Pool, neonConfig } from "@neondatabase/serverless";
@@ -32,6 +32,7 @@ export interface IStorage {
   deletePriceFilter(id: number): Promise<boolean>;
   getPromotionalSettings(): Promise<PromotionalSettings>;
   updatePromotionalSettings(bannerText: string, timerDays: number): Promise<PromotionalSettings>;
+  createOrder(order: InsertOrder): Promise<Order>;
 }
 
 export class DBStorage implements IStorage {
@@ -195,6 +196,13 @@ export class DBStorage implements IStorage {
       .where(eq(promotionalSettingsTable.id, 1))
       .returning();
     return updated as PromotionalSettings;
+  }
+
+  async createOrder(orderData: InsertOrder): Promise<Order> {
+    const [newOrder] = await sql.insert(ordersTable)
+      .values(orderData as any)
+      .returning();
+    return newOrder as Order;
   }
 }
 

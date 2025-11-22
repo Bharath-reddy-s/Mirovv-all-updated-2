@@ -1,8 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { updateStockStatusSchema, createProductSchema, updateProductSchema, insertReviewSchema, insertPriceFilterSchema, insertPromotionalSettingsSchema } from "@shared/schema";
+import { updateStockStatusSchema, createProductSchema, updateProductSchema, insertReviewSchema, insertPriceFilterSchema, insertPromotionalSettingsSchema, insertOrderSchema } from "@shared/schema";
 import { z } from "zod";
+import { sendOrderToTelegram } from "./telegram";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/stock", async (req, res) => {
@@ -219,6 +220,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to delete price filter:", error);
       res.status(500).json({ error: "Failed to delete price filter" });
+    }
+  });
+
+  app.post("/api/orders", async (req, res) => {
+    try {
+      const validation = insertOrderSchema.safeParse(req.body);
+      if (!validation.success) {
+        console.error("Order validation failed:", validation.error);
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const order = await storage.createOrder(validation.data);
+      
+      try {
+        await sendOrderToTelegram(order);
+      } catch (telegramError) {
+        console.error("Failed to send order to Telegram:", telegramError);
+      }
+      
+      res.json(order);
+    } catch (error) {
+      console.error("Failed to create order:", error);
+      res.status(500).json({ error: "Failed to create order" });
     }
   });
 

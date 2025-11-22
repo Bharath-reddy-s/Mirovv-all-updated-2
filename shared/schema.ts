@@ -42,6 +42,17 @@ export const promotionalSettingsTable = pgTable("promotional_settings", {
   timerDays: integer("timer_days").notNull().default(7),
 });
 
+export const ordersTable = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  customerName: text("customer_name").notNull(),
+  mobile: text("mobile").notNull(),
+  address: text("address").notNull(),
+  instagram: text("instagram").notNull(),
+  items: jsonb("items").$type<{ productId: number; title: string; price: string; quantity: number; image: string }[]>().notNull(),
+  total: text("total").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, isInStock: true, displayOrder: true });
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof productsTable.$inferSelect;
@@ -66,6 +77,16 @@ export const insertPromotionalSettingsSchema = createInsertSchema(promotionalSet
 });
 export type InsertPromotionalSettings = z.infer<typeof insertPromotionalSettingsSchema>;
 export type PromotionalSettings = typeof promotionalSettingsTable.$inferSelect;
+
+export const insertOrderSchema = createInsertSchema(ordersTable).omit({ id: true, createdAt: true }).extend({
+  customerName: z.string().min(1, "Customer name is required"),
+  mobile: z.string().min(10, "Mobile number must be at least 10 digits"),
+  address: z.string().min(1, "Address is required"),
+  instagram: z.string().min(1, "Instagram username is required"),
+  total: z.string().min(1, "Total is required"),
+});
+export type InsertOrder = z.infer<typeof insertOrderSchema>;
+export type Order = typeof ordersTable.$inferSelect;
 
 export interface StockStatus {
   [productId: number]: boolean;
