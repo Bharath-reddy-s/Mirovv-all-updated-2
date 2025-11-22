@@ -31,6 +31,15 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (formData.mobile.length < 10) {
+      toast({
+        title: "Invalid mobile number",
+        description: "Mobile number must be at least 10 digits",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -57,11 +66,19 @@ export default function CheckoutPage() {
       });
       clearCart();
       setLocation("/");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to place order:", error);
+      
+      let errorMessage = "Please try again or contact support.";
+      
+      if (error?.error?.issues) {
+        const firstIssue = error.error.issues[0];
+        errorMessage = firstIssue.message || errorMessage;
+      }
+      
       toast({
         title: "Failed to place order",
-        description: "Please try again or contact support.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
