@@ -23,7 +23,7 @@ export async function sendOrderToTelegram(order: Order): Promise<void> {
       hour12: true
     });
 
-    const message = `🍽️ *New Order ${order.id}*
+    const message = `🍽️ *New Order #${order.orderNumber}*
 
 👤 *Customer:* ${order.customerName}
 📱 *Mobile:* ${order.mobile}
@@ -62,7 +62,7 @@ ${orderTime}`.trim();
       });
     }
 
-    console.log(`Order #${order.id} sent to Telegram successfully`);
+    console.log(`Order #${order.orderNumber} sent to Telegram successfully`);
   } catch (error) {
     console.error('Failed to send order to Telegram:', error);
     throw error;

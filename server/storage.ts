@@ -199,8 +199,24 @@ export class DBStorage implements IStorage {
   }
 
   async createOrder(orderData: InsertOrder): Promise<Order> {
+    let orderNumber = "";
+    let isUnique = false;
+    
+    while (!isUnique) {
+      orderNumber = Math.floor(10000 + Math.random() * 90000).toString();
+      
+      const existing = await sql.select()
+        .from(ordersTable)
+        .where(eq(ordersTable.orderNumber, orderNumber))
+        .limit(1);
+      
+      if (existing.length === 0) {
+        isUnique = true;
+      }
+    }
+    
     const [newOrder] = await sql.insert(ordersTable)
-      .values(orderData as any)
+      .values({ ...orderData, orderNumber } as any)
       .returning();
     return newOrder as Order;
   }

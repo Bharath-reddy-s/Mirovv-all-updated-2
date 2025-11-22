@@ -58,11 +58,12 @@ export default function CheckoutPage() {
         total: `₹${subtotal}`,
       };
 
-      await apiRequest('POST', '/api/orders', orderData);
+      const response: any = await apiRequest('POST', '/api/orders', orderData);
 
       toast({
         title: "Order placed successfully!",
-        description: "You'll receive your order confirmation on Telegram.",
+        description: `Your order number is #${response.orderNumber}. Send this to us on Instagram to receive your payment link.`,
+        duration: 10000,
       });
       clearCart();
       setLocation("/");

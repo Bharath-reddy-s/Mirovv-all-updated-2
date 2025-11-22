@@ -44,6 +44,7 @@ export const promotionalSettingsTable = pgTable("promotional_settings", {
 
 export const ordersTable = pgTable("orders", {
   id: serial("id").primaryKey(),
+  orderNumber: text("order_number").notNull().unique(),
   customerName: text("customer_name").notNull(),
   mobile: text("mobile").notNull(),
   address: text("address").notNull(),
@@ -78,7 +79,7 @@ export const insertPromotionalSettingsSchema = createInsertSchema(promotionalSet
 export type InsertPromotionalSettings = z.infer<typeof insertPromotionalSettingsSchema>;
 export type PromotionalSettings = typeof promotionalSettingsTable.$inferSelect;
 
-export const insertOrderSchema = createInsertSchema(ordersTable).omit({ id: true, createdAt: true }).extend({
+export const insertOrderSchema = createInsertSchema(ordersTable).omit({ id: true, orderNumber: true, createdAt: true }).extend({
   customerName: z.string().min(1, "Customer name is required"),
   mobile: z.string().min(10, "Mobile number must be at least 10 digits"),
   address: z.string().min(1, "Address is required"),
