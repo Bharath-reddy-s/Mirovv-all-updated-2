@@ -4,9 +4,11 @@ import { useDeveloper } from "@/contexts/DeveloperContext";
 export default function OfferBanner() {
   const { promotionalSettings } = useDeveloper();
   const [timeLeft, setTimeLeft] = useState({ hours: "00", minutes: "00", seconds: "00" });
+  const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
     if (!promotionalSettings?.timerEndTime) {
+      setIsExpired(true);
       return;
     }
 
@@ -26,12 +28,14 @@ export default function OfferBanner() {
           minutes: String(minutes).padStart(2, "0"),
           seconds: String(seconds).padStart(2, "0")
         });
+        setIsExpired(false);
       } else {
         setTimeLeft({
           hours: "00",
           minutes: "00",
           seconds: "00"
         });
+        setIsExpired(true);
       }
     };
 
@@ -40,6 +44,10 @@ export default function OfferBanner() {
 
     return () => clearInterval(timer);
   }, [promotionalSettings?.timerEndTime]);
+
+  if (isExpired) {
+    return null;
+  }
 
   return (
     <div

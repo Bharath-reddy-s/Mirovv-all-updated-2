@@ -125,7 +125,8 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     mutationFn: async ({ bannerText, timerDays }: { bannerText: string; timerDays: number }) => {
       return apiRequest("PATCH", "/api/promotional-settings", { bannerText, timerDays });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      queryClient.setQueryData(["/api/promotional-settings"], data);
       queryClient.invalidateQueries({ queryKey: ["/api/promotional-settings"] });
     },
   });
