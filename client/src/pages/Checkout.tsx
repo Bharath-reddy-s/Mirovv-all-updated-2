@@ -7,18 +7,47 @@ import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { apiRequest } from "@/lib/queryClient";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Copy, CheckCircle2 } from "lucide-react";
 
 export default function CheckoutPage() {
   const [, setLocation] = useLocation();
   const { items, subtotal, clearCart } = useCart();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showOrderSuccess, setShowOrderSuccess] = useState(false);
+  const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [copied, setCopied] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     address: "",
     mobile: "",
     instagram: "",
   });
+
+  const copyOrderNumber = () => {
+    if (orderDetails?.orderNumber) {
+      navigator.clipboard.writeText(orderDetails.orderNumber);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast({
+        title: "Copied!",
+        description: "Order number copied to clipboard",
+      });
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setShowOrderSuccess(false);
+    clearCart();
+    setLocation("/");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,13 +89,16 @@ export default function CheckoutPage() {
 
       const response: any = await apiRequest('POST', '/api/orders', orderData);
 
-      toast({
-        title: "Order placed successfully!",
-        description: `Your order number is #${response.orderNumber}. Send this to us on Instagram to receive your payment link.`,
-        duration: 10000,
+      setOrderDetails({
+        orderNumber: response.orderNumber,
+        items: items,
+        total: subtotal,
+        customerName: formData.firstName,
+        mobile: formData.mobile,
+        address: formData.address,
+        instagram: formData.instagram,
       });
-      clearCart();
-      setLocation("/");
+      setShowOrderSuccess(true);
     } catch (error: any) {
       console.error("Failed to place order:", error);
       
@@ -211,6 +243,88 @@ export default function CheckoutPage() {
           </motion.div>
         </div>
       </main>
+
+      <Dialog open={showOrderSuccess} onOpenChange={setShowOrderSuccess}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex justify-center mb-4">
+              <CheckCircle2 className="w-16 h-16 text-green-500" />
+            </div>
+            <DialogTitle className="text-center text-2xl">Order Placed Successfully!</DialogTitle>
+            <DialogDescription className="text-center">
+              Your order has been confirmed. Please send the order number to us on Instagram.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            <div className="bg-gray-50 dark:bg-neutral-900 rounded-lg p-6 space-y-4">
+              <div className="text-center">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Your Order Number</p>
+                <div className="flex items-center justify-center gap-2">
+                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">#{orderDetails?.orderNumber}</p>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={copyOrderNumber}
+                    data-testid="button-copy-order-number"
+                  >
+                    {copied ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 dark:border-neutral-800 pt-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Customer:</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{orderDetails?.customerName}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Mobile:</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{orderDetails?.mobile}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Instagram:</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">@{orderDetails?.instagram}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Address:</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100 text-right">{orderDetails?.address}</span>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 dark:border-neutral-800 pt-4">
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Items:</p>
+                <div className="space-y-2">
+                  {orderDetails?.items?.map((item: any) => (
+                    <div key={item.id} className="flex justify-between text-sm">
+                      <span className="text-gray-600 dark:text-gray-400">{item.title} x{item.quantity}</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{item.price}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between text-base font-bold mt-3 pt-3 border-t border-gray-200 dark:border-neutral-800">
+                  <span className="text-gray-900 dark:text-gray-100">Total:</span>
+                  <span className="text-gray-900 dark:text-gray-100">₹{orderDetails?.total}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+              <p className="text-sm text-blue-900 dark:text-blue-100 text-center">
+                📸 Send order number <span className="font-bold">#{orderDetails?.orderNumber}</span> to our Instagram DM to receive your payment link
+              </p>
+            </div>
+
+            <Button
+              onClick={handleCloseDialog}
+              className="w-full h-12 bg-black hover:bg-neutral-800 text-white rounded-full"
+              data-testid="button-close-order-success"
+            >
+              Done
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
