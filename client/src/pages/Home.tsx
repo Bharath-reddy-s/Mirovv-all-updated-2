@@ -7,9 +7,7 @@ export default function Home() {
   return (
     <>
       <OfferBanner />
-      <div className="pt-16">
-        <BackgroundPaths title="Mystery Boxes Await" />
-      </div>
+      <BackgroundPaths title="Mystery Boxes Await" />
       
       <section id="about-us" className="min-h-screen bg-gray-50 dark:bg-neutral-900 py-20 px-4">
         <div className="container mx-auto max-w-7xl">
