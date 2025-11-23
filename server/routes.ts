@@ -121,6 +121,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/products/set-position", async (req, res) => {
+    try {
+      const schema = z.object({
+        productId: z.number(),
+        position: z.number().min(1)
+      });
+
+      const validation = schema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const { productId, position } = validation.data;
+      const products = await storage.setProductPosition(productId, position);
+      res.json(products);
+    } catch (error) {
+      console.error("Failed to set product position:", error);
+      res.status(500).json({ error: "Failed to set product position" });
+    }
+  });
+
   app.get("/api/products/:id/reviews", async (req, res) => {
     try {
       const productId = parseInt(req.params.id);

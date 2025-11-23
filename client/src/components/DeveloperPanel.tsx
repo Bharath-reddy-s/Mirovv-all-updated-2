@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Plus, Edit, Upload, Trash2, ChevronUp, ChevronDown } from "lucide-react";
+import { X, Plus, Edit, Upload, Trash2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -25,7 +25,7 @@ import type { Product } from "@shared/schema";
 const DEFAULT_LONG_DESCRIPTION = "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"";
 
 export default function DeveloperPanel() {
-  const { isDeveloperMode, stockStatus, products, priceFilters, promotionalSettings, toggleStockStatus, createProduct, updateProduct, deleteProduct, reorderProduct, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters, isUpdatingPromotionalSettings } = useDeveloper();
+  const { isDeveloperMode, stockStatus, products, priceFilters, promotionalSettings, toggleStockStatus, createProduct, updateProduct, deleteProduct, setProductPosition, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters, isUpdatingPromotionalSettings } = useDeveloper();
   const [isVisible, setIsVisible] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -38,6 +38,8 @@ export default function DeveloperPanel() {
   const { toast } = useToast();
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const additionalImagesInputRef = useRef<HTMLInputElement>(null);
+  const [editingPositionId, setEditingPositionId] = useState<number | null>(null);
+  const [editingPositionValue, setEditingPositionValue] = useState("");
 
   useEffect(() => {
     if (promotionalSettings) {
@@ -275,40 +277,89 @@ export default function DeveloperPanel() {
                       key={product.id}
                       className="flex items-center gap-2 p-2 rounded bg-gray-800 dark:bg-gray-200"
                     >
-                      <div className="flex flex-col gap-1">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => reorderProduct(product.id, 'up')}
-                          disabled={index === 0 || isReordering}
-                          className="h-5 w-5 p-0"
-                          data-testid={`button-reorder-up-${product.id}`}
-                        >
-                          <ChevronUp className="w-3 h-3" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => reorderProduct(product.id, 'down')}
-                          disabled={index === products.length - 1 || isReordering}
-                          className="h-5 w-5 p-0"
-                          data-testid={`button-reorder-down-${product.id}`}
-                        >
-                          <ChevronDown className="w-3 h-3" />
-                        </Button>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{product.title}</p>
-                        <p className="text-xs opacity-70">{product.price}</p>
-                      </div>
-                      <Button
-                        size="sm"
-                        onClick={() => openEditDialog(product)}
-                        className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white"
-                        data-testid={`button-edit-product-${product.id}`}
-                      >
-                        <Edit className="w-3 h-3" />
-                      </Button>
+                      {editingPositionId === product.id ? (
+                        <>
+                          <Input
+                            type="number"
+                            min="1"
+                            max={products.length}
+                            value={editingPositionValue}
+                            onChange={(e) => setEditingPositionValue(e.target.value)}
+                            className="w-16 h-8 text-xs"
+                            data-testid={`input-position-${product.id}`}
+                          />
+                          <Button
+                            size="sm"
+                            onClick={async () => {
+                              const newPos = parseInt(editingPositionValue);
+                              if (!editingPositionValue || newPos < 1 || newPos > products.length) {
+                                toast({
+                                  title: "Invalid position",
+                                  description: `Please enter a number between 1 and ${products.length}`,
+                                  variant: "destructive",
+                                });
+                                return;
+                              }
+                              try {
+                                await setProductPosition(product.id, newPos);
+                                setEditingPositionId(null);
+                                setEditingPositionValue("");
+                                toast({
+                                  title: "Position updated",
+                                  description: "Product position updated successfully",
+                                });
+                              } catch (error) {
+                                toast({
+                                  title: "Error",
+                                  description: "Failed to update position",
+                                  variant: "destructive",
+                                });
+                              }
+                            }}
+                            disabled={isReordering}
+                            className="h-8 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
+                            data-testid={`button-save-position-${product.id}`}
+                          >
+                            Set
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              setEditingPositionId(null);
+                              setEditingPositionValue("");
+                            }}
+                            className="h-8 px-2 text-xs"
+                            data-testid={`button-cancel-position-${product.id}`}
+                          >
+                            Cancel
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <div 
+                            className="w-8 h-8 flex items-center justify-center bg-gray-700 dark:bg-gray-300 rounded text-xs font-bold cursor-pointer hover-elevate active-elevate-2"
+                            onClick={() => {
+                              setEditingPositionId(product.id);
+                              setEditingPositionValue((index + 1).toString());
+                            }}
+                            data-testid={`position-indicator-${product.id}`}
+                          >
+                            {index + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{product.title}</p>
+                            <p className="text-xs opacity-70">{product.price}</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => openEditDialog(product)}
+                            className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white"
+                            data-testid={`button-edit-product-${product.id}`}
+                          >
+                            <Edit className="w-3 h-3" />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>

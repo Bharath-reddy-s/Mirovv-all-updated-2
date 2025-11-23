@@ -25,6 +25,7 @@ export interface IStorage {
   updateProduct(id: number, updates: Partial<UpdateProduct>): Promise<Product | undefined>;
   deleteProduct(id: number): Promise<boolean>;
   reorderProducts(productId: number, direction: 'up' | 'down'): Promise<Product[]>;
+  setProductPosition(productId: number, newPosition: number): Promise<Product[]>;
   getReviews(productId: number): Promise<Review[]>;
   createReview(review: InsertReview): Promise<Review>;
   deleteReview(id: number): Promise<boolean>;
@@ -112,6 +113,48 @@ export class DBStorage implements IStorage {
     await sql.update(productsTable)
       .set({ displayOrder: currentProduct.displayOrder })
       .where(eq(productsTable.id, targetProduct.id));
+
+    return this.getProducts();
+  }
+
+  async setProductPosition(productId: number, newPosition: number): Promise<Product[]> {
+    const allProducts = await sql.select().from(productsTable).orderBy(asc(productsTable.displayOrder));
+    const currentIndex = allProducts.findIndex(p => p.id === productId);
+    
+    if (currentIndex === -1) {
+      throw new Error('Product not found');
+    }
+
+    const targetIndex = newPosition - 1;
+    
+    if (targetIndex < 0 || targetIndex >= allProducts.length) {
+      throw new Error('Invalid position');
+    }
+
+    if (currentIndex === targetIndex) {
+      return allProducts;
+    }
+
+    const movingProduct = allProducts[currentIndex];
+    const newDisplayOrder = allProducts[targetIndex].displayOrder;
+
+    if (currentIndex < targetIndex) {
+      for (let i = currentIndex + 1; i <= targetIndex; i++) {
+        await sql.update(productsTable)
+          .set({ displayOrder: allProducts[i - 1].displayOrder })
+          .where(eq(productsTable.id, allProducts[i].id));
+      }
+    } else {
+      for (let i = currentIndex - 1; i >= targetIndex; i--) {
+        await sql.update(productsTable)
+          .set({ displayOrder: allProducts[i + 1].displayOrder })
+          .where(eq(productsTable.id, allProducts[i].id));
+      }
+    }
+
+    await sql.update(productsTable)
+      .set({ displayOrder: newDisplayOrder })
+      .where(eq(productsTable.id, movingProduct.id));
 
     return this.getProducts();
   }

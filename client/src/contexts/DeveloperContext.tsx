@@ -14,6 +14,7 @@ interface DeveloperContextType {
   updateProduct: (id: number, updates: Partial<UpdateProduct>) => Promise<any>;
   deleteProduct: (id: number) => Promise<any>;
   reorderProduct: (productId: number, direction: 'up' | 'down') => Promise<void>;
+  setProductPosition: (productId: number, position: number) => Promise<void>;
   createPriceFilter: (value: number) => Promise<any>;
   updatePriceFilter: (id: number, value: number) => Promise<any>;
   deletePriceFilter: (id: number) => Promise<any>;
@@ -88,6 +89,15 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
   const reorderProductMutation = useMutation({
     mutationFn: async ({ productId, direction }: { productId: number; direction: 'up' | 'down' }) => {
       return apiRequest("POST", "/api/products/reorder", { productId, direction });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+    },
+  });
+
+  const setProductPositionMutation = useMutation({
+    mutationFn: async ({ productId, position }: { productId: number; position: number }) => {
+      return apiRequest("POST", "/api/products/set-position", { productId, position });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
@@ -179,6 +189,10 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     await reorderProductMutation.mutateAsync({ productId, direction });
   };
 
+  const setProductPosition = async (productId: number, position: number) => {
+    await setProductPositionMutation.mutateAsync({ productId, position });
+  };
+
   const createPriceFilter = async (value: number) => {
     return createPriceFilterMutation.mutateAsync(value);
   };
@@ -208,6 +222,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         updateProduct,
         deleteProduct,
         reorderProduct,
+        setProductPosition,
         createPriceFilter,
         updatePriceFilter,
         deletePriceFilter,
@@ -215,7 +230,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         isCreatingProduct: createProductMutation.isPending,
         isUpdatingProduct: updateProductMutation.isPending,
         isDeletingProduct: deleteProductMutation.isPending,
-        isReordering: reorderProductMutation.isPending,
+        isReordering: reorderProductMutation.isPending || setProductPositionMutation.isPending,
         isManagingFilters: createPriceFilterMutation.isPending || updatePriceFilterMutation.isPending || deletePriceFilterMutation.isPending,
         isLoadingFilters,
         isUpdatingPromotionalSettings: updatePromotionalSettingsMutation.isPending,
