@@ -153,7 +153,7 @@ export default function CheckoutPage() {
                 <div className="space-y-4">
                   <Input
                     type="text"
-                    placeholder="First Name"
+                    placeholder="First Name (eg: John)"
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                     className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900 transition-all duration-300 focus-visible:ring-0 focus-visible:border-gray-400 dark:focus-visible:border-gray-600 focus-visible:scale-[1.01]"
@@ -172,7 +172,7 @@ export default function CheckoutPage() {
                   </select>
                   <Input
                     type="tel"
-                    placeholder="Mobile Number"
+                    placeholder="Mobile Number (eg: 9876543210)"
                     value={formData.mobile}
                     onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
                     className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900 transition-all duration-300 focus-visible:ring-0 focus-visible:border-gray-400 dark:focus-visible:border-gray-600 focus-visible:scale-[1.01]"
@@ -180,7 +180,7 @@ export default function CheckoutPage() {
                   />
                   <Input
                     type="text"
-                    placeholder="Instagram Username"
+                    placeholder="Instagram Username (eg: @yourname)"
                     value={formData.instagram}
                     onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
                     className="h-14 rounded-xl border-gray-300 bg-white dark:bg-neutral-900 transition-all duration-300 focus-visible:ring-0 focus-visible:border-gray-400 dark:focus-visible:border-gray-600 focus-visible:scale-[1.01]"
