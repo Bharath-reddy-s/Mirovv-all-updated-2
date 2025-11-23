@@ -24,11 +24,6 @@ import type { Product } from "@shared/schema";
 
 const DEFAULT_LONG_DESCRIPTION = "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"";
 
-const DEFAULT_WHATS_IN_BOX = `A Mystery item (something you would not expect)
-A Letter (guide to use the product)
-GIVEAWAY TICKET (Its all about This)
-GIVEAWAY products are not sent in mystery box`;
-
 export default function DeveloperPanel() {
   const { isDeveloperMode, stockStatus, products, priceFilters, promotionalSettings, toggleStockStatus, createProduct, updateProduct, deleteProduct, reorderProduct, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters, isUpdatingPromotionalSettings } = useDeveloper();
   const [isVisible, setIsVisible] = useState(true);
@@ -54,16 +49,12 @@ export default function DeveloperPanel() {
 
   const [formData, setFormData] = useState({
     title: "",
-    label: "Giveaway Ticket Included",
     price: "",
     originalPrice: "",
-    pricingText: "",
     image: "",
     additionalImages: "",
     description: "",
     longDescription: DEFAULT_LONG_DESCRIPTION,
-    whatsInTheBox: DEFAULT_WHATS_IN_BOX,
-    productLink: "",
   });
 
   if (!isDeveloperMode || !isVisible) return null;
@@ -124,16 +115,12 @@ export default function DeveloperPanel() {
   const resetForm = () => {
     setFormData({
       title: "",
-      label: "Giveaway Ticket Included",
       price: "",
       originalPrice: "",
-      pricingText: "",
       image: "",
       additionalImages: "",
       description: "",
       longDescription: DEFAULT_LONG_DESCRIPTION,
-      whatsInTheBox: DEFAULT_WHATS_IN_BOX,
-      productLink: "",
     });
     setEditingProduct(null);
   };
@@ -147,16 +134,12 @@ export default function DeveloperPanel() {
     setEditingProduct(product);
     setFormData({
       title: product.title ?? "",
-      label: product.label ?? "",
       price: product.price ?? "",
       originalPrice: product.originalPrice ?? "",
-      pricingText: product.pricingText ?? "",
       image: product.image ?? "",
       additionalImages: product.additionalImages?.join("\n") ?? "",
       description: product.description ?? "",
       longDescription: product.longDescription ?? "",
-      whatsInTheBox: product.whatsInTheBox?.join("\n") ?? "",
-      productLink: product.productLink ?? "",
     });
     setIsDialogOpen(true);
   };
@@ -165,32 +148,18 @@ export default function DeveloperPanel() {
     e.preventDefault();
 
     try {
-      const isValidUrl = (url: string) => {
-        if (!url) return false;
-        try {
-          new URL(url);
-          return true;
-        } catch {
-          return false;
-        }
-      };
-
       const productData = {
         title: formData.title,
-        label: formData.label,
+        label: "Giveaway Ticket Included",
         price: formData.price,
         originalPrice: formData.originalPrice || undefined,
-        pricingText: formData.pricingText || undefined,
         image: formData.image,
         additionalImages: formData.additionalImages
           ? formData.additionalImages.split("\n").filter(Boolean)
           : undefined,
         description: formData.description,
         longDescription: formData.longDescription,
-        whatsInTheBox: formData.whatsInTheBox.split("\n").filter(Boolean),
-        productLink: formData.productLink && isValidUrl(formData.productLink) 
-          ? formData.productLink 
-          : undefined,
+        whatsInTheBox: ["A Mystery item (something you would not expect)", "A Letter (guide to use the product)", "GIVEAWAY TICKET (Its all about This)", "GIVEAWAY products are not sent in mystery box"],
       };
 
       if (editingProduct) {
