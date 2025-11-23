@@ -225,7 +225,6 @@ export default function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-neutral-950">
       <Navbar />
-      
       <main className="container mx-auto px-4 pt-32 pb-16">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -400,7 +399,7 @@ export default function ProductDetailPage() {
                 </div>
               )}
               
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2" data-testid="text-free-delivery">
+              <p className="text-sm dark:text-gray-400 mt-2 text-[#000000]" data-testid="text-free-delivery">
                 {promotionalSettings?.deliveryText || "Shop for ₹199 and get free delivery"}
               </p>
             </div>
