@@ -114,6 +114,72 @@ export default function DeveloperPanel() {
     }
   };
 
+  const handleMainImagePaste = async (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        e.preventDefault();
+        const file = items[i].getAsFile();
+        if (file) {
+          try {
+            const base64Image = await convertFileToBase64(file);
+            setFormData({ ...formData, image: base64Image });
+            toast({
+              title: "Image pasted",
+              description: "Main image has been set from clipboard.",
+            });
+          } catch (error) {
+            toast({
+              title: "Paste failed",
+              description: "Failed to process pasted image.",
+              variant: "destructive",
+            });
+          }
+        }
+        break;
+      }
+    }
+  };
+
+  const handleAdditionalImagesPaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    const imageFiles: File[] = [];
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        if (file) {
+          imageFiles.push(file);
+        }
+      }
+    }
+
+    if (imageFiles.length > 0) {
+      e.preventDefault();
+      try {
+        const base64Images = await Promise.all(
+          imageFiles.map(file => convertFileToBase64(file))
+        );
+        const currentImages = formData.additionalImages ? formData.additionalImages.split("\n").filter(Boolean) : [];
+        const allImages = [...currentImages, ...base64Images].join("\n");
+        setFormData({ ...formData, additionalImages: allImages });
+        toast({
+          title: "Images pasted",
+          description: `${imageFiles.length} image(s) added from clipboard.`,
+        });
+      } catch (error) {
+        toast({
+          title: "Paste failed",
+          description: "Failed to process pasted images.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       title: "",
@@ -679,7 +745,8 @@ export default function DeveloperPanel() {
                   id="image"
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  placeholder="https://example.com/image.png or upload below"
+                  onPaste={handleMainImagePaste}
+                  placeholder="https://example.com/image.png or paste/upload image"
                   required
                   data-testid="input-product-image"
                   className="flex-1 focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
@@ -702,7 +769,7 @@ export default function DeveloperPanel() {
                 </Button>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Paste a URL or upload an image from your device
+                Paste image URL, paste copied image (Ctrl+V), or upload from device
               </p>
             </div>
 
@@ -712,6 +779,7 @@ export default function DeveloperPanel() {
                 id="additionalImages"
                 value={formData.additionalImages}
                 onChange={(e) => setFormData({ ...formData, additionalImages: e.target.value })}
+                onPaste={handleAdditionalImagesPaste}
                 placeholder="https://example.com/image1.png&#10;https://example.com/image2.png"
                 rows={3}
                 data-testid="input-product-additional-images"
@@ -737,7 +805,7 @@ export default function DeveloperPanel() {
                 </Button>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Paste URLs (one per line) or upload multiple images from your device
+                Paste URLs (one per line), paste copied images (Ctrl+V), or upload from device
               </p>
             </div>
 
