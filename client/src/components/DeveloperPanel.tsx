@@ -747,18 +747,6 @@ export default function DeveloperPanel() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="productLink">Product Link</Label>
-              <Input
-                id="productLink"
-                value={formData.productLink}
-                onChange={(e) => setFormData({ ...formData, productLink: e.target.value })}
-                placeholder="https://example.com/product"
-                className="focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
-                data-testid="input-product-link"
-              />
-            </div>
-
             <div className="flex gap-2 pt-4">
               <Button
                 type="submit"
