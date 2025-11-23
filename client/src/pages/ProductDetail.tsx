@@ -399,6 +399,12 @@ export default function ProductDetailPage() {
                   )}
                 </div>
               )}
+              
+              {product.id !== 4 && (
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2" data-testid="text-free-delivery">
+                  Shop for ₹199 and get free delivery
+                </p>
+              )}
             </div>
 
             {product.id !== 4 && isInStock && (
