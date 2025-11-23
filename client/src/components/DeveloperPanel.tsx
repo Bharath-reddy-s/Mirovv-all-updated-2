@@ -625,19 +625,6 @@ export default function DeveloperPanel() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="label">Label *</Label>
-              <Input
-                id="label"
-                value={formData.label}
-                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                placeholder="e.g., Giveaway Ticket Included"
-                required
-                className="focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
-                data-testid="input-product-label"
-              />
-            </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="price">Price *</Label>
