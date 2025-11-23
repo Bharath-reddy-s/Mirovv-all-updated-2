@@ -4,9 +4,12 @@ import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
 import { Pool, neonConfig } from "@neondatabase/serverless";
 import ws from "ws";
 
-const dbUrl = process.env.DATABASE_URL!.replace(/^['"]|['"]$/g, '');
+let dbUrl = process.env.DATABASE_URL!.replace(/^['"]|['"]$/g, '');
+dbUrl = dbUrl.replace(/channel_binding=require&?/g, '').replace(/&$/, '');
 
 neonConfig.webSocketConstructor = ws;
+neonConfig.useSecureWebSocket = true;
+neonConfig.pipelineConnect = false;
 
 const pool = new Pool({ connectionString: dbUrl });
 pool.on('error', (err) => console.error('Database pool error:', err));
