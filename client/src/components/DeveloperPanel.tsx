@@ -748,19 +748,6 @@ export default function DeveloperPanel() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="whatsInTheBox">What's in the Box (one per line) *</Label>
-              <Textarea
-                id="whatsInTheBox"
-                value={formData.whatsInTheBox}
-                onChange={(e) => setFormData({ ...formData, whatsInTheBox: e.target.value })}
-                placeholder="A Mystery item&#10;A Letter (guide)&#10;GIVEAWAY TICKET"
-                required
-                rows={4}
-                data-testid="input-product-whats-in-box"
-              />
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="productLink">Product Link</Label>
               <Input
                 id="productLink"
