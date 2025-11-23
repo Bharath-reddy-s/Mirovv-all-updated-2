@@ -5,7 +5,7 @@ import videoSrc from "@assets/_ copy_1763317377238.mp4";
 
 export default function Home() {
   return (
-    <>
+    <div className="pt-16">
       <OfferBanner />
       <BackgroundPaths title="Mystery Boxes Await" />
       
@@ -42,6 +42,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
