@@ -34,7 +34,7 @@ export interface IStorage {
   updatePriceFilter(id: number, value: number): Promise<PriceFilter | undefined>;
   deletePriceFilter(id: number): Promise<boolean>;
   getPromotionalSettings(): Promise<PromotionalSettings>;
-  updatePromotionalSettings(bannerText: string, timerDays: number): Promise<PromotionalSettings>;
+  updatePromotionalSettings(bannerText: string, timerDays: number, deliveryText: string): Promise<PromotionalSettings>;
   createOrder(order: InsertOrder): Promise<Order>;
   getOrderByNumber(orderNumber: string): Promise<Order | undefined>;
 }
@@ -188,16 +188,17 @@ export class DBStorage implements IStorage {
       const [newSettings] = await sql.insert(promotionalSettingsTable).values({
         bannerText: "₹10 off on every product",
         timerDays: 7,
+        deliveryText: "Shop for ₹199 and get free delivery",
       }).returning();
       return newSettings as PromotionalSettings;
     }
     return settings as PromotionalSettings;
   }
 
-  async updatePromotionalSettings(bannerText: string, timerDays: number): Promise<PromotionalSettings> {
+  async updatePromotionalSettings(bannerText: string, timerDays: number, deliveryText: string): Promise<PromotionalSettings> {
     const timerEndTime = new Date(Date.now() + (timerDays * 24 * 60 * 60 * 1000));
     const [updated] = await sql.update(promotionalSettingsTable)
-      .set({ bannerText, timerDays, timerEndTime })
+      .set({ bannerText, timerDays, timerEndTime, deliveryText })
       .where(eq(promotionalSettingsTable.id, 1))
       .returning();
     return updated as PromotionalSettings;

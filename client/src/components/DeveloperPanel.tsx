@@ -39,6 +39,7 @@ export default function DeveloperPanel() {
   const [editingFilterValue, setEditingFilterValue] = useState("");
   const [bannerText, setBannerText] = useState(promotionalSettings?.bannerText || "₹10 off on every product");
   const [timerDays, setTimerDays] = useState(promotionalSettings?.timerDays?.toString() || "7");
+  const [deliveryText, setDeliveryText] = useState(promotionalSettings?.deliveryText || "Shop for ₹199 and get free delivery");
   const { toast } = useToast();
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const additionalImagesInputRef = useRef<HTMLInputElement>(null);
@@ -47,6 +48,7 @@ export default function DeveloperPanel() {
     if (promotionalSettings) {
       setBannerText(promotionalSettings.bannerText);
       setTimerDays(promotionalSettings.timerDays.toString());
+      setDeliveryText(promotionalSettings.deliveryText);
     }
   }, [promotionalSettings]);
 
@@ -536,27 +538,40 @@ export default function DeveloperPanel() {
                   <p className="text-xs text-gray-400">Set how many days the offer countdown should run</p>
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="delivery-text">Delivery Text</Label>
+                  <Input
+                    id="delivery-text"
+                    value={deliveryText}
+                    onChange={(e) => setDeliveryText(e.target.value)}
+                    placeholder="e.g., Shop for ₹199 and get free delivery"
+                    className="bg-black text-white focus-visible:ring-0 focus-visible:border-gray-600"
+                    data-testid="input-delivery-text"
+                  />
+                  <p className="text-xs text-gray-400">Text shown on all product pages about delivery</p>
+                </div>
+
                 <Button
                   onClick={async () => {
                     const days = parseInt(timerDays);
-                    if (!bannerText || isNaN(days) || days < 1 || days > 365) {
+                    if (!bannerText || !deliveryText || isNaN(days) || days < 1 || days > 365) {
                       toast({
                         title: "Invalid values",
-                        description: "Please enter valid banner text and timer duration (1-365 days)",
+                        description: "Please enter valid banner text, delivery text and timer duration (1-365 days)",
                         variant: "destructive",
                       });
                       return;
                     }
                     try {
-                      await updateOfferBanner(bannerText, days);
+                      await updateOfferBanner(bannerText, days, deliveryText);
                       toast({
                         title: "Banner updated",
-                        description: "Offer banner settings have been saved and timer has been reset",
+                        description: "Promotional settings have been saved and timer has been reset",
                       });
                     } catch (error) {
                       toast({
                         title: "Update failed",
-                        description: "Failed to update banner settings",
+                        description: "Failed to update promotional settings",
                         variant: "destructive",
                       });
                     }

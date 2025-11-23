@@ -240,8 +240,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: validation.error });
       }
 
-      const { bannerText, timerDays } = validation.data;
-      const settings = await storage.updatePromotionalSettings(bannerText, timerDays);
+      const { bannerText, timerDays, deliveryText } = validation.data;
+      const settings = await storage.updatePromotionalSettings(bannerText, timerDays, deliveryText);
       res.json(settings);
     } catch (error) {
       console.error("Failed to update promotional settings:", error);

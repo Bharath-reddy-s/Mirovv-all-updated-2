@@ -41,6 +41,7 @@ export const promotionalSettingsTable = pgTable("promotional_settings", {
   bannerText: text("banner_text").notNull().default("₹10 off on every product"),
   timerDays: integer("timer_days").notNull().default(7),
   timerEndTime: timestamp("timer_end_time"),
+  deliveryText: text("delivery_text").notNull().default("Shop for ₹199 and get free delivery"),
 });
 
 export const ordersTable = pgTable("orders", {
@@ -77,6 +78,7 @@ export const insertPromotionalSettingsSchema = createInsertSchema(promotionalSet
   bannerText: z.string().min(1, "Banner text is required"),
   timerDays: z.number().positive("Timer days must be positive").max(365, "Timer days cannot exceed 365"),
   timerEndTime: z.date().optional(),
+  deliveryText: z.string().min(1, "Delivery text is required"),
 });
 export type InsertPromotionalSettings = z.infer<typeof insertPromotionalSettingsSchema>;
 export type PromotionalSettings = typeof promotionalSettingsTable.$inferSelect;

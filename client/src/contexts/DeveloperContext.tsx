@@ -17,7 +17,7 @@ interface DeveloperContextType {
   createPriceFilter: (value: number) => Promise<any>;
   updatePriceFilter: (id: number, value: number) => Promise<any>;
   deletePriceFilter: (id: number) => Promise<any>;
-  updateOfferBanner: (text: string, days: number) => Promise<void>;
+  updateOfferBanner: (text: string, days: number, deliveryText: string) => Promise<void>;
   isCreatingProduct: boolean;
   isUpdatingProduct: boolean;
   isDeletingProduct: boolean;
@@ -122,8 +122,8 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
   });
 
   const updatePromotionalSettingsMutation = useMutation({
-    mutationFn: async ({ bannerText, timerDays }: { bannerText: string; timerDays: number }) => {
-      return apiRequest("PATCH", "/api/promotional-settings", { bannerText, timerDays });
+    mutationFn: async ({ bannerText, timerDays, deliveryText }: { bannerText: string; timerDays: number; deliveryText: string }) => {
+      return apiRequest("PATCH", "/api/promotional-settings", { bannerText, timerDays, deliveryText });
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["/api/promotional-settings"], data);
@@ -191,8 +191,8 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     return deletePriceFilterMutation.mutateAsync(id);
   };
 
-  const updateOfferBanner = async (text: string, days: number) => {
-    await updatePromotionalSettingsMutation.mutateAsync({ bannerText: text, timerDays: days });
+  const updateOfferBanner = async (text: string, days: number, deliveryText: string) => {
+    await updatePromotionalSettingsMutation.mutateAsync({ bannerText: text, timerDays: days, deliveryText });
   };
 
   return (

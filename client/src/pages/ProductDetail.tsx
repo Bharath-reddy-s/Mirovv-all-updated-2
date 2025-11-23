@@ -25,7 +25,7 @@ export default function ProductDetailPage() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const { addToCart } = useCart();
-  const { stockStatus, isDeveloperMode } = useDeveloper();
+  const { stockStatus, isDeveloperMode, promotionalSettings } = useDeveloper();
   const [isSharing, setIsSharing] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedRating, setSelectedRating] = useState(0);
@@ -400,11 +400,9 @@ export default function ProductDetailPage() {
                 </div>
               )}
               
-              {product.id !== 4 && (
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2" data-testid="text-free-delivery">
-                  Shop for ₹199 and get free delivery
-                </p>
-              )}
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2" data-testid="text-free-delivery">
+                {promotionalSettings?.deliveryText || "Shop for ₹199 and get free delivery"}
+              </p>
             </div>
 
             {product.id !== 4 && isInStock && (
