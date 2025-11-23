@@ -653,21 +653,6 @@ export default function DeveloperPanel() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="pricingText">Pricing Text</Label>
-              <Input
-                id="pricingText"
-                value={formData.pricingText}
-                onChange={(e) => setFormData({ ...formData, pricingText: e.target.value })}
-                placeholder="e.g., ( Just at a price of 3 Lights )"
-                className="focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
-                data-testid="input-product-pricing-text"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                This text appears next to the price on the product page
-              </p>
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="image">Main Image *</Label>
               <div className="flex gap-2">
                 <Input
