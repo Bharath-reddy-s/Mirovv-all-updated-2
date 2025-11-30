@@ -16,6 +16,42 @@ pool.on('error', (err) => console.error('Database pool error:', err));
 
 const sql = drizzle({ client: pool });
 
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+const CACHE_TTL = 60000; // 1 minute cache
+
+const cache: {
+  products: CacheEntry<Product[]> | null;
+  stock: CacheEntry<StockStatus> | null;
+  priceFilters: CacheEntry<PriceFilter[]> | null;
+  promotionalSettings: CacheEntry<PromotionalSettings> | null;
+} = {
+  products: null,
+  stock: null,
+  priceFilters: null,
+  promotionalSettings: null,
+};
+
+function isCacheValid<T>(entry: CacheEntry<T> | null): entry is CacheEntry<T> {
+  return entry !== null && (Date.now() - entry.timestamp) < CACHE_TTL;
+}
+
+function invalidateProductCache() {
+  cache.products = null;
+  cache.stock = null;
+}
+
+function invalidatePriceFilterCache() {
+  cache.priceFilters = null;
+}
+
+function invalidatePromotionalCache() {
+  cache.promotionalSettings = null;
+}
+
 export interface IStorage {
   getStockStatus(): Promise<StockStatus>;
   updateStockStatus(productId: number, isInStock: boolean): Promise<StockStatus>;
@@ -42,11 +78,15 @@ export interface IStorage {
 
 export class DBStorage implements IStorage {
   async getStockStatus(): Promise<StockStatus> {
+    if (isCacheValid(cache.stock)) {
+      return cache.stock.data;
+    }
     const products = await sql.select().from(productsTable);
     const status: StockStatus = {};
     products.forEach(p => {
       status[p.id] = p.isInStock;
     });
+    cache.stock = { data: status, timestamp: Date.now() };
     return status;
   }
 
@@ -54,11 +94,16 @@ export class DBStorage implements IStorage {
     await sql.update(productsTable)
       .set({ isInStock })
       .where(eq(productsTable.id, productId));
+    invalidateProductCache();
     return this.getStockStatus();
   }
 
   async getProducts(): Promise<Product[]> {
+    if (isCacheValid(cache.products)) {
+      return cache.products.data;
+    }
     const products = await sql.select().from(productsTable).orderBy(asc(productsTable.displayOrder));
+    cache.products = { data: products as Product[], timestamp: Date.now() };
     return products as Product[];
   }
 
@@ -71,6 +116,7 @@ export class DBStorage implements IStorage {
     const [newProduct] = await sql.insert(productsTable)
       .values(productData)
       .returning();
+    invalidateProductCache();
     return newProduct as Product;
   }
 
@@ -79,6 +125,7 @@ export class DBStorage implements IStorage {
       .set(updates)
       .where(eq(productsTable.id, id))
       .returning();
+    invalidateProductCache();
     return updated as Product | undefined;
   }
 
@@ -86,6 +133,7 @@ export class DBStorage implements IStorage {
     const result = await sql.delete(productsTable)
       .where(eq(productsTable.id, id))
       .returning();
+    invalidateProductCache();
     return result.length > 0;
   }
 
@@ -114,6 +162,7 @@ export class DBStorage implements IStorage {
       .set({ displayOrder: currentProduct.displayOrder })
       .where(eq(productsTable.id, targetProduct.id));
 
+    invalidateProductCache();
     return this.getProducts();
   }
 
@@ -156,6 +205,7 @@ export class DBStorage implements IStorage {
       .set({ displayOrder: newDisplayOrder })
       .where(eq(productsTable.id, movingProduct.id));
 
+    invalidateProductCache();
     return this.getProducts();
   }
 
@@ -196,7 +246,11 @@ export class DBStorage implements IStorage {
   }
 
   async getPriceFilters(): Promise<PriceFilter[]> {
+    if (isCacheValid(cache.priceFilters)) {
+      return cache.priceFilters.data;
+    }
     const filters = await sql.select().from(priceFiltersTable).orderBy(asc(priceFiltersTable.displayOrder));
+    cache.priceFilters = { data: filters as PriceFilter[], timestamp: Date.now() };
     return filters as PriceFilter[];
   }
 
@@ -207,6 +261,7 @@ export class DBStorage implements IStorage {
     const [newFilter] = await sql.insert(priceFiltersTable)
       .values({ ...filterData, displayOrder: nextOrder })
       .returning();
+    invalidatePriceFilterCache();
     return newFilter as PriceFilter;
   }
 
@@ -215,6 +270,7 @@ export class DBStorage implements IStorage {
       .set({ value })
       .where(eq(priceFiltersTable.id, id))
       .returning();
+    invalidatePriceFilterCache();
     return updated as PriceFilter | undefined;
   }
 
@@ -222,10 +278,14 @@ export class DBStorage implements IStorage {
     const result = await sql.delete(priceFiltersTable)
       .where(eq(priceFiltersTable.id, id))
       .returning();
+    invalidatePriceFilterCache();
     return result.length > 0;
   }
 
   async getPromotionalSettings(): Promise<PromotionalSettings> {
+    if (isCacheValid(cache.promotionalSettings)) {
+      return cache.promotionalSettings.data;
+    }
     const [settings] = await sql.select().from(promotionalSettingsTable).limit(1);
     if (!settings) {
       const [newSettings] = await sql.insert(promotionalSettingsTable).values({
@@ -233,8 +293,10 @@ export class DBStorage implements IStorage {
         timerDays: 7,
         deliveryText: "Shop for ₹199 and get free delivery",
       }).returning();
+      cache.promotionalSettings = { data: newSettings as PromotionalSettings, timestamp: Date.now() };
       return newSettings as PromotionalSettings;
     }
+    cache.promotionalSettings = { data: settings as PromotionalSettings, timestamp: Date.now() };
     return settings as PromotionalSettings;
   }
 
@@ -244,6 +306,7 @@ export class DBStorage implements IStorage {
       .set({ bannerText, timerDays, timerEndTime, deliveryText })
       .where(eq(promotionalSettingsTable.id, 1))
       .returning();
+    invalidatePromotionalCache();
     return updated as PromotionalSettings;
   }
 
