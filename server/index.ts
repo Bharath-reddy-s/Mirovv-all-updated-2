@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { startTelegramBot } from "./telegram";
+import { warmupCache } from "./storage";
 
 const app = express();
 
@@ -67,6 +68,9 @@ app.use((req, res, next) => {
   } else {
     serveStatic(app);
   }
+
+  // Pre-warm cache before accepting requests
+  await warmupCache();
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Other ports are firewalled. Default to 5000 if not specified.

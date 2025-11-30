@@ -21,7 +21,7 @@ interface CacheEntry<T> {
   timestamp: number;
 }
 
-const CACHE_TTL = 60000; // 1 minute cache
+const CACHE_TTL = 300000; // 5 minutes cache
 
 const cache: {
   products: CacheEntry<Product[]> | null;
@@ -50,6 +50,37 @@ function invalidatePriceFilterCache() {
 
 function invalidatePromotionalCache() {
   cache.promotionalSettings = null;
+}
+
+export async function warmupCache(): Promise<void> {
+  console.log('Warming up cache...');
+  const start = Date.now();
+  
+  try {
+    const [products, priceFilters, settings] = await Promise.all([
+      sql.select().from(productsTable).orderBy(asc(productsTable.displayOrder)),
+      sql.select().from(priceFiltersTable).orderBy(asc(priceFiltersTable.displayOrder)),
+      sql.select().from(promotionalSettingsTable).limit(1),
+    ]);
+    
+    cache.products = { data: products as Product[], timestamp: Date.now() };
+    
+    const stockStatus: StockStatus = {};
+    products.forEach(p => {
+      stockStatus[p.id] = p.isInStock;
+    });
+    cache.stock = { data: stockStatus, timestamp: Date.now() };
+    
+    cache.priceFilters = { data: priceFilters as PriceFilter[], timestamp: Date.now() };
+    
+    if (settings.length > 0) {
+      cache.promotionalSettings = { data: settings[0] as PromotionalSettings, timestamp: Date.now() };
+    }
+    
+    console.log(`Cache warmed up in ${Date.now() - start}ms`);
+  } catch (error) {
+    console.error('Cache warmup failed:', error);
+  }
 }
 
 export interface IStorage {
@@ -108,6 +139,9 @@ export class DBStorage implements IStorage {
   }
 
   async getProductById(id: number): Promise<Product | undefined> {
+    if (isCacheValid(cache.products)) {
+      return cache.products.data.find(p => p.id === id);
+    }
     const [product] = await sql.select().from(productsTable).where(eq(productsTable.id, id));
     return product as Product | undefined;
   }

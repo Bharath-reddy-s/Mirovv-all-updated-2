@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
@@ -105,10 +105,10 @@ export default function ShopPage() {
             {filteredProducts.map((box, index) => (
             <motion.div
               key={box.id}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               whileHover={{ scale: 1.02, y: -8 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
               className="bg-black rounded-[24px] overflow-hidden flex flex-col"
               data-testid={`card-product-${box.id}`}
             >
@@ -131,26 +131,20 @@ export default function ShopPage() {
                   )}
                   
                   <div className={`relative w-full flex-1 flex items-center justify-center min-h-[300px] mb-4 overflow-hidden ${box.id === 4 ? 'mt-4' : ''}`}>
-                    <AnimatePresence mode="wait">
-                      {(() => {
-                        const allImages = [box.image, ...(box.additionalImages || [])];
-                        const currentIndex = currentImageIndices[box.id] || 0;
-                        const currentImage = allImages[currentIndex];
-                        
-                        return (
-                          <motion.img
-                            key={`${box.id}-${currentIndex}`}
-                            src={currentImage}
-                            alt={box.title}
-                            className="w-full h-full object-contain drop-shadow-2xl absolute"
-                            initial={{ x: "100%", opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: "-100%", opacity: 0 }}
-                            transition={{ duration: 1, ease: "easeInOut" }}
-                          />
-                        );
-                      })()}
-                    </AnimatePresence>
+                    {(() => {
+                      const allImages = [box.image, ...(box.additionalImages || [])];
+                      const currentIndex = currentImageIndices[box.id] || 0;
+                      const currentImage = allImages[currentIndex];
+                      
+                      return (
+                        <img
+                          src={currentImage}
+                          alt={box.title}
+                          loading="lazy"
+                          className="w-full h-full object-contain drop-shadow-2xl transition-opacity duration-300"
+                        />
+                      );
+                    })()}
                   </div>
                 </div>
               </Link>
