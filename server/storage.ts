@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
 import { Pool, neonConfig } from "@neondatabase/serverless";
 import ws from "ws";
+import { compressProductImages } from "./image-compression";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL environment variable is required");
@@ -150,16 +151,41 @@ export class DBStorage implements IStorage {
   }
 
   async createProduct(productData: CreateProduct): Promise<Product> {
+    const compressed = await compressProductImages(
+      productData.image,
+      productData.additionalImages
+    );
+    
     const [newProduct] = await sql.insert(productsTable)
-      .values(productData)
+      .values({
+        ...productData,
+        image: compressed.image,
+        additionalImages: compressed.additionalImages
+      })
       .returning();
     invalidateProductCache();
     return newProduct as Product;
   }
 
   async updateProduct(id: number, updates: Partial<UpdateProduct>): Promise<Product | undefined> {
+    let finalUpdates = { ...updates };
+    
+    if (updates.image || updates.additionalImages) {
+      const compressed = await compressProductImages(
+        updates.image || '',
+        updates.additionalImages
+      );
+      
+      if (updates.image) {
+        finalUpdates.image = compressed.image;
+      }
+      if (updates.additionalImages) {
+        finalUpdates.additionalImages = compressed.additionalImages || undefined;
+      }
+    }
+    
     const [updated] = await sql.update(productsTable)
-      .set(updates)
+      .set(finalUpdates)
       .where(eq(productsTable.id, id))
       .returning();
     invalidateProductCache();
