@@ -1,24 +1,18 @@
 import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable } from "@shared/schema";
-import { drizzle } from "drizzle-orm/neon-serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
-import { Pool, neonConfig } from "@neondatabase/serverless";
-import ws from "ws";
-import { compressProductImages } from "./image-compression";
+import { neon } from "@neondatabase/serverless";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL environment variable is required");
 }
 
-neonConfig.webSocketConstructor = ws;
-
-const dbUrl = process.env.DATABASE_URL.trim().replace(/^['"]|['"]$/g, '');
+let dbUrl = process.env.DATABASE_URL.trim().replace(/^['"]|['"]$/g, '');
 
 console.log("Connecting to database...");
 
-const pool = new Pool({ connectionString: dbUrl });
-pool.on('error', (err) => console.error('Database pool error:', err));
-
-const sql = drizzle({ client: pool });
+const client = neon(dbUrl);
+const sql = drizzle(client);
 
 interface CacheEntry<T> {
   data: T;
@@ -151,41 +145,16 @@ export class DBStorage implements IStorage {
   }
 
   async createProduct(productData: CreateProduct): Promise<Product> {
-    const compressed = await compressProductImages(
-      productData.image,
-      productData.additionalImages
-    );
-    
     const [newProduct] = await sql.insert(productsTable)
-      .values({
-        ...productData,
-        image: compressed.image,
-        additionalImages: compressed.additionalImages
-      })
+      .values(productData)
       .returning();
     invalidateProductCache();
     return newProduct as Product;
   }
 
   async updateProduct(id: number, updates: Partial<UpdateProduct>): Promise<Product | undefined> {
-    let finalUpdates = { ...updates };
-    
-    if (updates.image || updates.additionalImages) {
-      const compressed = await compressProductImages(
-        updates.image || '',
-        updates.additionalImages
-      );
-      
-      if (updates.image) {
-        finalUpdates.image = compressed.image;
-      }
-      if (updates.additionalImages) {
-        finalUpdates.additionalImages = compressed.additionalImages || undefined;
-      }
-    }
-    
     const [updated] = await sql.update(productsTable)
-      .set(finalUpdates)
+      .set(updates)
       .where(eq(productsTable.id, id))
       .returning();
     invalidateProductCache();

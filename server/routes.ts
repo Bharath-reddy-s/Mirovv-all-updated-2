@@ -33,11 +33,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/products", async (req, res) => {
     try {
       const products = await storage.getProducts();
-      const productsWithoutAdditionalImages = products.map(p => ({
-        ...p,
-        additionalImages: []
-      }));
-      res.json(productsWithoutAdditionalImages);
+      res.json(products);
     } catch (error) {
       res.status(500).json({ error: "Failed to get products" });
     }
