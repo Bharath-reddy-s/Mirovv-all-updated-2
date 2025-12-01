@@ -1,18 +1,23 @@
 import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable } from "@shared/schema";
-import { drizzle } from "drizzle-orm/neon-http";
+import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
-import { neon } from "@neondatabase/serverless";
+import { Pool, neonConfig } from "@neondatabase/serverless";
+import ws from "ws";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL environment variable is required");
 }
 
-let dbUrl = process.env.DATABASE_URL.trim().replace(/^['"]|['"]$/g, '');
+neonConfig.webSocketConstructor = ws;
+
+const dbUrl = process.env.DATABASE_URL.trim().replace(/^['"]|['"]$/g, '');
 
 console.log("Connecting to database...");
 
-const client = neon(dbUrl);
-const sql = drizzle(client);
+const pool = new Pool({ connectionString: dbUrl });
+pool.on('error', (err) => console.error('Database pool error:', err));
+
+const sql = drizzle({ client: pool });
 
 interface CacheEntry<T> {
   data: T;
