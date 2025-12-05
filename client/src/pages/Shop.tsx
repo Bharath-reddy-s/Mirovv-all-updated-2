@@ -141,7 +141,7 @@ export default function ShopPage() {
                           src={currentImage}
                           alt={box.title}
                           loading="lazy"
-                          className="w-full h-full object-contain drop-shadow-2xl transition-opacity duration-300"
+                          className="w-full h-full object-contain drop-shadow-2xl transition-opacity duration-300 rounded-xl"
                         />
                       );
                     })()}
