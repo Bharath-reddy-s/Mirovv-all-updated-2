@@ -1,17 +1,22 @@
-import { ShoppingCart, Search } from "lucide-react";
+import { ShoppingCart, Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Link, useLocation } from "wouter";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo } from "react";
-import { products } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
+import type { Product } from "@shared/schema";
 
 export default function Navbar() {
   const { setIsCartOpen, cartCount } = useCart();
   const [location, setLocation] = useLocation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const { data: products = [], isLoading } = useQuery<Product[]>({
+    queryKey: ["/api/products"],
+  });
 
   const filteredProducts = useMemo(() => {
     if (!searchQuery.trim()) return products;
@@ -21,7 +26,7 @@ export default function Navbar() {
         product.title.toLowerCase().includes(query) ||
         product.description.toLowerCase().includes(query)
     );
-  }, [searchQuery]);
+  }, [searchQuery, products]);
 
   const handleProductClick = (productId: number) => {
     setIsSearchOpen(false);
@@ -102,7 +107,11 @@ export default function Navbar() {
               data-testid="input-search"
             />
             <div className="flex-1 overflow-y-auto space-y-2">
-              {filteredProducts.length > 0 ? (
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
+                </div>
+              ) : filteredProducts.length > 0 ? (
                 filteredProducts.map((product) => (
                   <div
                     key={product.id}
