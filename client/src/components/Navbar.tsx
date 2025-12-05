@@ -126,7 +126,7 @@ export default function Navbar() {
                     <img
                       src={product.image}
                       alt={product.title}
-                      className="w-16 h-16 object-cover rounded-md"
+                      className="w-16 h-16 object-cover rounded-xl"
                     />
                     <div className="flex-1">
                       <h3 className="font-semibold text-black dark:text-white">

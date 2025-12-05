@@ -211,11 +211,11 @@ export default function CheckoutPage() {
               <div className="space-y-4">
                 {items.map((item) => (
                   <div key={item.id} className="flex items-start gap-4">
-                    <div className="w-20 h-20 bg-black rounded-lg flex-shrink-0 overflow-hidden">
+                    <div className="w-20 h-20 bg-black rounded-xl flex-shrink-0 overflow-hidden">
                       <img
                         src={item.image}
                         alt={item.title}
-                        className="w-full h-full object-contain p-2"
+                        className="w-full h-full object-contain p-2 rounded-xl"
                       />
                     </div>
                     <div className="flex-1">

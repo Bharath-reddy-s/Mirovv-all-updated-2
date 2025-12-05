@@ -73,7 +73,7 @@ export default function CartSheet() {
                       <img
                         src={item.image}
                         alt={item.title}
-                        className="w-full h-full object-contain p-3"
+                        className="w-full h-full object-contain p-3 rounded-xl"
                       />
                     </div>
                     <div className="flex-1 flex flex-col justify-between">
