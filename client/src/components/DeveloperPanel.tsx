@@ -714,27 +714,35 @@ export default function DeveloperPanel() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="price">Price *</Label>
-                <Input
-                  id="price"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="e.g., ₹49"
-                  required
-                  className="focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
-                  data-testid="input-product-price"
-                />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+                  <Input
+                    id="price"
+                    type="number"
+                    value={formData.price.replace(/[₹,]/g, '')}
+                    onChange={(e) => setFormData({ ...formData, price: `₹${e.target.value}` })}
+                    placeholder="49"
+                    required
+                    className="pl-7 focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
+                    data-testid="input-product-price"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="originalPrice">Original Price</Label>
-                <Input
-                  id="originalPrice"
-                  value={formData.originalPrice}
-                  onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
-                  placeholder="e.g., ₹79"
-                  className="focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
-                  data-testid="input-product-original-price"
-                />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+                  <Input
+                    id="originalPrice"
+                    type="number"
+                    value={formData.originalPrice.replace(/[₹,]/g, '')}
+                    onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value ? `₹${e.target.value}` : '' })}
+                    placeholder="79"
+                    className="pl-7 focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
+                    data-testid="input-product-original-price"
+                  />
+                </div>
               </div>
             </div>
 
