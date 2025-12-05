@@ -106,46 +106,30 @@ export default function ShopPage() {
                   <span className="text-lg font-bold">₹{price}</span>
                 </button>
               ))}
+              
+              <div className="w-px bg-gray-300 dark:bg-gray-600 mx-2 self-stretch" />
+              
+              <button
+                onClick={() => setSortOption("low-to-high")}
+                className={`w-14 h-14 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
+                  sortOption === "low-to-high" ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
+                }`}
+                data-testid="button-sort-low-to-high"
+              >
+                <ArrowUp className="w-4 h-4" />
+                <span className="text-[8px] font-normal">Low</span>
+              </button>
+              <button
+                onClick={() => setSortOption("high-to-low")}
+                className={`w-14 h-14 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
+                  sortOption === "high-to-low" ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
+                }`}
+                data-testid="button-sort-high-to-low"
+              >
+                <ArrowDown className="w-4 h-4" />
+                <span className="text-[8px] font-normal">High</span>
+              </button>
             </div>
-          </div>
-          
-          <div className="flex justify-center gap-2 mt-6">
-            <button
-              onClick={() => setSortOption("default")}
-              className={`px-4 py-2 rounded-full flex items-center gap-2 text-sm font-medium transition-all ${
-                sortOption === "default" 
-                  ? 'bg-black text-white dark:bg-white dark:text-black' 
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-              }`}
-              data-testid="button-sort-default"
-            >
-              <ArrowUpDown className="w-4 h-4" />
-              Default
-            </button>
-            <button
-              onClick={() => setSortOption("low-to-high")}
-              className={`px-4 py-2 rounded-full flex items-center gap-2 text-sm font-medium transition-all ${
-                sortOption === "low-to-high" 
-                  ? 'bg-black text-white dark:bg-white dark:text-black' 
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-              }`}
-              data-testid="button-sort-low-to-high"
-            >
-              <ArrowUp className="w-4 h-4" />
-              Price: Low to High
-            </button>
-            <button
-              onClick={() => setSortOption("high-to-low")}
-              className={`px-4 py-2 rounded-full flex items-center gap-2 text-sm font-medium transition-all ${
-                sortOption === "high-to-low" 
-                  ? 'bg-black text-white dark:bg-white dark:text-black' 
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-              }`}
-              data-testid="button-sort-high-to-low"
-            >
-              <ArrowDown className="w-4 h-4" />
-              Price: High to Low
-            </button>
           </div>
         </motion.div>
 
