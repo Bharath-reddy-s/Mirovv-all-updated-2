@@ -302,17 +302,17 @@ export default function DeveloperPanel() {
 
             <TabsContent value="stock">
               <p className="text-xs mb-3 opacity-80">Toggle product stock availability</p>
-              <div className="space-y-2">
-                {products.filter(p => p.id <= 3).map((product) => (
+              <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                {products.map((product) => (
                   <div
                     key={product.id}
                     className="flex items-center justify-between p-2 rounded bg-gray-800 dark:bg-gray-200"
                   >
-                    <span className="text-sm font-medium">{product.title}</span>
+                    <span className="text-sm font-medium truncate flex-1 mr-2">{product.title}</span>
                     <Button
                       size="sm"
                       onClick={() => toggleStockStatus(product.id)}
-                      className={`h-8 px-3 text-xs ${
+                      className={`h-8 px-3 text-xs flex-shrink-0 ${
                         stockStatus[product.id]
                           ? "bg-green-600 hover:bg-green-700 text-white"
                           : "bg-red-600 hover:bg-red-700 text-white"
