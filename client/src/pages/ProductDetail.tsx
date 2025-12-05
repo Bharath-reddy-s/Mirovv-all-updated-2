@@ -256,14 +256,14 @@ export default function ProductDetailPage() {
                   <img
                     src={allImages[currentImageIndex]}
                     alt={product.title}
-                    className="w-full h-full object-contain drop-shadow-2xl"
+                    className="w-full h-full object-contain drop-shadow-2xl rounded-xl"
                   />
                   {currentImageIndex === 0 && (
                     <div className="absolute top-full left-0 w-full h-[150px] overflow-hidden opacity-30">
                       <img
                         src={allImages[currentImageIndex]}
                         alt=""
-                        className="w-full h-full object-contain scale-y-[-1]"
+                        className="w-full h-full object-contain scale-y-[-1] rounded-xl"
                         style={{
                           maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 100%)",
                           WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 100%)",
