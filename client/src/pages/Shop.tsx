@@ -40,9 +40,20 @@ export default function ShopPage() {
   };
 
   const filteredAndSortedProducts = useMemo(() => {
-    let result = selectedPriceFilter
-      ? products.filter((product) => extractPrice(product.price) <= selectedPriceFilter)
-      : [...products];
+    let result: Product[];
+    
+    if (selectedPriceFilter) {
+      const filterIndex = priceFilterOptions.indexOf(selectedPriceFilter);
+      const minPrice = filterIndex > 0 ? priceFilterOptions[filterIndex - 1] : 0;
+      const maxPrice = selectedPriceFilter;
+      
+      result = products.filter((product) => {
+        const price = extractPrice(product.price);
+        return price > minPrice && price <= maxPrice;
+      });
+    } else {
+      result = [...products];
+    }
     
     if (sortOption === "low-to-high") {
       result = result.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
@@ -51,7 +62,7 @@ export default function ShopPage() {
     }
     
     return result;
-  }, [products, selectedPriceFilter, sortOption]);
+  }, [products, selectedPriceFilter, sortOption, priceFilterOptions]);
 
   useEffect(() => {
     const intervals: {[key: number]: NodeJS.Timeout} = {};
