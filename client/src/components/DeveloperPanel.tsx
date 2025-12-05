@@ -40,6 +40,8 @@ export default function DeveloperPanel() {
   const additionalImagesInputRef = useRef<HTMLInputElement>(null);
   const [editingPositionId, setEditingPositionId] = useState<number | null>(null);
   const [editingPositionValue, setEditingPositionValue] = useState("");
+  const [editingPriceId, setEditingPriceId] = useState<number | null>(null);
+  const [editingPriceValue, setEditingPriceValue] = useState("");
 
   useEffect(() => {
     if (promotionalSettings) {
@@ -400,6 +402,74 @@ export default function DeveloperPanel() {
                             Cancel
                           </Button>
                         </>
+                      ) : editingPriceId === product.id ? (
+                        <>
+                          <div 
+                            className="w-8 h-8 flex items-center justify-center bg-gray-700 dark:bg-gray-300 rounded text-xs font-bold"
+                            data-testid={`position-indicator-${product.id}`}
+                          >
+                            {index + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{product.title}</p>
+                            <div className="flex items-center gap-1 mt-1">
+                              <div className="relative flex-1">
+                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">₹</span>
+                                <Input
+                                  type="number"
+                                  value={editingPriceValue}
+                                  onChange={(e) => setEditingPriceValue(e.target.value)}
+                                  className="h-7 pl-5 text-xs w-20"
+                                  data-testid={`input-price-${product.id}`}
+                                />
+                              </div>
+                              <Button
+                                size="sm"
+                                onClick={async () => {
+                                  if (!editingPriceValue || parseInt(editingPriceValue) <= 0) {
+                                    toast({
+                                      title: "Invalid price",
+                                      description: "Please enter a valid price",
+                                      variant: "destructive",
+                                    });
+                                    return;
+                                  }
+                                  try {
+                                    await updateProduct(product.id, { price: `₹${editingPriceValue}` });
+                                    setEditingPriceId(null);
+                                    setEditingPriceValue("");
+                                    toast({
+                                      title: "Price updated",
+                                      description: "Product price updated successfully",
+                                    });
+                                  } catch (error) {
+                                    toast({
+                                      title: "Error",
+                                      description: "Failed to update price",
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}
+                                disabled={isUpdatingProduct}
+                                className="h-7 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
+                                data-testid={`button-save-price-${product.id}`}
+                              >
+                                Save
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  setEditingPriceId(null);
+                                  setEditingPriceValue("");
+                                }}
+                                className="h-7 px-2 text-xs"
+                                data-testid={`button-cancel-price-${product.id}`}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        </>
                       ) : (
                         <>
                           <div 
@@ -414,7 +484,16 @@ export default function DeveloperPanel() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">{product.title}</p>
-                            <p className="text-xs opacity-70">{product.price}</p>
+                            <p 
+                              className="text-xs opacity-70 cursor-pointer hover:opacity-100 hover:text-green-400 transition-colors"
+                              onClick={() => {
+                                setEditingPriceId(product.id);
+                                setEditingPriceValue(product.price.replace(/[₹,]/g, ''));
+                              }}
+                              data-testid={`price-indicator-${product.id}`}
+                            >
+                              {product.price} <span className="text-[10px] opacity-50">(click to edit)</span>
+                            </p>
                           </div>
                           <Button
                             size="sm"
