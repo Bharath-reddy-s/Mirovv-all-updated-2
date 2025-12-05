@@ -4,13 +4,17 @@ import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
 import { type Product, type PriceFilter } from "@shared/schema";
 import { Link } from "wouter";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+
+type SortOption = "default" | "low-to-high" | "high-to-low";
 
 export default function ShopPage() {
   const { addToCart } = useCart();
   const [currentImageIndices, setCurrentImageIndices] = useState<{[key: number]: number}>({});
   const [selectedPriceFilter, setSelectedPriceFilter] = useState<number | null>(null);
+  const [sortOption, setSortOption] = useState<SortOption>("default");
   
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
@@ -29,9 +33,19 @@ export default function ShopPage() {
     return match ? parseInt(match[0]) : 0;
   };
 
-  const filteredProducts = selectedPriceFilter
-    ? products.filter((product) => extractPrice(product.price) <= selectedPriceFilter)
-    : products;
+  const filteredAndSortedProducts = useMemo(() => {
+    let result = selectedPriceFilter
+      ? products.filter((product) => extractPrice(product.price) <= selectedPriceFilter)
+      : [...products];
+    
+    if (sortOption === "low-to-high") {
+      result = result.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
+    } else if (sortOption === "high-to-low") {
+      result = result.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));
+    }
+    
+    return result;
+  }, [products, selectedPriceFilter, sortOption]);
 
   useEffect(() => {
     const intervals: {[key: number]: NodeJS.Timeout} = {};
@@ -94,15 +108,54 @@ export default function ShopPage() {
               ))}
             </div>
           </div>
+          
+          <div className="flex justify-center gap-2 mt-6">
+            <button
+              onClick={() => setSortOption("default")}
+              className={`px-4 py-2 rounded-full flex items-center gap-2 text-sm font-medium transition-all ${
+                sortOption === "default" 
+                  ? 'bg-black text-white dark:bg-white dark:text-black' 
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              }`}
+              data-testid="button-sort-default"
+            >
+              <ArrowUpDown className="w-4 h-4" />
+              Default
+            </button>
+            <button
+              onClick={() => setSortOption("low-to-high")}
+              className={`px-4 py-2 rounded-full flex items-center gap-2 text-sm font-medium transition-all ${
+                sortOption === "low-to-high" 
+                  ? 'bg-black text-white dark:bg-white dark:text-black' 
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              }`}
+              data-testid="button-sort-low-to-high"
+            >
+              <ArrowUp className="w-4 h-4" />
+              Price: Low to High
+            </button>
+            <button
+              onClick={() => setSortOption("high-to-low")}
+              className={`px-4 py-2 rounded-full flex items-center gap-2 text-sm font-medium transition-all ${
+                sortOption === "high-to-low" 
+                  ? 'bg-black text-white dark:bg-white dark:text-black' 
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              }`}
+              data-testid="button-sort-high-to-low"
+            >
+              <ArrowDown className="w-4 h-4" />
+              Price: High to Low
+            </button>
+          </div>
         </motion.div>
 
         {isLoading ? (
           <div className="text-center text-gray-600 dark:text-gray-400">Loading products...</div>
-        ) : filteredProducts.length === 0 ? (
+        ) : filteredAndSortedProducts.length === 0 ? (
           <div className="text-center text-gray-600 dark:text-gray-400">No products found in this price range.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px] mx-auto">
-            {filteredProducts.map((box, index) => (
+            {filteredAndSortedProducts.map((box, index) => (
             <motion.div
               key={box.id}
               initial={{ opacity: 0, y: 20 }}
