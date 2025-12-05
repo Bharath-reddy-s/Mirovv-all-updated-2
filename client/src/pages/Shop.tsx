@@ -44,7 +44,7 @@ export default function ShopPage() {
     
     if (selectedPriceFilter) {
       const filterIndex = priceFilterOptions.indexOf(selectedPriceFilter);
-      const minPrice = filterIndex > 0 ? priceFilterOptions[filterIndex - 1] : 0;
+      const minPrice = filterIndex >= 2 ? priceFilterOptions[filterIndex - 2] : 0;
       const maxPrice = selectedPriceFilter;
       
       result = products.filter((product) => {
