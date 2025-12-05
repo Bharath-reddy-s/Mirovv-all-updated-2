@@ -6,7 +6,13 @@ import { type Product, type PriceFilter } from "@shared/schema";
 import { Link } from "wouter";
 import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ChevronDown, Check } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type SortOption = "default" | "low-to-high" | "high-to-low";
 
@@ -83,7 +89,47 @@ export default function ShopPage() {
           </h1>
           
           <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex gap-1 mt-6 min-w-max md:min-w-0 px-4 md:justify-center md:w-full">
+            <div className="flex gap-2 mt-6 min-w-max md:min-w-0 px-4 md:justify-center md:w-full items-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="h-10 px-4 flex-shrink-0 rounded-lg flex items-center gap-2 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600 text-black dark:text-white text-sm font-medium transition-all hover:bg-gray-50 dark:hover:bg-neutral-700"
+                    data-testid="button-sort-toggle"
+                  >
+                    Sort
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-48">
+                  <DropdownMenuItem
+                    onClick={() => setSortOption("default")}
+                    className="flex items-center justify-between"
+                    data-testid="button-sort-default"
+                  >
+                    Default
+                    {sortOption === "default" && <Check className="w-4 h-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setSortOption("low-to-high")}
+                    className="flex items-center justify-between"
+                    data-testid="button-sort-low-to-high"
+                  >
+                    Price: Low to High
+                    {sortOption === "low-to-high" && <Check className="w-4 h-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setSortOption("high-to-low")}
+                    className="flex items-center justify-between"
+                    data-testid="button-sort-high-to-low"
+                  >
+                    Price: High to Low
+                    {sortOption === "high-to-low" && <Check className="w-4 h-4" />}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              <div className="w-px h-8 bg-gray-300 dark:bg-gray-600" />
+              
               <button
                 onClick={() => setSelectedPriceFilter(null)}
                 className={`w-14 h-14 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
@@ -106,29 +152,6 @@ export default function ShopPage() {
                   <span className="text-lg font-bold">₹{price}</span>
                 </button>
               ))}
-              
-              <div className="w-px bg-gray-300 dark:bg-gray-600 mx-2 self-stretch" />
-              
-              <button
-                onClick={() => setSortOption("low-to-high")}
-                className={`w-14 h-14 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
-                  sortOption === "low-to-high" ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
-                }`}
-                data-testid="button-sort-low-to-high"
-              >
-                <ArrowUp className="w-4 h-4" />
-                <span className="text-[8px] font-normal">Low</span>
-              </button>
-              <button
-                onClick={() => setSortOption("high-to-low")}
-                className={`w-14 h-14 flex-shrink-0 rounded-full flex flex-col items-center justify-center text-white font-bold transition-transform hover:scale-105 ${
-                  sortOption === "high-to-low" ? 'bg-black' : 'bg-gray-300 dark:bg-gray-700'
-                }`}
-                data-testid="button-sort-high-to-low"
-              >
-                <ArrowDown className="w-4 h-4" />
-                <span className="text-[8px] font-normal">High</span>
-              </button>
             </div>
           </div>
         </motion.div>
