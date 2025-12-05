@@ -19,7 +19,7 @@ export default function Navbar() {
   });
 
   const filteredProducts = useMemo(() => {
-    if (!searchQuery.trim()) return products;
+    if (!searchQuery.trim()) return [];
     const query = searchQuery.toLowerCase();
     return products.filter(
       (product) =>
@@ -107,7 +107,11 @@ export default function Navbar() {
               data-testid="input-search"
             />
             <div className="flex-1 overflow-y-auto space-y-2">
-              {isLoading ? (
+              {!searchQuery.trim() ? (
+                <p className="text-center text-gray-500 dark:text-gray-400 py-8">
+                  Start typing to search products...
+                </p>
+              ) : isLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
                 </div>
