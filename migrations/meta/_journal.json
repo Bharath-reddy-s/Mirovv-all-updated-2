@@ -15,6 +15,13 @@
       "when": 1763791603834,
       "tag": "0001_loud_legion",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1765029762186,
+      "tag": "0002_superb_mercury",
+      "breakpoints": true
     }
   ]
 }

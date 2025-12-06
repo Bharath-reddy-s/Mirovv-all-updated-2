@@ -53,7 +53,19 @@ export const ordersTable = pgTable("orders", {
   instagram: text("instagram").notNull(),
   items: jsonb("items").$type<{ productId: number; title: string; price: string; quantity: number; image: string }[]>().notNull(),
   total: text("total").notNull(),
+  isFlashOffer: boolean("is_flash_offer").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const flashOffersTable = pgTable("flash_offers", {
+  id: serial("id").primaryKey(),
+  isActive: boolean("is_active").notNull().default(false),
+  maxClaims: integer("max_claims").notNull().default(5),
+  claimedCount: integer("claimed_count").notNull().default(0),
+  durationSeconds: integer("duration_seconds").notNull().default(30),
+  startedAt: timestamp("started_at"),
+  endsAt: timestamp("ends_at"),
+  bannerText: text("banner_text").notNull().default("First 5 orders are FREE!"),
 });
 
 export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, isInStock: true, displayOrder: true });
@@ -83,15 +95,18 @@ export const insertPromotionalSettingsSchema = createInsertSchema(promotionalSet
 export type InsertPromotionalSettings = z.infer<typeof insertPromotionalSettingsSchema>;
 export type PromotionalSettings = typeof promotionalSettingsTable.$inferSelect;
 
-export const insertOrderSchema = createInsertSchema(ordersTable).omit({ id: true, orderNumber: true, createdAt: true }).extend({
+export const insertOrderSchema = createInsertSchema(ordersTable).omit({ id: true, orderNumber: true, createdAt: true, isFlashOffer: true }).extend({
   customerName: z.string().min(1, "Customer name is required"),
   mobile: z.string().min(10, "Mobile number must be at least 10 digits"),
   address: z.string().min(1, "Address is required"),
   instagram: z.string().min(1, "Instagram username is required"),
   total: z.string().min(1, "Total is required"),
+  isFlashOffer: z.boolean().optional(),
 });
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type Order = typeof ordersTable.$inferSelect;
+
+export type FlashOffer = typeof flashOffersTable.$inferSelect;
 
 export interface StockStatus {
   [productId: number]: boolean;
