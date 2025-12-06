@@ -369,6 +369,24 @@ export default function ProductDetailPage() {
               </p>
               {product.id !== 4 && (
                 <div className="flex items-baseline gap-3 flex-wrap">
+                  {product.originalPrice && (() => {
+                    const currentPrice = parseInt(product.price.replace(/[^\d]/g, ''), 10) || 0;
+                    const origPrice = parseInt(product.originalPrice.replace(/[^\d]/g, ''), 10) || 0;
+                    const discountPercent = origPrice > currentPrice 
+                      ? Math.round(((origPrice - currentPrice) / origPrice) * 100) 
+                      : 0;
+                    return discountPercent > 0 ? (
+                      <motion.span
+                        className="text-lg font-semibold text-green-600 dark:text-green-500"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.4, delay: 0.2 }}
+                        data-testid="text-discount-percent"
+                      >
+                        ↓{discountPercent}%
+                      </motion.span>
+                    ) : null;
+                  })()}
                   <motion.span 
                     className="text-3xl font-bold text-black dark:text-white"
                     initial={{ opacity: 0, x: -20 }}
