@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { updateStockStatusSchema, createProductSchema, updateProductSchema, insertReviewSchema, insertPriceFilterSchema, insertPromotionalSettingsSchema, insertOrderSchema } from "@shared/schema";
+import { updateStockStatusSchema, createProductSchema, updateProductSchema, insertReviewSchema, insertPriceFilterSchema, insertPromotionalSettingsSchema, insertOrderSchema, insertDeliveryAddressSchema } from "@shared/schema";
 import { z } from "zod";
 import { sendOrderToTelegram } from "./telegram";
 
@@ -335,6 +335,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to claim flash offer:", error);
       res.status(500).json({ error: "Failed to claim flash offer" });
+    }
+  });
+
+  app.get("/api/delivery-addresses", async (req, res) => {
+    try {
+      const addresses = await storage.getDeliveryAddresses();
+      res.json(addresses);
+    } catch (error) {
+      console.error("Failed to get delivery addresses:", error);
+      res.status(500).json({ error: "Failed to get delivery addresses" });
+    }
+  });
+
+  app.post("/api/delivery-addresses", async (req, res) => {
+    try {
+      const validation = insertDeliveryAddressSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const address = await storage.createDeliveryAddress(validation.data);
+      res.json(address);
+    } catch (error) {
+      console.error("Failed to create delivery address:", error);
+      res.status(500).json({ error: "Failed to create delivery address" });
+    }
+  });
+
+  app.patch("/api/delivery-addresses/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validation = insertDeliveryAddressSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const address = await storage.updateDeliveryAddress(id, validation.data.name);
+      if (!address) {
+        return res.status(404).json({ error: "Delivery address not found" });
+      }
+      res.json(address);
+    } catch (error) {
+      console.error("Failed to update delivery address:", error);
+      res.status(500).json({ error: "Failed to update delivery address" });
+    }
+  });
+
+  app.delete("/api/delivery-addresses/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteDeliveryAddress(id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Delivery address not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete delivery address:", error);
+      res.status(500).json({ error: "Failed to delete delivery address" });
     }
   });
 

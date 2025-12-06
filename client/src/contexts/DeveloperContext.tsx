@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { StockStatus, Product, CreateProduct, UpdateProduct, PriceFilter, PromotionalSettings, FlashOffer } from "@shared/schema";
+import type { StockStatus, Product, CreateProduct, UpdateProduct, PriceFilter, PromotionalSettings, FlashOffer, DeliveryAddress } from "@shared/schema";
 
 interface DeveloperContextType {
   isDeveloperMode: boolean;
@@ -10,6 +10,7 @@ interface DeveloperContextType {
   priceFilters: PriceFilter[];
   promotionalSettings: PromotionalSettings | null;
   flashOffer: FlashOffer | null;
+  deliveryAddresses: DeliveryAddress[];
   toggleStockStatus: (productId: number) => void;
   createProduct: (product: CreateProduct) => Promise<any>;
   updateProduct: (id: number, updates: Partial<UpdateProduct>) => Promise<any>;
@@ -22,6 +23,9 @@ interface DeveloperContextType {
   updateOfferBanner: (text: string, days: number, deliveryText: string) => Promise<void>;
   startFlashOffer: (maxClaims?: number, durationSeconds?: number, bannerText?: string) => Promise<FlashOffer>;
   stopFlashOffer: () => Promise<FlashOffer | null>;
+  createDeliveryAddress: (name: string) => Promise<any>;
+  updateDeliveryAddress: (id: number, name: string) => Promise<any>;
+  deleteDeliveryAddress: (id: number) => Promise<any>;
   isCreatingProduct: boolean;
   isUpdatingProduct: boolean;
   isDeletingProduct: boolean;
@@ -30,6 +34,8 @@ interface DeveloperContextType {
   isLoadingFilters: boolean;
   isUpdatingPromotionalSettings: boolean;
   isTogglingFlashOffer: boolean;
+  isManagingAddresses: boolean;
+  isLoadingAddresses: boolean;
 }
 
 const DeveloperContext = createContext<DeveloperContextType | undefined>(undefined);
@@ -57,6 +63,10 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
   const { data: flashOffer = null } = useQuery<FlashOffer | null>({
     queryKey: ["/api/flash-offer"],
     refetchInterval: 1000,
+  });
+
+  const { data: deliveryAddresses = [], isLoading: isLoadingAddresses } = useQuery<DeliveryAddress[]>({
+    queryKey: ["/api/delivery-addresses"],
   });
 
   const updateStockMutation = useMutation({
@@ -168,6 +178,33 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const createDeliveryAddressMutation = useMutation({
+    mutationFn: async (name: string) => {
+      return apiRequest("POST", "/api/delivery-addresses", { name });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/delivery-addresses"] });
+    },
+  });
+
+  const updateDeliveryAddressMutation = useMutation({
+    mutationFn: async ({ id, name }: { id: number; name: string }) => {
+      return apiRequest("PATCH", `/api/delivery-addresses/${id}`, { name });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/delivery-addresses"] });
+    },
+  });
+
+  const deleteDeliveryAddressMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return apiRequest("DELETE", `/api/delivery-addresses/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/delivery-addresses"] });
+    },
+  });
+
   const secretPhrase = "dormamu is a aunty";
 
   useEffect(() => {
@@ -244,6 +281,18 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     return stopFlashOfferMutation.mutateAsync();
   };
 
+  const createDeliveryAddress = async (name: string) => {
+    return createDeliveryAddressMutation.mutateAsync(name);
+  };
+
+  const updateDeliveryAddress = async (id: number, name: string) => {
+    return updateDeliveryAddressMutation.mutateAsync({ id, name });
+  };
+
+  const deleteDeliveryAddress = async (id: number) => {
+    return deleteDeliveryAddressMutation.mutateAsync(id);
+  };
+
   return (
     <DeveloperContext.Provider 
       value={{ 
@@ -253,6 +302,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         priceFilters,
         promotionalSettings,
         flashOffer,
+        deliveryAddresses,
         toggleStockStatus, 
         createProduct,
         updateProduct,
@@ -265,6 +315,9 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         updateOfferBanner,
         startFlashOffer,
         stopFlashOffer,
+        createDeliveryAddress,
+        updateDeliveryAddress,
+        deleteDeliveryAddress,
         isCreatingProduct: createProductMutation.isPending,
         isUpdatingProduct: updateProductMutation.isPending,
         isDeletingProduct: deleteProductMutation.isPending,
@@ -273,6 +326,8 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         isLoadingFilters,
         isUpdatingPromotionalSettings: updatePromotionalSettingsMutation.isPending,
         isTogglingFlashOffer: startFlashOfferMutation.isPending || stopFlashOfferMutation.isPending,
+        isManagingAddresses: createDeliveryAddressMutation.isPending || updateDeliveryAddressMutation.isPending || deleteDeliveryAddressMutation.isPending,
+        isLoadingAddresses,
       }}
     >
       {children}

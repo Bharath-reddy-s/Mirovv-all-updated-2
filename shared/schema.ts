@@ -68,6 +68,12 @@ export const flashOffersTable = pgTable("flash_offers", {
   bannerText: text("banner_text").notNull().default("First 5 orders are FREE!"),
 });
 
+export const deliveryAddressesTable = pgTable("delivery_addresses", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  displayOrder: integer("display_order").notNull().default(0),
+});
+
 export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, isInStock: true, displayOrder: true });
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof productsTable.$inferSelect;
@@ -107,6 +113,12 @@ export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type Order = typeof ordersTable.$inferSelect;
 
 export type FlashOffer = typeof flashOffersTable.$inferSelect;
+
+export const insertDeliveryAddressSchema = createInsertSchema(deliveryAddressesTable).omit({ id: true, displayOrder: true }).extend({
+  name: z.string().min(1, "Address name is required"),
+});
+export type InsertDeliveryAddress = z.infer<typeof insertDeliveryAddressSchema>;
+export type DeliveryAddress = typeof deliveryAddressesTable.$inferSelect;
 
 export interface StockStatus {
   [productId: number]: boolean;

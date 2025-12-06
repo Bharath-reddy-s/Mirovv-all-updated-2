@@ -1,4 +1,4 @@
-import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, type FlashOffer, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable, flashOffersTable } from "@shared/schema";
+import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, type FlashOffer, type DeliveryAddress, type InsertDeliveryAddress, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable, flashOffersTable, deliveryAddressesTable } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
 import { Pool, neonConfig } from "@neondatabase/serverless";
@@ -32,11 +32,13 @@ const cache: {
   stock: CacheEntry<StockStatus> | null;
   priceFilters: CacheEntry<PriceFilter[]> | null;
   promotionalSettings: CacheEntry<PromotionalSettings> | null;
+  deliveryAddresses: CacheEntry<DeliveryAddress[]> | null;
 } = {
   products: null,
   stock: null,
   priceFilters: null,
   promotionalSettings: null,
+  deliveryAddresses: null,
 };
 
 function isCacheValid<T>(entry: CacheEntry<T> | null): entry is CacheEntry<T> {
@@ -54,6 +56,10 @@ function invalidatePriceFilterCache() {
 
 function invalidatePromotionalCache() {
   cache.promotionalSettings = null;
+}
+
+function invalidateDeliveryAddressCache() {
+  cache.deliveryAddresses = null;
 }
 
 export async function warmupCache(): Promise<void> {
@@ -113,6 +119,10 @@ export interface IStorage {
   startFlashOffer(maxClaims?: number, durationSeconds?: number, bannerText?: string): Promise<FlashOffer>;
   stopFlashOffer(): Promise<FlashOffer | null>;
   claimFlashOffer(): Promise<{ success: boolean; flashOffer: FlashOffer | null; spotsRemaining: number }>;
+  getDeliveryAddresses(): Promise<DeliveryAddress[]>;
+  createDeliveryAddress(address: InsertDeliveryAddress): Promise<DeliveryAddress>;
+  updateDeliveryAddress(id: number, name: string): Promise<DeliveryAddress | undefined>;
+  deleteDeliveryAddress(id: number): Promise<boolean>;
 }
 
 export class DBStorage implements IStorage {
@@ -505,6 +515,43 @@ export class DBStorage implements IStorage {
       flashOffer: updated as FlashOffer, 
       spotsRemaining: Math.max(0, spotsRemaining) 
     };
+  }
+
+  async getDeliveryAddresses(): Promise<DeliveryAddress[]> {
+    if (isCacheValid(cache.deliveryAddresses)) {
+      return cache.deliveryAddresses.data;
+    }
+    const addresses = await sql.select().from(deliveryAddressesTable).orderBy(asc(deliveryAddressesTable.displayOrder));
+    cache.deliveryAddresses = { data: addresses as DeliveryAddress[], timestamp: Date.now() };
+    return addresses as DeliveryAddress[];
+  }
+
+  async createDeliveryAddress(addressData: InsertDeliveryAddress): Promise<DeliveryAddress> {
+    const maxOrder = await sql.select({ max: sqlOp<number>`max(${deliveryAddressesTable.displayOrder})` }).from(deliveryAddressesTable);
+    const nextOrder = (maxOrder[0]?.max ?? -1) + 1;
+    
+    const [newAddress] = await sql.insert(deliveryAddressesTable)
+      .values({ ...addressData, displayOrder: nextOrder })
+      .returning();
+    invalidateDeliveryAddressCache();
+    return newAddress as DeliveryAddress;
+  }
+
+  async updateDeliveryAddress(id: number, name: string): Promise<DeliveryAddress | undefined> {
+    const [updated] = await sql.update(deliveryAddressesTable)
+      .set({ name })
+      .where(eq(deliveryAddressesTable.id, id))
+      .returning();
+    invalidateDeliveryAddressCache();
+    return updated as DeliveryAddress | undefined;
+  }
+
+  async deleteDeliveryAddress(id: number): Promise<boolean> {
+    const result = await sql.delete(deliveryAddressesTable)
+      .where(eq(deliveryAddressesTable.id, id))
+      .returning();
+    invalidateDeliveryAddressCache();
+    return result.length > 0;
   }
 }
 
