@@ -64,7 +64,7 @@ export default function BackgroundPaths({
                 <FloatingPaths position={-1} />
             </div>
 
-            <div className="relative z-10 container mx-auto px-4 md:px-6 text-center">
+            <div className="relative z-10 container mx-auto px-4 md:px-6 text-center -mt-24 sm:-mt-16 md:mt-0">
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
