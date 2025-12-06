@@ -56,6 +56,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/products/:id/similar", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({ error: "Invalid product ID" });
+      }
+      
+      let limit = 6;
+      if (req.query.limit) {
+        const parsedLimit = parseInt(req.query.limit as string);
+        if (!isNaN(parsedLimit) && parsedLimit > 0 && parsedLimit <= 20) {
+          limit = parsedLimit;
+        }
+      }
+      
+      const similarProducts = await storage.getSimilarProducts(id, limit);
+      res.json(similarProducts);
+    } catch (error) {
+      console.error("Failed to get similar products:", error);
+      res.status(500).json({ error: "Failed to get similar products" });
+    }
+  });
+
   app.post("/api/products", async (req, res) => {
     try {
       const validation = createProductSchema.safeParse(req.body);

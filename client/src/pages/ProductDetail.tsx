@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useDeveloper } from "@/contexts/DeveloperContext";
 import { type Product, type Review, insertReviewSchema } from "@shared/schema";
 import { ArrowLeft, Share2, ShoppingCart, Zap, Package, ChevronLeft, ChevronRight, Star, ChevronDown, Trash2 } from "lucide-react";
+import SimilarProducts from "@/components/SimilarProducts";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -618,6 +619,8 @@ export default function ProductDetailPage() {
             </div>
           </motion.div>
         </div>
+
+        <SimilarProducts productId={productId} limit={6} />
       </main>
     </div>
   );

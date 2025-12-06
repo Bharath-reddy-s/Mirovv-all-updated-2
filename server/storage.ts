@@ -98,6 +98,7 @@ export interface IStorage {
   updateStockStatus(productId: number, isInStock: boolean): Promise<StockStatus>;
   getProducts(): Promise<Product[]>;
   getProductById(id: number): Promise<Product | undefined>;
+  getSimilarProducts(productId: number, limit?: number): Promise<Product[]>;
   createProduct(product: CreateProduct): Promise<Product>;
   updateProduct(id: number, updates: Partial<UpdateProduct>): Promise<Product | undefined>;
   deleteProduct(id: number): Promise<boolean>;
@@ -162,6 +163,56 @@ export class DBStorage implements IStorage {
     }
     const [product] = await sql.select().from(productsTable).where(eq(productsTable.id, id));
     return product as Product | undefined;
+  }
+
+  async getSimilarProducts(productId: number, limit: number = 6): Promise<Product[]> {
+    const currentProduct = await this.getProductById(productId);
+    if (!currentProduct) {
+      return [];
+    }
+
+    const parsePrice = (priceStr: string): number => {
+      const cleanedValue = priceStr.replace(/[^\d]/g, '');
+      return parseInt(cleanedValue, 10) || 0;
+    };
+
+    const currentPrice = parsePrice(currentProduct.price);
+    const priceRange = currentPrice * 0.5;
+    const minPrice = currentPrice - priceRange;
+    const maxPrice = currentPrice + priceRange;
+
+    const allProducts = await this.getProducts();
+    
+    const similarProducts = allProducts
+      .filter(p => p.id !== productId)
+      .map(p => ({
+        product: p,
+        price: parsePrice(p.price),
+        priceDiff: Math.abs(parsePrice(p.price) - currentPrice)
+      }))
+      .filter(item => item.price >= minPrice && item.price <= maxPrice)
+      .sort((a, b) => a.priceDiff - b.priceDiff)
+      .slice(0, limit)
+      .map(item => item.product);
+
+    if (similarProducts.length < limit) {
+      const remaining = limit - similarProducts.length;
+      const existingIds = new Set([productId, ...similarProducts.map(p => p.id)]);
+      
+      const additionalProducts = allProducts
+        .filter(p => !existingIds.has(p.id))
+        .map(p => ({
+          product: p,
+          priceDiff: Math.abs(parsePrice(p.price) - currentPrice)
+        }))
+        .sort((a, b) => a.priceDiff - b.priceDiff)
+        .slice(0, remaining)
+        .map(item => item.product);
+      
+      similarProducts.push(...additionalProducts);
+    }
+
+    return similarProducts;
   }
 
   async createProduct(productData: CreateProduct): Promise<Product> {
