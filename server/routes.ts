@@ -309,7 +309,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/flash-offer/start", async (req, res) => {
     try {
-      const flashOffer = await storage.startFlashOffer();
+      const { maxClaims, durationSeconds, bannerText } = req.body;
+      const flashOffer = await storage.startFlashOffer(maxClaims, durationSeconds, bannerText);
       res.json(flashOffer);
     } catch (error) {
       console.error("Failed to start flash offer:", error);

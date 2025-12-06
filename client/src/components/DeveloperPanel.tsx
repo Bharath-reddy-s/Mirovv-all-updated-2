@@ -42,6 +42,9 @@ export default function DeveloperPanel() {
   const [editingPositionValue, setEditingPositionValue] = useState("");
   const [editingPriceId, setEditingPriceId] = useState<number | null>(null);
   const [editingPriceValue, setEditingPriceValue] = useState("");
+  const [flashSlots, setFlashSlots] = useState("5");
+  const [flashDuration, setFlashDuration] = useState("30");
+  const [flashBannerText, setFlashBannerText] = useState("First 5 orders are FREE!");
 
   useEffect(() => {
     if (promotionalSettings) {
@@ -758,7 +761,7 @@ export default function DeveloperPanel() {
             </TabsContent>
 
             <TabsContent value="flash">
-              <p className="text-xs mb-3 opacity-80">Start a 30-second flash sale (First 5 orders are FREE)</p>
+              <p className="text-xs mb-3 opacity-80">Start a flash sale with custom slots and duration</p>
               <div className="space-y-3">
                 <div className="p-3 rounded bg-gray-800 dark:bg-gray-200">
                   <div className="flex items-center gap-2 mb-2">
@@ -787,6 +790,56 @@ export default function DeveloperPanel() {
                   </div>
                 </div>
 
+                {!flashOffer?.isActive && (
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="flash-banner-text">Banner Text</Label>
+                      <Input
+                        id="flash-banner-text"
+                        type="text"
+                        value={flashBannerText}
+                        onChange={(e) => setFlashBannerText(e.target.value)}
+                        placeholder="First 5 orders are FREE!"
+                        className="bg-gray-900 text-white focus-visible:ring-0 focus-visible:border-gray-600"
+                        data-testid="input-flash-banner-text"
+                      />
+                      <p className="text-xs text-gray-400">Text shown on the flash offer banner</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="flash-slots">Free Slots</Label>
+                      <Input
+                        id="flash-slots"
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={flashSlots}
+                        onChange={(e) => setFlashSlots(e.target.value)}
+                        placeholder="5"
+                        className="bg-gray-900 text-white focus-visible:ring-0 focus-visible:border-gray-600"
+                        data-testid="input-flash-slots"
+                      />
+                      <p className="text-xs text-gray-400">Number of free orders available</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="flash-duration">Duration (Seconds)</Label>
+                      <Input
+                        id="flash-duration"
+                        type="number"
+                        min="10"
+                        max="300"
+                        value={flashDuration}
+                        onChange={(e) => setFlashDuration(e.target.value)}
+                        placeholder="30"
+                        className="bg-gray-900 text-white focus-visible:ring-0 focus-visible:border-gray-600"
+                        data-testid="input-flash-duration"
+                      />
+                      <p className="text-xs text-gray-400">How long the flash offer runs (10-300 seconds)</p>
+                    </div>
+                  </div>
+                )}
+
                 {flashOffer?.isActive ? (
                   <Button
                     onClick={async () => {
@@ -813,11 +866,41 @@ export default function DeveloperPanel() {
                 ) : (
                   <Button
                     onClick={async () => {
+                      const slots = parseInt(flashSlots);
+                      const duration = parseInt(flashDuration);
+                      
+                      if (!flashBannerText.trim()) {
+                        toast({
+                          title: "Invalid banner text",
+                          description: "Please enter a banner text",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      
+                      if (isNaN(slots) || slots < 1 || slots > 100) {
+                        toast({
+                          title: "Invalid slots",
+                          description: "Please enter a number between 1 and 100",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      
+                      if (isNaN(duration) || duration < 10 || duration > 300) {
+                        toast({
+                          title: "Invalid duration",
+                          description: "Please enter a number between 10 and 300 seconds",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      
                       try {
-                        await startFlashOffer();
+                        await startFlashOffer(slots, duration, flashBannerText.trim());
                         toast({
                           title: "Flash offer started!",
-                          description: "First 5 orders will be FREE for 30 seconds",
+                          description: `First ${slots} orders will be FREE for ${duration} seconds`,
                         });
                       } catch (error) {
                         toast({
@@ -832,13 +915,13 @@ export default function DeveloperPanel() {
                     data-testid="button-start-flash"
                   >
                     <Zap className="w-4 h-4 mr-2" />
-                    {isTogglingFlashOffer ? "Starting..." : "Start Flash Offer (30s)"}
+                    {isTogglingFlashOffer ? "Starting..." : `Start Flash Offer (${flashSlots} slots, ${flashDuration}s)`}
                   </Button>
                 )}
 
                 <div className="text-xs opacity-60 space-y-1">
                   <p>When active, customers will see a banner with countdown timer.</p>
-                  <p>First 5 orders placed during the flash offer will be FREE (&#8377;0).</p>
+                  <p>Orders placed during the flash offer will be FREE (₹0).</p>
                 </div>
               </div>
             </TabsContent>

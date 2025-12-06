@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/CartContext";
+import { useDeveloper } from "@/contexts/DeveloperContext";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { apiRequest } from "@/lib/queryClient";
@@ -14,22 +15,48 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Copy, CheckCircle2 } from "lucide-react";
+import { Copy, CheckCircle2, Zap } from "lucide-react";
 
 export default function CheckoutPage() {
   const [, setLocation] = useLocation();
   const { items, subtotal, clearCart } = useCart();
+  const { flashOffer } = useDeveloper();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showOrderSuccess, setShowOrderSuccess] = useState(false);
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [copied, setCopied] = useState(false);
+  const [flashTimeLeft, setFlashTimeLeft] = useState(0);
   const [formData, setFormData] = useState({
     firstName: "",
     address: "",
     mobile: "",
     instagram: "",
   });
+
+  useEffect(() => {
+    if (!flashOffer?.isActive || !flashOffer?.endsAt) {
+      setFlashTimeLeft(0);
+      return;
+    }
+
+    const calculateFlashTimeLeft = () => {
+      const now = Date.now();
+      const endTime = new Date(flashOffer.endsAt!).getTime();
+      const difference = Math.max(0, Math.floor((endTime - now) / 1000));
+      setFlashTimeLeft(difference);
+    };
+
+    calculateFlashTimeLeft();
+    const timer = setInterval(calculateFlashTimeLeft, 100);
+
+    return () => clearInterval(timer);
+  }, [flashOffer?.isActive, flashOffer?.endsAt]);
+
+  const isFlashOfferActive = flashOffer?.isActive && flashTimeLeft > 0 && 
+    flashOffer.claimedCount < flashOffer.maxClaims;
+  const spotsRemaining = flashOffer ? flashOffer.maxClaims - flashOffer.claimedCount : 0;
+  const displayTotal = isFlashOfferActive ? 0 : subtotal;
 
   const copyOrderNumber = () => {
     if (orderDetails?.orderNumber) {
@@ -78,6 +105,12 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
+      const isFlashOrder = isFlashOfferActive;
+      
+      if (isFlashOrder) {
+        await apiRequest('POST', '/api/flash-offer/claim');
+      }
+      
       const orderData = {
         customerName: formData.firstName,
         mobile: formData.mobile,
@@ -86,11 +119,12 @@ export default function CheckoutPage() {
         items: items.map(item => ({
           productId: item.id,
           title: item.title,
-          price: item.price,
+          price: isFlashOrder ? "₹0" : item.price,
           quantity: item.quantity,
           image: item.image,
         })),
-        total: `₹${subtotal}`,
+        total: isFlashOrder ? "₹0" : `₹${subtotal}`,
+        isFlashOffer: isFlashOrder,
       };
 
       const response: any = await apiRequest('POST', '/api/orders', orderData);
@@ -98,7 +132,8 @@ export default function CheckoutPage() {
       setOrderDetails({
         orderNumber: response.orderNumber,
         items: items,
-        total: subtotal,
+        total: isFlashOrder ? 0 : subtotal,
+        isFlashOffer: isFlashOrder,
         customerName: formData.firstName,
         mobile: formData.mobile,
         address: formData.address,
@@ -207,6 +242,17 @@ export default function CheckoutPage() {
           >
             <h2 className="text-2xl font-bold mb-8">Order Summary</h2>
             
+            {isFlashOfferActive && (
+              <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-xl p-4 mb-6" data-testid="flash-offer-applied">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="w-5 h-5" />
+                  <span className="font-bold">Flash Offer Applied!</span>
+                </div>
+                <p className="text-sm">Your order is FREE! Only {spotsRemaining} spot{spotsRemaining !== 1 ? 's' : ''} remaining.</p>
+                <p className="text-xs mt-1 opacity-80">Time left: {flashTimeLeft}s</p>
+              </div>
+            )}
+            
             <div className="space-y-6">
               <div className="space-y-4">
                 {items.map((item) => (
@@ -224,7 +270,14 @@ export default function CheckoutPage() {
                       <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Qty: {item.quantity}</p>
                     </div>
                     <div className="font-semibold text-base">
-                      {item.price}
+                      {isFlashOfferActive ? (
+                        <span className="flex flex-col items-end">
+                          <span className="text-green-600 dark:text-green-400">₹0</span>
+                          <span className="text-xs text-gray-400 line-through">{item.price}</span>
+                        </span>
+                      ) : (
+                        item.price
+                      )}
                     </div>
                   </div>
                 ))}
@@ -233,15 +286,35 @@ export default function CheckoutPage() {
               <div className="border-t border-gray-200 dark:border-neutral-800 pt-6 space-y-3">
                 <div className="flex justify-between text-base">
                   <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">₹{subtotal}</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">
+                    {isFlashOfferActive ? (
+                      <span className="flex items-center gap-2">
+                        <span className="text-green-600 dark:text-green-400">₹0</span>
+                        <span className="text-sm text-gray-400 line-through">₹{subtotal}</span>
+                      </span>
+                    ) : (
+                      `₹${subtotal}`
+                    )}
+                  </span>
                 </div>
                 <div className="flex justify-between text-base">
                   <span className="text-gray-600 dark:text-gray-400">Shipping</span>
                   <span className="font-semibold text-gray-900 dark:text-gray-100">Included</span>
                 </div>
+                {isFlashOfferActive && (
+                  <div className="flex justify-between text-base text-green-600 dark:text-green-400">
+                    <span className="flex items-center gap-1">
+                      <Zap className="w-4 h-4" />
+                      Flash Discount
+                    </span>
+                    <span className="font-semibold">-₹{subtotal}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-base pt-3 border-t border-gray-200 dark:border-neutral-800">
                   <span className="text-gray-600 dark:text-gray-400">Total</span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">₹{subtotal}</span>
+                  <span className={`font-semibold ${isFlashOfferActive ? 'text-green-600 dark:text-green-400 text-xl' : 'text-gray-900 dark:text-gray-100'}`}>
+                    ₹{displayTotal}
+                  </span>
                 </div>
               </div>
             </div>
@@ -294,18 +367,28 @@ export default function CheckoutPage() {
               </div>
 
               <div className="border-t border-gray-200 dark:border-neutral-800 pt-3">
+                {orderDetails?.isFlashOffer && (
+                  <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-md p-2 mb-2 flex items-center gap-1">
+                    <Zap className="w-3 h-3" />
+                    <span className="text-xs font-bold">Flash Offer Applied - FREE Order!</span>
+                  </div>
+                )}
                 <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1.5">Items:</p>
                 <div className="space-y-1.5">
                   {orderDetails?.items?.map((item: any) => (
                     <div key={item.id} className="flex justify-between text-xs">
                       <span className="text-gray-600 dark:text-gray-400">{item.title} x{item.quantity}</span>
-                      <span className="font-medium text-gray-900 dark:text-gray-100">{item.price}</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        {orderDetails?.isFlashOffer ? '₹0' : item.price}
+                      </span>
                     </div>
                   ))}
                 </div>
                 <div className="flex justify-between text-sm font-bold mt-2 pt-2 border-t border-gray-200 dark:border-neutral-800">
                   <span className="text-gray-900 dark:text-gray-100">Total:</span>
-                  <span className="text-gray-900 dark:text-gray-100">₹{orderDetails?.total}</span>
+                  <span className={orderDetails?.isFlashOffer ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-gray-100'}>
+                    ₹{orderDetails?.total}
+                  </span>
                 </div>
               </div>
             </div>

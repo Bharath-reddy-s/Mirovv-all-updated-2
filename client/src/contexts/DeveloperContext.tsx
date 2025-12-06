@@ -20,7 +20,7 @@ interface DeveloperContextType {
   updatePriceFilter: (id: number, value: number) => Promise<any>;
   deletePriceFilter: (id: number) => Promise<any>;
   updateOfferBanner: (text: string, days: number, deliveryText: string) => Promise<void>;
-  startFlashOffer: () => Promise<FlashOffer>;
+  startFlashOffer: (maxClaims?: number, durationSeconds?: number, bannerText?: string) => Promise<FlashOffer>;
   stopFlashOffer: () => Promise<FlashOffer | null>;
   isCreatingProduct: boolean;
   isUpdatingProduct: boolean;
@@ -151,8 +151,8 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
   });
 
   const startFlashOfferMutation = useMutation({
-    mutationFn: async () => {
-      return apiRequest("POST", "/api/flash-offer/start");
+    mutationFn: async ({ maxClaims, durationSeconds, bannerText }: { maxClaims?: number; durationSeconds?: number; bannerText?: string }) => {
+      return apiRequest("POST", "/api/flash-offer/start", { maxClaims, durationSeconds, bannerText });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/flash-offer"] });
@@ -236,8 +236,8 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     await updatePromotionalSettingsMutation.mutateAsync({ bannerText: text, timerDays: days, deliveryText });
   };
 
-  const startFlashOffer = async (): Promise<FlashOffer> => {
-    return startFlashOfferMutation.mutateAsync();
+  const startFlashOffer = async (maxClaims?: number, durationSeconds?: number, bannerText?: string): Promise<FlashOffer> => {
+    return startFlashOfferMutation.mutateAsync({ maxClaims, durationSeconds, bannerText });
   };
 
   const stopFlashOffer = async (): Promise<FlashOffer | null> => {
