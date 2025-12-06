@@ -8,6 +8,8 @@ import { useDeveloper } from "@/contexts/DeveloperContext";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { apiRequest } from "@/lib/queryClient";
+import { useQuery } from "@tanstack/react-query";
+import type { DeliveryAddress } from "@shared/schema";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +34,10 @@ export default function CheckoutPage() {
     address: "",
     mobile: "",
     instagram: "",
+  });
+
+  const { data: deliveryAddresses = [], isLoading: isLoadingAddresses, isError: isAddressError } = useQuery<DeliveryAddress[]>({
+    queryKey: ["/api/delivery-addresses"],
   });
 
   useEffect(() => {
@@ -199,11 +205,24 @@ export default function CheckoutPage() {
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     className="w-full h-14 rounded-xl border border-gray-300 bg-white dark:bg-neutral-900 px-4 text-gray-900 dark:text-gray-100 transition-all duration-300 focus-visible:outline-none focus-visible:ring-0 focus-visible:border-gray-400 dark:focus-visible:border-gray-600 focus-visible:scale-[1.01]"
                     data-testid="select-address"
+                    disabled={isLoadingAddresses}
                   >
-                    <option value="">Select Delivery Address</option>
-                    <option value="BMSIT (Institute of Technology and Management) Yelahanka">BMSIT (Institute of Technology and Management) Yelahanka</option>
-                    <option value="NITTE (Meenakshi Institute of Technology) Yelahanka">NITTE (Meenakshi Institute of Technology) Yelahanka</option>
-                    <option value="Manipal University Yelahanka">Manipal University Yelahanka</option>
+                    {isLoadingAddresses ? (
+                      <option value="">Loading addresses...</option>
+                    ) : isAddressError ? (
+                      <option value="">Failed to load addresses</option>
+                    ) : deliveryAddresses.length === 0 ? (
+                      <option value="">No delivery addresses available</option>
+                    ) : (
+                      <>
+                        <option value="">Select Delivery Address</option>
+                        {deliveryAddresses.map((address) => (
+                          <option key={address.id} value={address.name}>
+                            {address.name}
+                          </option>
+                        ))}
+                      </>
+                    )}
                   </select>
                   <Input
                     type="tel"

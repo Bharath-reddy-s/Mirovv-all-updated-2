@@ -25,7 +25,7 @@ import type { Product } from "@shared/schema";
 const DEFAULT_LONG_DESCRIPTION = "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"";
 
 export default function DeveloperPanel() {
-  const { isDeveloperMode, stockStatus, products, priceFilters, promotionalSettings, flashOffer, toggleStockStatus, createProduct, updateProduct, deleteProduct, setProductPosition, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, startFlashOffer, stopFlashOffer, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters, isUpdatingPromotionalSettings, isTogglingFlashOffer } = useDeveloper();
+  const { isDeveloperMode, stockStatus, products, priceFilters, promotionalSettings, flashOffer, deliveryAddresses, toggleStockStatus, createProduct, updateProduct, deleteProduct, setProductPosition, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, startFlashOffer, stopFlashOffer, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters, isUpdatingPromotionalSettings, isTogglingFlashOffer, isManagingAddresses, isLoadingAddresses } = useDeveloper();
   const [isVisible, setIsVisible] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -45,6 +45,9 @@ export default function DeveloperPanel() {
   const [flashSlots, setFlashSlots] = useState("5");
   const [flashDuration, setFlashDuration] = useState("30");
   const [flashBannerText, setFlashBannerText] = useState("First 5 orders are FREE!");
+  const [newAddressName, setNewAddressName] = useState("");
+  const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
+  const [editingAddressName, setEditingAddressName] = useState("");
 
   useEffect(() => {
     if (promotionalSettings) {
@@ -298,12 +301,13 @@ export default function DeveloperPanel() {
           </div>
 
           <Tabs defaultValue="stock" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-3">
+            <TabsList className="grid w-full grid-cols-6 mb-3">
               <TabsTrigger value="stock" data-testid="tab-stock">Stock</TabsTrigger>
               <TabsTrigger value="products" data-testid="tab-products">Products</TabsTrigger>
               <TabsTrigger value="filters" data-testid="tab-filters">Filters</TabsTrigger>
               <TabsTrigger value="banner" data-testid="tab-banner">Banner</TabsTrigger>
               <TabsTrigger value="flash" data-testid="tab-flash">Flash</TabsTrigger>
+              <TabsTrigger value="address" data-testid="tab-address">Address</TabsTrigger>
             </TabsList>
 
             <TabsContent value="stock">
@@ -923,6 +927,161 @@ export default function DeveloperPanel() {
                   <p>When active, customers will see a banner with countdown timer.</p>
                   <p>Orders placed during the flash offer will be FREE (₹0).</p>
                 </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="address">
+              <p className="text-xs mb-3 opacity-80">Manage delivery addresses available at checkout</p>
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <Input
+                    value={newAddressName}
+                    onChange={(e) => setNewAddressName(e.target.value)}
+                    placeholder="Enter new address name"
+                    className="flex-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-black"
+                    data-testid="input-new-address"
+                  />
+                  <Button
+                    onClick={async () => {
+                      if (!newAddressName.trim()) {
+                        toast({
+                          title: "Invalid address",
+                          description: "Please enter an address name",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      try {
+                        await createDeliveryAddress(newAddressName.trim());
+                        setNewAddressName("");
+                        toast({
+                          title: "Address added",
+                          description: "New delivery address has been added",
+                        });
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to add address",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    disabled={isManagingAddresses}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    data-testid="button-add-address"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {isLoadingAddresses ? (
+                  <p className="text-sm opacity-70">Loading addresses...</p>
+                ) : deliveryAddresses.length === 0 ? (
+                  <p className="text-sm opacity-70">No delivery addresses yet. Add one above.</p>
+                ) : (
+                  <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                    {deliveryAddresses.map((address) => (
+                      <div
+                        key={address.id}
+                        className="flex items-center gap-2 p-2 rounded bg-gray-800 dark:bg-gray-200"
+                      >
+                        {editingAddressId === address.id ? (
+                          <>
+                            <Input
+                              value={editingAddressName}
+                              onChange={(e) => setEditingAddressName(e.target.value)}
+                              className="flex-1 h-8 text-sm bg-gray-900 dark:bg-gray-100"
+                              data-testid={`input-edit-address-${address.id}`}
+                            />
+                            <Button
+                              size="sm"
+                              onClick={async () => {
+                                if (!editingAddressName.trim()) {
+                                  toast({
+                                    title: "Invalid address",
+                                    description: "Address name cannot be empty",
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
+                                try {
+                                  await updateDeliveryAddress(address.id, editingAddressName.trim());
+                                  setEditingAddressId(null);
+                                  setEditingAddressName("");
+                                  toast({
+                                    title: "Address updated",
+                                    description: "Delivery address has been updated",
+                                  });
+                                } catch (error) {
+                                  toast({
+                                    title: "Error",
+                                    description: "Failed to update address",
+                                    variant: "destructive",
+                                  });
+                                }
+                              }}
+                              disabled={isManagingAddresses}
+                              className="h-8 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
+                              data-testid={`button-save-address-${address.id}`}
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setEditingAddressId(null);
+                                setEditingAddressName("");
+                              }}
+                              className="h-8 px-2 text-xs"
+                              data-testid={`button-cancel-address-${address.id}`}
+                            >
+                              Cancel
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <MapPin className="w-4 h-4 flex-shrink-0 opacity-70" />
+                            <span className="flex-1 text-sm truncate">{address.name}</span>
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setEditingAddressId(address.id);
+                                setEditingAddressName(address.name);
+                              }}
+                              className="h-8 px-2 text-xs bg-blue-600 hover:bg-blue-700 text-white"
+                              data-testid={`button-edit-address-${address.id}`}
+                            >
+                              <Edit className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={async () => {
+                                try {
+                                  await deleteDeliveryAddress(address.id);
+                                  toast({
+                                    title: "Address deleted",
+                                    description: "Delivery address has been removed",
+                                  });
+                                } catch (error) {
+                                  toast({
+                                    title: "Error",
+                                    description: "Failed to delete address",
+                                    variant: "destructive",
+                                  });
+                                }
+                              }}
+                              disabled={isManagingAddresses}
+                              className="h-8 px-2 text-xs bg-red-600 hover:bg-red-700 text-white"
+                              data-testid={`button-delete-address-${address.id}`}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>
