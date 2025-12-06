@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useDeveloper } from "@/contexts/DeveloperContext";
+import { Zap } from "lucide-react";
 
 export default function OfferBanner() {
-  const { promotionalSettings } = useDeveloper();
+  const { promotionalSettings, flashOffer } = useDeveloper();
   const [timeLeft, setTimeLeft] = useState({ hours: "00", minutes: "00", seconds: "00" });
+  const [flashTimeLeft, setFlashTimeLeft] = useState(0);
   const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
@@ -44,6 +46,58 @@ export default function OfferBanner() {
 
     return () => clearInterval(timer);
   }, [promotionalSettings?.timerEndTime]);
+
+  useEffect(() => {
+    if (!flashOffer?.isActive || !flashOffer?.endsAt) {
+      setFlashTimeLeft(0);
+      return;
+    }
+
+    const calculateFlashTimeLeft = () => {
+      const now = Date.now();
+      const endTime = new Date(flashOffer.endsAt!).getTime();
+      const difference = Math.max(0, Math.floor((endTime - now) / 1000));
+      setFlashTimeLeft(difference);
+    };
+
+    calculateFlashTimeLeft();
+    const timer = setInterval(calculateFlashTimeLeft, 100);
+
+    return () => clearInterval(timer);
+  }, [flashOffer?.isActive, flashOffer?.endsAt]);
+
+  if (flashOffer?.isActive && flashTimeLeft > 0) {
+    const spotsRemaining = flashOffer.maxClaims - flashOffer.claimedCount;
+    
+    return (
+      <div
+        className="w-full bg-black text-white py-4 px-4 flex flex-col items-center justify-center gap-2"
+        data-testid="banner-flash-offer"
+      >
+        <div className="flex items-center gap-2">
+          <Zap className="h-6 w-6 fill-white" />
+          <span className="text-xl md:text-2xl font-bold" data-testid="text-flash-offer-title">
+            {flashOffer.bannerText || "First 5 orders are FREE!"}
+          </span>
+          <Zap className="h-6 w-6 fill-white" />
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
+            <span className="text-sm md:text-base font-medium">Time Left:</span>
+            <span className="font-mono text-2xl md:text-3xl font-bold tabular-nums" data-testid="text-flash-timer">
+              {flashTimeLeft}s
+            </span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
+            <span className="text-sm md:text-base font-medium">Spots Left:</span>
+            <span className="font-mono text-2xl md:text-3xl font-bold tabular-nums" data-testid="text-flash-spots">
+              {spotsRemaining}/{flashOffer.maxClaims}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isExpired) {
     return null;

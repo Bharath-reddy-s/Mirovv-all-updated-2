@@ -297,6 +297,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/flash-offer", async (req, res) => {
+    try {
+      const flashOffer = await storage.getFlashOffer();
+      res.json(flashOffer);
+    } catch (error) {
+      console.error("Failed to get flash offer:", error);
+      res.status(500).json({ error: "Failed to get flash offer" });
+    }
+  });
+
+  app.post("/api/flash-offer/start", async (req, res) => {
+    try {
+      const flashOffer = await storage.startFlashOffer();
+      res.json(flashOffer);
+    } catch (error) {
+      console.error("Failed to start flash offer:", error);
+      res.status(500).json({ error: "Failed to start flash offer" });
+    }
+  });
+
+  app.post("/api/flash-offer/stop", async (req, res) => {
+    try {
+      const flashOffer = await storage.stopFlashOffer();
+      res.json(flashOffer);
+    } catch (error) {
+      console.error("Failed to stop flash offer:", error);
+      res.status(500).json({ error: "Failed to stop flash offer" });
+    }
+  });
+
+  app.post("/api/flash-offer/claim", async (req, res) => {
+    try {
+      const result = await storage.claimFlashOffer();
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to claim flash offer:", error);
+      res.status(500).json({ error: "Failed to claim flash offer" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

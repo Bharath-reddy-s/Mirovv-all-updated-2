@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Plus, Edit, Upload, Trash2 } from "lucide-react";
+import { X, Plus, Edit, Upload, Trash2, Zap } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -25,7 +25,7 @@ import type { Product } from "@shared/schema";
 const DEFAULT_LONG_DESCRIPTION = "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"";
 
 export default function DeveloperPanel() {
-  const { isDeveloperMode, stockStatus, products, priceFilters, promotionalSettings, toggleStockStatus, createProduct, updateProduct, deleteProduct, setProductPosition, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters, isUpdatingPromotionalSettings } = useDeveloper();
+  const { isDeveloperMode, stockStatus, products, priceFilters, promotionalSettings, flashOffer, toggleStockStatus, createProduct, updateProduct, deleteProduct, setProductPosition, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, startFlashOffer, stopFlashOffer, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters, isUpdatingPromotionalSettings, isTogglingFlashOffer } = useDeveloper();
   const [isVisible, setIsVisible] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -295,11 +295,12 @@ export default function DeveloperPanel() {
           </div>
 
           <Tabs defaultValue="stock" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-3">
+            <TabsList className="grid w-full grid-cols-5 mb-3">
               <TabsTrigger value="stock" data-testid="tab-stock">Stock</TabsTrigger>
               <TabsTrigger value="products" data-testid="tab-products">Products</TabsTrigger>
               <TabsTrigger value="filters" data-testid="tab-filters">Filters</TabsTrigger>
               <TabsTrigger value="banner" data-testid="tab-banner">Banner</TabsTrigger>
+              <TabsTrigger value="flash" data-testid="tab-flash">Flash</TabsTrigger>
             </TabsList>
 
             <TabsContent value="stock">
@@ -752,6 +753,92 @@ export default function DeveloperPanel() {
                   <p className="text-xs font-semibold mb-2">Preview:</p>
                   <p className="text-sm">{bannerText || "Enter banner text"}</p>
                   <p className="text-xs opacity-70 mt-1">Timer: {timerDays || "0"} days</p>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="flash">
+              <p className="text-xs mb-3 opacity-80">Start a 30-second flash sale (First 5 orders are FREE)</p>
+              <div className="space-y-3">
+                <div className="p-3 rounded bg-gray-800 dark:bg-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Zap className="w-4 h-4 text-yellow-500" />
+                    <span className="text-sm font-semibold">Flash Offer Status</span>
+                  </div>
+                  <div className="text-sm">
+                    {flashOffer?.isActive ? (
+                      <div className="space-y-1">
+                        <p className="text-green-400">Active</p>
+                        <p className="text-xs opacity-70">
+                          Spots claimed: {flashOffer.claimedCount} / {flashOffer.maxClaims}
+                        </p>
+                        <p className="text-xs opacity-70">
+                          Remaining: {Math.max(0, flashOffer.maxClaims - flashOffer.claimedCount)} spots
+                        </p>
+                        {flashOffer.endsAt && (
+                          <p className="text-xs opacity-70">
+                            Ends: {new Date(flashOffer.endsAt).toLocaleTimeString()}
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-gray-400">Not active</p>
+                    )}
+                  </div>
+                </div>
+
+                {flashOffer?.isActive ? (
+                  <Button
+                    onClick={async () => {
+                      try {
+                        await stopFlashOffer();
+                        toast({
+                          title: "Flash offer stopped",
+                          description: "The flash offer has been deactivated",
+                        });
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to stop flash offer",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    disabled={isTogglingFlashOffer}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white"
+                    data-testid="button-stop-flash"
+                  >
+                    {isTogglingFlashOffer ? "Stopping..." : "Stop Flash Offer"}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={async () => {
+                      try {
+                        await startFlashOffer();
+                        toast({
+                          title: "Flash offer started!",
+                          description: "First 5 orders will be FREE for 30 seconds",
+                        });
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to start flash offer",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    disabled={isTogglingFlashOffer}
+                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
+                    data-testid="button-start-flash"
+                  >
+                    <Zap className="w-4 h-4 mr-2" />
+                    {isTogglingFlashOffer ? "Starting..." : "Start Flash Offer (30s)"}
+                  </Button>
+                )}
+
+                <div className="text-xs opacity-60 space-y-1">
+                  <p>When active, customers will see a banner with countdown timer.</p>
+                  <p>First 5 orders placed during the flash offer will be FREE (&#8377;0).</p>
                 </div>
               </div>
             </TabsContent>

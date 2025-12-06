@@ -1,4 +1,4 @@
-import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable } from "@shared/schema";
+import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, type FlashOffer, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable, flashOffersTable } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
 import { Pool, neonConfig } from "@neondatabase/serverless";
@@ -109,6 +109,10 @@ export interface IStorage {
   updatePromotionalSettings(bannerText: string, timerDays: number, deliveryText: string): Promise<PromotionalSettings>;
   createOrder(order: InsertOrder): Promise<Order>;
   getOrderByNumber(orderNumber: string): Promise<Order | undefined>;
+  getFlashOffer(): Promise<FlashOffer | null>;
+  startFlashOffer(): Promise<FlashOffer>;
+  stopFlashOffer(): Promise<FlashOffer | null>;
+  claimFlashOffer(): Promise<{ success: boolean; flashOffer: FlashOffer | null; spotsRemaining: number }>;
 }
 
 export class DBStorage implements IStorage {
@@ -402,6 +406,99 @@ export class DBStorage implements IStorage {
       .where(eq(ordersTable.orderNumber, orderNumber))
       .limit(1);
     return order as Order | undefined;
+  }
+
+  async getFlashOffer(): Promise<FlashOffer | null> {
+    const [offer] = await sql.select().from(flashOffersTable).limit(1);
+    if (!offer) {
+      return null;
+    }
+    if (offer.isActive && offer.endsAt) {
+      const now = new Date();
+      if (now > offer.endsAt) {
+        await sql.update(flashOffersTable)
+          .set({ isActive: false })
+          .where(eq(flashOffersTable.id, offer.id));
+        return { ...offer, isActive: false } as FlashOffer;
+      }
+    }
+    return offer as FlashOffer;
+  }
+
+  async startFlashOffer(): Promise<FlashOffer> {
+    const existing = await sql.select().from(flashOffersTable).limit(1);
+    const now = new Date();
+    const endsAt = new Date(now.getTime() + 30 * 1000);
+    
+    if (existing.length > 0) {
+      const [updated] = await sql.update(flashOffersTable)
+        .set({ 
+          isActive: true, 
+          claimedCount: 0,
+          startedAt: now, 
+          endsAt: endsAt 
+        })
+        .where(eq(flashOffersTable.id, existing[0].id))
+        .returning();
+      return updated as FlashOffer;
+    } else {
+      const [created] = await sql.insert(flashOffersTable)
+        .values({
+          isActive: true,
+          maxClaims: 5,
+          claimedCount: 0,
+          durationSeconds: 30,
+          startedAt: now,
+          endsAt: endsAt,
+          bannerText: "First 5 orders are FREE!",
+        })
+        .returning();
+      return created as FlashOffer;
+    }
+  }
+
+  async stopFlashOffer(): Promise<FlashOffer | null> {
+    const [existing] = await sql.select().from(flashOffersTable).limit(1);
+    if (!existing) {
+      return null;
+    }
+    const [updated] = await sql.update(flashOffersTable)
+      .set({ isActive: false })
+      .where(eq(flashOffersTable.id, existing.id))
+      .returning();
+    return updated as FlashOffer;
+  }
+
+  async claimFlashOffer(): Promise<{ success: boolean; flashOffer: FlashOffer | null; spotsRemaining: number }> {
+    const offer = await this.getFlashOffer();
+    if (!offer || !offer.isActive) {
+      return { success: false, flashOffer: null, spotsRemaining: 0 };
+    }
+    if (offer.claimedCount >= offer.maxClaims) {
+      return { success: false, flashOffer: offer, spotsRemaining: 0 };
+    }
+    const now = new Date();
+    if (offer.endsAt && now > offer.endsAt) {
+      await sql.update(flashOffersTable)
+        .set({ isActive: false })
+        .where(eq(flashOffersTable.id, offer.id));
+      return { success: false, flashOffer: { ...offer, isActive: false }, spotsRemaining: 0 };
+    }
+    const [updated] = await sql.update(flashOffersTable)
+      .set({ claimedCount: offer.claimedCount + 1 })
+      .where(eq(flashOffersTable.id, offer.id))
+      .returning();
+    const spotsRemaining = updated.maxClaims - updated.claimedCount;
+    if (spotsRemaining <= 0) {
+      await sql.update(flashOffersTable)
+        .set({ isActive: false })
+        .where(eq(flashOffersTable.id, offer.id));
+    }
+    return { 
+      success: true, 
+      flashOffer: updated as FlashOffer, 
+      spotsRemaining: Math.max(0, spotsRemaining) 
+    };
   }
 }
 

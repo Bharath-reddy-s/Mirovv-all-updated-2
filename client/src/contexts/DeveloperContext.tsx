@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { StockStatus, Product, CreateProduct, UpdateProduct, PriceFilter, PromotionalSettings } from "@shared/schema";
+import type { StockStatus, Product, CreateProduct, UpdateProduct, PriceFilter, PromotionalSettings, FlashOffer } from "@shared/schema";
 
 interface DeveloperContextType {
   isDeveloperMode: boolean;
@@ -9,6 +9,7 @@ interface DeveloperContextType {
   products: Product[];
   priceFilters: PriceFilter[];
   promotionalSettings: PromotionalSettings | null;
+  flashOffer: FlashOffer | null;
   toggleStockStatus: (productId: number) => void;
   createProduct: (product: CreateProduct) => Promise<any>;
   updateProduct: (id: number, updates: Partial<UpdateProduct>) => Promise<any>;
@@ -19,6 +20,8 @@ interface DeveloperContextType {
   updatePriceFilter: (id: number, value: number) => Promise<any>;
   deletePriceFilter: (id: number) => Promise<any>;
   updateOfferBanner: (text: string, days: number, deliveryText: string) => Promise<void>;
+  startFlashOffer: () => Promise<FlashOffer>;
+  stopFlashOffer: () => Promise<FlashOffer | null>;
   isCreatingProduct: boolean;
   isUpdatingProduct: boolean;
   isDeletingProduct: boolean;
@@ -26,6 +29,7 @@ interface DeveloperContextType {
   isManagingFilters: boolean;
   isLoadingFilters: boolean;
   isUpdatingPromotionalSettings: boolean;
+  isTogglingFlashOffer: boolean;
 }
 
 const DeveloperContext = createContext<DeveloperContextType | undefined>(undefined);
@@ -48,6 +52,11 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
 
   const { data: promotionalSettings = null } = useQuery<PromotionalSettings>({
     queryKey: ["/api/promotional-settings"],
+  });
+
+  const { data: flashOffer = null } = useQuery<FlashOffer | null>({
+    queryKey: ["/api/flash-offer"],
+    refetchInterval: 1000,
   });
 
   const updateStockMutation = useMutation({
@@ -141,6 +150,24 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const startFlashOfferMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", "/api/flash-offer/start");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/flash-offer"] });
+    },
+  });
+
+  const stopFlashOfferMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", "/api/flash-offer/stop");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/flash-offer"] });
+    },
+  });
+
   const secretPhrase = "dormamu is a aunty";
 
   useEffect(() => {
@@ -209,6 +236,14 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     await updatePromotionalSettingsMutation.mutateAsync({ bannerText: text, timerDays: days, deliveryText });
   };
 
+  const startFlashOffer = async (): Promise<FlashOffer> => {
+    return startFlashOfferMutation.mutateAsync();
+  };
+
+  const stopFlashOffer = async (): Promise<FlashOffer | null> => {
+    return stopFlashOfferMutation.mutateAsync();
+  };
+
   return (
     <DeveloperContext.Provider 
       value={{ 
@@ -217,6 +252,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         products,
         priceFilters,
         promotionalSettings,
+        flashOffer,
         toggleStockStatus, 
         createProduct,
         updateProduct,
@@ -227,6 +263,8 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         updatePriceFilter,
         deletePriceFilter,
         updateOfferBanner,
+        startFlashOffer,
+        stopFlashOffer,
         isCreatingProduct: createProductMutation.isPending,
         isUpdatingProduct: updateProductMutation.isPending,
         isDeletingProduct: deleteProductMutation.isPending,
@@ -234,6 +272,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         isManagingFilters: createPriceFilterMutation.isPending || updatePriceFilterMutation.isPending || deletePriceFilterMutation.isPending,
         isLoadingFilters,
         isUpdatingPromotionalSettings: updatePromotionalSettingsMutation.isPending,
+        isTogglingFlashOffer: startFlashOfferMutation.isPending || stopFlashOfferMutation.isPending,
       }}
     >
       {children}
