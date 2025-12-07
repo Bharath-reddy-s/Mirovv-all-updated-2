@@ -1,10 +1,14 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import clockImage from "@assets/Screenshot_2025-12-07_at_5.56.49_PM_1765111881674.png";
 import timerImage from "@assets/Screenshot_2025-12-07_at_5.57.18_PM_1765111881674.png";
 import orderSummaryImage from "@assets/Screenshot_2025-12-07_at_5.58.35_PM_1765111881674.png";
 
 export default function OffersPage() {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-neutral-950">
       <main className="container mx-auto px-4 pt-32 pb-16">
@@ -33,7 +37,9 @@ export default function OffersPage() {
               <img 
                 src={clockImage} 
                 alt="Clock" 
-                className="w-20 h-20 md:w-24 md:h-24 object-contain"
+                className="w-20 h-20 md:w-24 md:h-24 object-contain cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => setSelectedImage(clockImage)}
+                data-testid="img-clock"
               />
               
               <ArrowRight className="w-8 h-8 text-gray-500 dark:text-gray-400 flex-shrink-0" />
@@ -41,7 +47,9 @@ export default function OffersPage() {
               <img 
                 src={timerImage} 
                 alt="Timer 0:24" 
-                className="w-20 h-20 md:w-24 md:h-24 object-contain"
+                className="w-20 h-20 md:w-24 md:h-24 object-contain cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => setSelectedImage(timerImage)}
+                data-testid="img-timer"
               />
               
               <ArrowRight className="w-8 h-8 text-gray-500 dark:text-gray-400 flex-shrink-0" />
@@ -49,11 +57,26 @@ export default function OffersPage() {
               <img 
                 src={orderSummaryImage} 
                 alt="Order Summary" 
-                className="w-32 h-auto md:w-44 object-contain rounded-lg"
+                className="w-32 h-auto md:w-44 object-contain rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => setSelectedImage(orderSummaryImage)}
+                data-testid="img-order-summary"
               />
             </div>
           </motion.div>
         </div>
+
+        <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+          <DialogContent className="max-w-3xl p-2 bg-transparent border-none">
+            {selectedImage && (
+              <img 
+                src={selectedImage} 
+                alt="Full size view" 
+                className="w-full h-auto rounded-lg"
+                data-testid="img-fullsize"
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
