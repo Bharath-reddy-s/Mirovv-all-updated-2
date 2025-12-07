@@ -87,6 +87,14 @@ export const timeChallengeTable = pgTable("time_challenge", {
   discountPercent: integer("discount_percent").notNull().default(30),
 });
 
+export const offersTable = pgTable("offers", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  images: text("images").array().notNull(),
+  displayOrder: integer("display_order").notNull().default(0),
+});
+
 export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, isInStock: true, displayOrder: true });
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof productsTable.$inferSelect;
@@ -136,6 +144,22 @@ export type DeliveryAddress = typeof deliveryAddressesTable.$inferSelect;
 export type TimeChallenge = typeof timeChallengeTable.$inferSelect;
 
 export type CheckoutDiscount = typeof checkoutDiscountTable.$inferSelect;
+
+export const insertOfferSchema = createInsertSchema(offersTable).omit({ id: true, displayOrder: true }).extend({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  images: z.array(z.string()).min(1, "At least one image is required"),
+});
+export type InsertOffer = z.infer<typeof insertOfferSchema>;
+export type Offer = typeof offersTable.$inferSelect;
+
+export const updateOfferSchema = z.object({
+  id: z.number(),
+  title: z.string().min(1).optional(),
+  description: z.string().min(1).optional(),
+  images: z.array(z.string()).optional(),
+});
+export type UpdateOffer = z.infer<typeof updateOfferSchema>;
 
 export interface StockStatus {
   [productId: number]: boolean;
