@@ -5,8 +5,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
 import { DeveloperProvider } from "@/contexts/DeveloperContext";
+import { TimeChallengeProvider } from "@/contexts/TimeChallengeContext";
 import CartSheet from "@/components/CartSheet";
 import DeveloperPanel from "@/components/DeveloperPanel";
+import { TimeChallengeButton } from "@/components/TimeChallengeButton";
 import Navbar from "@/components/Navbar";
 import Home from "@/pages/Home";
 import Shop from "@/pages/Shop";
@@ -39,13 +41,16 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <DeveloperProvider>
-          <CartProvider>
-            <Toaster />
-            <CartSheet />
-            <DeveloperPanel />
-            <Navbar />
-            <Router />
-          </CartProvider>
+          <TimeChallengeProvider>
+            <CartProvider>
+              <Toaster />
+              <CartSheet />
+              <DeveloperPanel />
+              <TimeChallengeButton />
+              <Navbar />
+              <Router />
+            </CartProvider>
+          </TimeChallengeProvider>
         </DeveloperProvider>
       </TooltipProvider>
     </QueryClientProvider>

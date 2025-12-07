@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/CartContext";
 import { useDeveloper } from "@/contexts/DeveloperContext";
+import { useTimeChallenge } from "@/contexts/TimeChallengeContext";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { apiRequest } from "@/lib/queryClient";
@@ -17,12 +18,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Copy, CheckCircle2, Zap } from "lucide-react";
+import { Copy, CheckCircle2, Zap, Timer } from "lucide-react";
 
 export default function CheckoutPage() {
   const [, setLocation] = useLocation();
   const { items, subtotal, clearCart } = useCart();
   const { flashOffer } = useDeveloper();
+  const { challengeStarted, challengeExpired, timeRemaining, discountPercent, markChallengeCompleted } = useTimeChallenge();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showOrderSuccess, setShowOrderSuccess] = useState(false);
@@ -62,7 +64,10 @@ export default function CheckoutPage() {
   const isFlashOfferActive = flashOffer?.isActive && flashTimeLeft > 0 && 
     flashOffer.claimedCount < flashOffer.maxClaims;
   const spotsRemaining = flashOffer ? flashOffer.maxClaims - flashOffer.claimedCount : 0;
-  const displayTotal = isFlashOfferActive ? 0 : subtotal;
+  
+  const isTimeChallengeActive = challengeStarted && !challengeExpired && discountPercent > 0;
+  const timeChallengeDiscount = isTimeChallengeActive ? Math.round(subtotal * discountPercent / 100) : 0;
+  const displayTotal = isFlashOfferActive ? 0 : (subtotal - timeChallengeDiscount);
 
   const copyOrderNumber = () => {
     if (orderDetails?.orderNumber) {
@@ -112,10 +117,17 @@ export default function CheckoutPage() {
 
     try {
       const isFlashOrder = isFlashOfferActive;
+      const hasTimeChallengeDiscount = isTimeChallengeActive;
       
       if (isFlashOrder) {
         await apiRequest('POST', '/api/flash-offer/claim');
       }
+      
+      if (hasTimeChallengeDiscount) {
+        markChallengeCompleted();
+      }
+      
+      const finalTotal = isFlashOrder ? 0 : displayTotal;
       
       const orderData = {
         customerName: formData.firstName,
@@ -129,7 +141,7 @@ export default function CheckoutPage() {
           quantity: item.quantity,
           image: item.image,
         })),
-        total: isFlashOrder ? "₹0" : `₹${subtotal}`,
+        total: `₹${finalTotal}`,
         isFlashOffer: isFlashOrder,
       };
 
@@ -138,8 +150,11 @@ export default function CheckoutPage() {
       setOrderDetails({
         orderNumber: response.orderNumber,
         items: items,
-        total: isFlashOrder ? 0 : subtotal,
+        total: finalTotal,
         isFlashOffer: isFlashOrder,
+        hasTimeChallengeDiscount,
+        timeChallengeDiscount,
+        discountPercent,
         customerName: formData.firstName,
         mobile: formData.mobile,
         address: formData.address,
@@ -272,6 +287,17 @@ export default function CheckoutPage() {
               </div>
             )}
             
+            {isTimeChallengeActive && !isFlashOfferActive && (
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl p-4 mb-6" data-testid="time-challenge-applied">
+                <div className="flex items-center gap-2 mb-2">
+                  <Timer className="w-5 h-5" />
+                  <span className="font-bold">{discountPercent}% Discount Active!</span>
+                </div>
+                <p className="text-sm">Complete checkout now to save ₹{timeChallengeDiscount}!</p>
+                <p className="text-xs mt-1 opacity-80">Time remaining: {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}</p>
+              </div>
+            )}
+            
             <div className="space-y-6">
               <div className="space-y-4">
                 {items.map((item) => (
@@ -327,6 +353,15 @@ export default function CheckoutPage() {
                       Flash Discount
                     </span>
                     <span className="font-semibold">-₹{subtotal}</span>
+                  </div>
+                )}
+                {isTimeChallengeActive && !isFlashOfferActive && (
+                  <div className="flex justify-between text-base text-green-600 dark:text-green-400">
+                    <span className="flex items-center gap-1">
+                      <Timer className="w-4 h-4" />
+                      Time Challenge ({discountPercent}% off)
+                    </span>
+                    <span className="font-semibold">-₹{timeChallengeDiscount}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-base pt-3 border-t border-gray-200 dark:border-neutral-800">

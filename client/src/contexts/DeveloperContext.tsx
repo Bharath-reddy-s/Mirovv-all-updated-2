@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { StockStatus, Product, CreateProduct, UpdateProduct, PriceFilter, PromotionalSettings, FlashOffer, DeliveryAddress } from "@shared/schema";
+import type { StockStatus, Product, CreateProduct, UpdateProduct, PriceFilter, PromotionalSettings, FlashOffer, DeliveryAddress, TimeChallenge } from "@shared/schema";
 
 interface DeveloperContextType {
   isDeveloperMode: boolean;
@@ -11,6 +11,7 @@ interface DeveloperContextType {
   promotionalSettings: PromotionalSettings | null;
   flashOffer: FlashOffer | null;
   deliveryAddresses: DeliveryAddress[];
+  timeChallenge: TimeChallenge | null;
   toggleStockStatus: (productId: number) => void;
   createProduct: (product: CreateProduct) => Promise<any>;
   updateProduct: (id: number, updates: Partial<UpdateProduct>) => Promise<any>;
@@ -26,6 +27,7 @@ interface DeveloperContextType {
   createDeliveryAddress: (name: string) => Promise<any>;
   updateDeliveryAddress: (id: number, name: string) => Promise<any>;
   deleteDeliveryAddress: (id: number) => Promise<any>;
+  updateTimeChallenge: (settings: { name?: string; isActive?: boolean; durationSeconds?: number; discountPercent?: number }) => Promise<TimeChallenge>;
   isCreatingProduct: boolean;
   isUpdatingProduct: boolean;
   isDeletingProduct: boolean;
@@ -36,6 +38,7 @@ interface DeveloperContextType {
   isTogglingFlashOffer: boolean;
   isManagingAddresses: boolean;
   isLoadingAddresses: boolean;
+  isUpdatingTimeChallenge: boolean;
 }
 
 const DeveloperContext = createContext<DeveloperContextType | undefined>(undefined);
@@ -67,6 +70,10 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
 
   const { data: deliveryAddresses = [], isLoading: isLoadingAddresses } = useQuery<DeliveryAddress[]>({
     queryKey: ["/api/delivery-addresses"],
+  });
+
+  const { data: timeChallenge = null } = useQuery<TimeChallenge | null>({
+    queryKey: ["/api/time-challenge"],
   });
 
   const updateStockMutation = useMutation({
@@ -205,6 +212,15 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const updateTimeChallengeMutation = useMutation({
+    mutationFn: async (settings: { name?: string; isActive?: boolean; durationSeconds?: number; discountPercent?: number }) => {
+      return apiRequest("PATCH", "/api/time-challenge", settings);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/time-challenge"] });
+    },
+  });
+
   const secretPhrase = "dormamu is a aunty";
 
   useEffect(() => {
@@ -293,6 +309,10 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     return deleteDeliveryAddressMutation.mutateAsync(id);
   };
 
+  const updateTimeChallenge = async (settings: { name?: string; isActive?: boolean; durationSeconds?: number; discountPercent?: number }): Promise<TimeChallenge> => {
+    return updateTimeChallengeMutation.mutateAsync(settings);
+  };
+
   return (
     <DeveloperContext.Provider 
       value={{ 
@@ -303,6 +323,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         promotionalSettings,
         flashOffer,
         deliveryAddresses,
+        timeChallenge,
         toggleStockStatus, 
         createProduct,
         updateProduct,
@@ -318,6 +339,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         createDeliveryAddress,
         updateDeliveryAddress,
         deleteDeliveryAddress,
+        updateTimeChallenge,
         isCreatingProduct: createProductMutation.isPending,
         isUpdatingProduct: updateProductMutation.isPending,
         isDeletingProduct: deleteProductMutation.isPending,
@@ -328,6 +350,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         isTogglingFlashOffer: startFlashOfferMutation.isPending || stopFlashOfferMutation.isPending,
         isManagingAddresses: createDeliveryAddressMutation.isPending || updateDeliveryAddressMutation.isPending || deleteDeliveryAddressMutation.isPending,
         isLoadingAddresses,
+        isUpdatingTimeChallenge: updateTimeChallengeMutation.isPending,
       }}
     >
       {children}
