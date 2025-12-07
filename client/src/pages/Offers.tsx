@@ -45,9 +45,6 @@ export default function OffersPage() {
           <h1 className="text-4xl md:text-6xl font-bold mb-6 text-black dark:text-white" data-testid="text-offers-title">
             Special Offers
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto" data-testid="text-offers-description">
-            Check out all our amazing offers and save big on your purchases!
-          </p>
         </motion.div>
 
         <div className="max-w-5xl mx-auto">
