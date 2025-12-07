@@ -327,7 +327,7 @@ export default function DeveloperPanel() {
           </div>
 
           <Tabs defaultValue="stock" className="w-full">
-            <TabsList className="grid w-full grid-cols-8 mb-3">
+            <TabsList className="grid w-full grid-cols-9 mb-3">
               <TabsTrigger value="stock" data-testid="tab-stock">1</TabsTrigger>
               <TabsTrigger value="products" data-testid="tab-products">2</TabsTrigger>
               <TabsTrigger value="filters" data-testid="tab-filters">3</TabsTrigger>
@@ -336,6 +336,7 @@ export default function DeveloperPanel() {
               <TabsTrigger value="address" data-testid="tab-address">6</TabsTrigger>
               <TabsTrigger value="timer" data-testid="tab-timer">7</TabsTrigger>
               <TabsTrigger value="discount" data-testid="tab-discount">8</TabsTrigger>
+              <TabsTrigger value="nine" data-testid="tab-nine">9</TabsTrigger>
             </TabsList>
 
             <TabsContent value="stock">
@@ -1381,6 +1382,13 @@ export default function DeveloperPanel() {
                   <p>This discount is applied automatically to all orders at checkout.</p>
                   <p>Customers will not see this discount on the frontend.</p>
                 </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="nine">
+              <p className="text-xs mb-3 opacity-80">Tab 9 - Coming soon</p>
+              <div className="p-3 rounded bg-gray-800 dark:bg-gray-200">
+                <p className="text-sm text-gray-400">This tab is reserved for future features.</p>
               </div>
             </TabsContent>
           </Tabs>
