@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useTimeChallenge } from "@/contexts/TimeChallengeContext";
+import { useCart } from "@/contexts/CartContext";
 import { Timer, X, Play } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -13,6 +14,7 @@ export function TimeChallengeButton() {
     startChallenge,
     challengeSettings,
   } = useTimeChallenge();
+  const { clearCart } = useCart();
 
   const [isMounted, setIsMounted] = useState(false);
   const [position, setPosition] = useState({ x: 20, y: 100 });
@@ -189,6 +191,7 @@ export function TimeChallengeButton() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
+                    clearCart();
                     startChallenge();
                   }}
                   className="w-full hover:bg-green-600 font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-[#000000] bg-[#fcfcfc]"
@@ -222,6 +225,7 @@ export function TimeChallengeButton() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
+                    clearCart();
                     startChallenge();
                   }}
                   className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
