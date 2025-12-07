@@ -20,7 +20,7 @@ export default function ShopPage() {
   const { addToCart } = useCart();
   const [currentImageIndices, setCurrentImageIndices] = useState<{[key: number]: number}>({});
   const [selectedPriceFilter, setSelectedPriceFilter] = useState<number | null>(null);
-  const [sortOption, setSortOption] = useState<SortOption>("default");
+  const [sortOption, setSortOption] = useState<SortOption>("low-to-high");
   
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
