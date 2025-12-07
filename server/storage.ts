@@ -62,6 +62,11 @@ function invalidateDeliveryAddressCache() {
   cache.deliveryAddresses = null;
 }
 
+function parsePriceToNumber(priceStr: string): number {
+  const cleanedValue = priceStr.replace(/[^\d]/g, '');
+  return parseInt(cleanedValue, 10) || 0;
+}
+
 export async function warmupCache(): Promise<void> {
   console.log('Warming up cache...');
   const start = Date.now();
@@ -159,10 +164,19 @@ export class DBStorage implements IStorage {
       cache.products = { data: products, timestamp: Date.now() };
       products = [...products];
     }
-    // Shuffle products randomly using Fisher-Yates algorithm
-    for (let i = products.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [products[i], products[j]] = [products[j], products[i]];
+    
+    // Check if time challenge is active
+    const timeChallenge = await this.getTimeChallenge();
+    
+    if (timeChallenge?.isActive) {
+      // Sort by price low to high when time challenge is active
+      products.sort((a, b) => parsePriceToNumber(a.price) - parsePriceToNumber(b.price));
+    } else {
+      // Shuffle products randomly using Fisher-Yates algorithm
+      for (let i = products.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [products[i], products[j]] = [products[j], products[i]];
+      }
     }
     return products;
   }
@@ -181,12 +195,7 @@ export class DBStorage implements IStorage {
       return [];
     }
 
-    const parsePrice = (priceStr: string): number => {
-      const cleanedValue = priceStr.replace(/[^\d]/g, '');
-      return parseInt(cleanedValue, 10) || 0;
-    };
-
-    const currentPrice = parsePrice(currentProduct.price);
+    const currentPrice = parsePriceToNumber(currentProduct.price);
     const priceRange = currentPrice * 0.5;
     const minPrice = currentPrice - priceRange;
     const maxPrice = currentPrice + priceRange;
@@ -197,8 +206,8 @@ export class DBStorage implements IStorage {
       .filter(p => p.id !== productId)
       .map(p => ({
         product: p,
-        price: parsePrice(p.price),
-        priceDiff: Math.abs(parsePrice(p.price) - currentPrice)
+        price: parsePriceToNumber(p.price),
+        priceDiff: Math.abs(parsePriceToNumber(p.price) - currentPrice)
       }))
       .filter(item => item.price >= minPrice && item.price <= maxPrice)
       .sort((a, b) => a.priceDiff - b.priceDiff)
@@ -213,7 +222,7 @@ export class DBStorage implements IStorage {
         .filter(p => !existingIds.has(p.id))
         .map(p => ({
           product: p,
-          priceDiff: Math.abs(parsePrice(p.price) - currentPrice)
+          priceDiff: Math.abs(parsePriceToNumber(p.price) - currentPrice)
         }))
         .sort((a, b) => a.priceDiff - b.priceDiff)
         .slice(0, remaining)
@@ -625,6 +634,9 @@ export class DBStorage implements IStorage {
 
   async updateTimeChallenge(settings: { name?: string; isActive?: boolean; durationSeconds?: number; discountPercent?: number }): Promise<TimeChallenge> {
     const existing = await sql.select().from(timeChallengeTable).limit(1);
+    
+    // Invalidate product cache since product ordering depends on time challenge state
+    invalidateProductCache();
     
     if (existing.length > 0) {
       const [updated] = await sql.update(timeChallengeTable)
