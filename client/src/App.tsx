@@ -14,6 +14,7 @@ import Home from "@/pages/Home";
 import Shop from "@/pages/Shop";
 import ProductDetail from "@/pages/ProductDetail";
 import Checkout from "@/pages/Checkout";
+import Offers from "@/pages/Offers";
 import NotFound from "@/pages/not-found";
 import { useEffect } from "react";
 
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/shop" component={Shop} />
       <Route path="/shop/:id" component={ProductDetail} />
       <Route path="/checkout" component={Checkout} />
+      <Route path="/offers" component={Offers} />
       <Route component={NotFound} />
     </Switch>
   );
