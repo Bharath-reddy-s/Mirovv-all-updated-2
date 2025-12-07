@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
-import { type Product, type PriceFilter } from "@shared/schema";
+import { type Product, type PriceFilter, type TimeChallenge } from "@shared/schema";
 import { Link } from "wouter";
 import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -30,6 +30,10 @@ export default function ShopPage() {
     queryKey: ["/api/price-filters"],
   });
 
+  const { data: timeChallenge } = useQuery<TimeChallenge>({
+    queryKey: ["/api/time-challenge"],
+  });
+
   const priceFilterOptions = priceFilters.length > 0 
     ? priceFilters.map(filter => filter.value)
     : [9, 29, 49, 79, 99, 149, 199];
@@ -55,12 +59,15 @@ export default function ShopPage() {
       result = [...products];
     }
     
-    if (sortOption === "low-to-high") {
+    // When time challenge is active, force sort by price low-to-high
+    if (timeChallenge?.isActive) {
+      result = result.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
+    } else if (sortOption === "low-to-high") {
       result = result.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
     } else if (sortOption === "high-to-low") {
       result = result.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));
-    } else if (sortOption === "random") {
-      // Fisher-Yates shuffle
+    } else if (sortOption === "random" || sortOption === "default") {
+      // Fisher-Yates shuffle for random and default
       for (let i = result.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [result[i], result[j]] = [result[j], result[i]];
@@ -68,7 +75,7 @@ export default function ShopPage() {
     }
     
     return result;
-  }, [products, selectedPriceFilter, sortOption, priceFilterOptions]);
+  }, [products, selectedPriceFilter, sortOption, priceFilterOptions, timeChallenge?.isActive]);
 
   useEffect(() => {
     const intervals: {[key: number]: NodeJS.Timeout} = {};

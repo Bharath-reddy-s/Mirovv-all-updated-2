@@ -73,7 +73,7 @@ export async function warmupCache(): Promise<void> {
   
   try {
     const [products, priceFilters, settings] = await Promise.all([
-      sql.select().from(productsTable),
+      sql.select().from(productsTable).orderBy(asc(productsTable.displayOrder)),
       sql.select().from(priceFiltersTable).orderBy(asc(priceFiltersTable.displayOrder)),
       sql.select().from(promotionalSettingsTable).limit(1),
     ]);
@@ -156,28 +156,11 @@ export class DBStorage implements IStorage {
   }
 
   async getProducts(): Promise<Product[]> {
-    let products: Product[];
     if (isCacheValid(cache.products)) {
-      products = [...cache.products.data];
-    } else {
-      products = await sql.select().from(productsTable) as Product[];
-      cache.products = { data: products, timestamp: Date.now() };
-      products = [...products];
+      return cache.products.data;
     }
-    
-    // Check if time challenge is active
-    const timeChallenge = await this.getTimeChallenge();
-    
-    if (timeChallenge?.isActive) {
-      // Sort by price low to high when time challenge is active
-      products.sort((a, b) => parsePriceToNumber(a.price) - parsePriceToNumber(b.price));
-    } else {
-      // Shuffle products randomly using Fisher-Yates algorithm
-      for (let i = products.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [products[i], products[j]] = [products[j], products[i]];
-      }
-    }
+    const products = await sql.select().from(productsTable).orderBy(asc(productsTable.displayOrder)) as Product[];
+    cache.products = { data: products, timestamp: Date.now() };
     return products;
   }
 
