@@ -828,14 +828,14 @@ export default function DeveloperPanel() {
                         id="flash-slots"
                         type="number"
                         min="1"
-                        max="100"
+                        max="10000"
                         value={flashSlots}
                         onChange={(e) => setFlashSlots(e.target.value)}
                         placeholder="5"
                         className="bg-gray-900 text-white focus-visible:ring-0 focus-visible:border-gray-600"
                         data-testid="input-flash-slots"
                       />
-                      <p className="text-xs text-gray-400">Number of free orders available</p>
+                      <p className="text-xs text-gray-400">Number of free orders available (1-10,000)</p>
                     </div>
 
                     <div className="space-y-2">
@@ -843,15 +843,15 @@ export default function DeveloperPanel() {
                       <Input
                         id="flash-duration"
                         type="number"
-                        min="10"
-                        max="300"
+                        min="5"
+                        max="86400"
                         value={flashDuration}
                         onChange={(e) => setFlashDuration(e.target.value)}
                         placeholder="30"
                         className="bg-gray-900 text-white focus-visible:ring-0 focus-visible:border-gray-600"
                         data-testid="input-flash-duration"
                       />
-                      <p className="text-xs text-gray-400">How long the flash offer runs (10-300 seconds)</p>
+                      <p className="text-xs text-gray-400">How long the flash offer runs (5 sec - 24 hours)</p>
                     </div>
                   </div>
                 )}
@@ -894,19 +894,19 @@ export default function DeveloperPanel() {
                         return;
                       }
                       
-                      if (isNaN(slots) || slots < 1 || slots > 100) {
+                      if (isNaN(slots) || slots < 1 || slots > 10000) {
                         toast({
                           title: "Invalid slots",
-                          description: "Please enter a number between 1 and 100",
+                          description: "Please enter a number between 1 and 10,000",
                           variant: "destructive",
                         });
                         return;
                       }
                       
-                      if (isNaN(duration) || duration < 10 || duration > 300) {
+                      if (isNaN(duration) || duration < 5 || duration > 86400) {
                         toast({
                           title: "Invalid duration",
-                          description: "Please enter a number between 10 and 300 seconds",
+                          description: "Please enter a duration between 5 seconds and 24 hours",
                           variant: "destructive",
                         });
                         return;
@@ -1132,15 +1132,15 @@ export default function DeveloperPanel() {
                   <Input
                     id="challenge-duration"
                     type="number"
-                    min="30"
-                    max="600"
+                    min="5"
+                    max="86400"
                     value={challengeDuration}
                     onChange={(e) => setChallengeDuration(e.target.value)}
                     placeholder="120"
                     className="bg-gray-900 text-white focus-visible:ring-0 focus-visible:border-gray-600"
                     data-testid="input-challenge-duration"
                   />
-                  <p className="text-xs text-gray-400">Time users have to complete checkout (30-600 sec)</p>
+                  <p className="text-xs text-gray-400">Time users have to complete checkout (5 sec - 24 hours)</p>
                 </div>
 
                 <div className="space-y-2">
@@ -1172,10 +1172,10 @@ export default function DeveloperPanel() {
                       });
                       return;
                     }
-                    if (isNaN(duration) || duration < 30 || duration > 600) {
+                    if (isNaN(duration) || duration < 5 || duration > 86400) {
                       toast({
                         title: "Invalid duration",
-                        description: "Duration must be between 30 and 600 seconds",
+                        description: "Duration must be between 5 seconds and 24 hours",
                         variant: "destructive",
                       });
                       return;
