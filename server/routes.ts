@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { updateStockStatusSchema, createProductSchema, updateProductSchema, insertReviewSchema, insertPriceFilterSchema, insertPromotionalSettingsSchema, insertOrderSchema, insertDeliveryAddressSchema } from "@shared/schema";
+import { updateStockStatusSchema, createProductSchema, updateProductSchema, insertReviewSchema, insertPriceFilterSchema, insertPromotionalSettingsSchema, insertOrderSchema, insertDeliveryAddressSchema, insertOfferSchema, updateOfferSchema } from "@shared/schema";
 import { z } from "zod";
 import { sendOrderToTelegram } from "./telegram";
 
@@ -480,6 +480,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to update checkout discount:", error);
       res.status(500).json({ error: "Failed to update checkout discount" });
+    }
+  });
+
+  app.get("/api/offers", async (req, res) => {
+    try {
+      const offers = await storage.getOffers();
+      res.json(offers);
+    } catch (error) {
+      console.error("Failed to get offers:", error);
+      res.status(500).json({ error: "Failed to get offers" });
+    }
+  });
+
+  app.post("/api/offers", async (req, res) => {
+    try {
+      const validation = insertOfferSchema.safeParse(req.body);
+      if (!validation.success) {
+        console.error("Offer validation failed:", validation.error);
+        return res.status(400).json({ error: validation.error });
+      }
+      const offer = await storage.createOffer(validation.data);
+      res.json(offer);
+    } catch (error) {
+      console.error("Failed to create offer:", error);
+      res.status(500).json({ error: "Failed to create offer" });
+    }
+  });
+
+  app.patch("/api/offers/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validation = updateOfferSchema.safeParse({ ...req.body, id });
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+      const offer = await storage.updateOffer(id, validation.data);
+      if (!offer) {
+        return res.status(404).json({ error: "Offer not found" });
+      }
+      res.json(offer);
+    } catch (error) {
+      console.error("Failed to update offer:", error);
+      res.status(500).json({ error: "Failed to update offer" });
+    }
+  });
+
+  app.delete("/api/offers/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteOffer(id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Offer not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete offer:", error);
+      res.status(500).json({ error: "Failed to delete offer" });
+    }
+  });
+
+  app.post("/api/offers/reorder", async (req, res) => {
+    try {
+      const schema = z.object({
+        offerId: z.number(),
+        direction: z.enum(['up', 'down'])
+      });
+      const validation = schema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+      const { offerId, direction } = validation.data;
+      const offers = await storage.reorderOffers(offerId, direction);
+      res.json(offers);
+    } catch (error) {
+      console.error("Failed to reorder offers:", error);
+      res.status(500).json({ error: "Failed to reorder offers" });
     }
   });
 
