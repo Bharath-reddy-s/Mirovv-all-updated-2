@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Plus, Edit, Upload, Trash2, Zap, MapPin } from "lucide-react";
+import { X, Plus, Edit, Upload, Trash2, Zap, MapPin, Clock } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -25,7 +25,7 @@ import type { Product } from "@shared/schema";
 const DEFAULT_LONG_DESCRIPTION = "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"";
 
 export default function DeveloperPanel() {
-  const { isDeveloperMode, stockStatus, products, priceFilters, promotionalSettings, flashOffer, deliveryAddresses, toggleStockStatus, createProduct, updateProduct, deleteProduct, setProductPosition, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, startFlashOffer, stopFlashOffer, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters, isUpdatingPromotionalSettings, isTogglingFlashOffer, isManagingAddresses, isLoadingAddresses } = useDeveloper();
+  const { isDeveloperMode, stockStatus, products, priceFilters, promotionalSettings, flashOffer, deliveryAddresses, timeChallenge, toggleStockStatus, createProduct, updateProduct, deleteProduct, setProductPosition, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, startFlashOffer, stopFlashOffer, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, updateTimeChallenge, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters, isUpdatingPromotionalSettings, isTogglingFlashOffer, isManagingAddresses, isLoadingAddresses, isUpdatingTimeChallenge } = useDeveloper();
   const [isVisible, setIsVisible] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -48,6 +48,9 @@ export default function DeveloperPanel() {
   const [newAddressName, setNewAddressName] = useState("");
   const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
   const [editingAddressName, setEditingAddressName] = useState("");
+  const [challengeName, setChallengeName] = useState("");
+  const [challengeDuration, setChallengeDuration] = useState("120");
+  const [challengeDiscount, setChallengeDiscount] = useState("20");
 
   useEffect(() => {
     if (promotionalSettings) {
@@ -56,6 +59,14 @@ export default function DeveloperPanel() {
       setDeliveryText(promotionalSettings.deliveryText);
     }
   }, [promotionalSettings]);
+
+  useEffect(() => {
+    if (timeChallenge) {
+      setChallengeName(timeChallenge.name);
+      setChallengeDuration(timeChallenge.durationSeconds.toString());
+      setChallengeDiscount(timeChallenge.discountPercent.toString());
+    }
+  }, [timeChallenge]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -301,13 +312,14 @@ export default function DeveloperPanel() {
           </div>
 
           <Tabs defaultValue="stock" className="w-full">
-            <TabsList className="grid w-full grid-cols-6 mb-3">
+            <TabsList className="grid w-full grid-cols-7 mb-3">
               <TabsTrigger value="stock" data-testid="tab-stock">Stock</TabsTrigger>
               <TabsTrigger value="products" data-testid="tab-products">Products</TabsTrigger>
               <TabsTrigger value="filters" data-testid="tab-filters">Filters</TabsTrigger>
               <TabsTrigger value="banner" data-testid="tab-banner">Banner</TabsTrigger>
               <TabsTrigger value="flash" data-testid="tab-flash">Flash</TabsTrigger>
               <TabsTrigger value="address" data-testid="tab-address">Address</TabsTrigger>
+              <TabsTrigger value="timer" data-testid="tab-timer">Timer</TabsTrigger>
             </TabsList>
 
             <TabsContent value="stock">
@@ -1082,6 +1094,155 @@ export default function DeveloperPanel() {
                     ))}
                   </div>
                 )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="timer">
+              <p className="text-xs mb-3 opacity-80">Configure time-limited discount challenge</p>
+              <div className="space-y-3">
+                <div className="p-3 rounded bg-gray-800 dark:bg-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm font-semibold">Challenge Status</span>
+                  </div>
+                  <div className="text-sm">
+                    {timeChallenge?.isActive ? (
+                      <p className="text-green-400">Active - Button visible to customers</p>
+                    ) : (
+                      <p className="text-gray-400">Inactive - Challenge is hidden</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="challenge-name">Challenge Name</Label>
+                  <Input
+                    id="challenge-name"
+                    type="text"
+                    value={challengeName}
+                    onChange={(e) => setChallengeName(e.target.value)}
+                    placeholder="Beat the Clock!"
+                    className="bg-gray-900 text-white focus-visible:ring-0 focus-visible:border-gray-600"
+                    data-testid="input-challenge-name"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="challenge-duration">Duration (seconds)</Label>
+                  <Input
+                    id="challenge-duration"
+                    type="number"
+                    min="30"
+                    max="600"
+                    value={challengeDuration}
+                    onChange={(e) => setChallengeDuration(e.target.value)}
+                    placeholder="120"
+                    className="bg-gray-900 text-white focus-visible:ring-0 focus-visible:border-gray-600"
+                    data-testid="input-challenge-duration"
+                  />
+                  <p className="text-xs text-gray-400">Time users have to complete checkout (30-600 sec)</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="challenge-discount">Discount (%)</Label>
+                  <Input
+                    id="challenge-discount"
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={challengeDiscount}
+                    onChange={(e) => setChallengeDiscount(e.target.value)}
+                    placeholder="20"
+                    className="bg-gray-900 text-white focus-visible:ring-0 focus-visible:border-gray-600"
+                    data-testid="input-challenge-discount"
+                  />
+                  <p className="text-xs text-gray-400">Discount applied if checkout completed in time</p>
+                </div>
+
+                <Button
+                  onClick={async () => {
+                    const duration = parseInt(challengeDuration);
+                    const discount = parseInt(challengeDiscount);
+                    
+                    if (!challengeName.trim()) {
+                      toast({
+                        title: "Invalid name",
+                        description: "Please enter a challenge name",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    if (isNaN(duration) || duration < 30 || duration > 600) {
+                      toast({
+                        title: "Invalid duration",
+                        description: "Duration must be between 30 and 600 seconds",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    if (isNaN(discount) || discount < 1 || discount > 100) {
+                      toast({
+                        title: "Invalid discount",
+                        description: "Discount must be between 1 and 100%",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    try {
+                      await updateTimeChallenge({
+                        name: challengeName.trim(),
+                        durationSeconds: duration,
+                        discountPercent: discount,
+                      });
+                      toast({
+                        title: "Settings saved",
+                        description: "Time challenge settings have been updated",
+                      });
+                    } catch (error) {
+                      toast({
+                        title: "Error",
+                        description: "Failed to update time challenge settings",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  disabled={isUpdatingTimeChallenge}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  data-testid="button-save-challenge"
+                >
+                  {isUpdatingTimeChallenge ? "Saving..." : "Save Challenge Settings"}
+                </Button>
+
+                <Button
+                  onClick={async () => {
+                    try {
+                      await updateTimeChallenge({ isActive: !timeChallenge?.isActive });
+                      toast({
+                        title: timeChallenge?.isActive ? "Challenge deactivated" : "Challenge activated",
+                        description: timeChallenge?.isActive 
+                          ? "The time challenge is now hidden from customers"
+                          : "Customers can now see the challenge button",
+                      });
+                    } catch (error) {
+                      toast({
+                        title: "Error",
+                        description: "Failed to toggle time challenge",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  disabled={isUpdatingTimeChallenge}
+                  className={`w-full ${timeChallenge?.isActive ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"} text-white`}
+                  data-testid="button-toggle-challenge"
+                >
+                  <Clock className="w-4 h-4 mr-2" />
+                  {isUpdatingTimeChallenge ? "Updating..." : (timeChallenge?.isActive ? "Deactivate Challenge" : "Activate Challenge")}
+                </Button>
+
+                <div className="text-xs opacity-60 space-y-1">
+                  <p>When active, a floating button appears for customers to start the timer.</p>
+                  <p>If they complete checkout within the time, they get the discount.</p>
+                </div>
               </div>
             </TabsContent>
           </Tabs>
