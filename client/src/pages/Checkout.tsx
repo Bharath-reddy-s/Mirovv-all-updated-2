@@ -71,7 +71,8 @@ export default function CheckoutPage() {
   const isCheckoutDiscountActive = checkoutDiscount && checkoutDiscount.discountPercent > 0;
   const checkoutDiscountAmount = isCheckoutDiscountActive ? Math.round(subtotal * checkoutDiscount.discountPercent / 100) : 0;
   
-  const displayTotal = isFlashOfferActive ? 0 : (subtotal - timeChallengeDiscount - checkoutDiscountAmount);
+  const shippingCost = 39;
+  const displayTotal = isFlashOfferActive ? 0 : (subtotal + shippingCost - timeChallengeDiscount - checkoutDiscountAmount);
 
   const copyOrderNumber = () => {
     if (orderDetails?.orderNumber) {
@@ -358,7 +359,16 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-base">
                   <span className="text-gray-600 dark:text-gray-400">Shipping</span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">Included</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">
+                    {isFlashOfferActive ? (
+                      <span className="flex items-center gap-2">
+                        <span className="text-green-600 dark:text-green-400">₹0</span>
+                        <span className="text-sm text-gray-400 line-through">₹{shippingCost}</span>
+                      </span>
+                    ) : (
+                      `₹${shippingCost}`
+                    )}
+                  </span>
                 </div>
                 {isFlashOfferActive && (
                   <div className="flex justify-between text-base text-green-600 dark:text-green-400">
