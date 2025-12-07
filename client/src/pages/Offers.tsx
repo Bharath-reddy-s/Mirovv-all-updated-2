@@ -158,13 +158,7 @@ function OfferCard({ number, title, description }: OfferCardProps) {
 }
 
 export default function OffersPage() {
-  const offers: OfferCardProps[] = [
-    {
-      number: 1,
-      title: "Timmer Challenge",
-      description: "Timmer challenge is a change where there is a clock which appears on the screen when you click start on that you will see a Timmer of XXXX seconds at that time what ever products you buy will be at a XY discounted price"
-    }
-  ];
+  const offers: OfferCardProps[] = [];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-neutral-950">
@@ -184,9 +178,6 @@ export default function OffersPage() {
         </motion.div>
 
         <div className="max-w-5xl mx-auto space-y-8">
-          {offers.map((offer) => (
-            <OfferCard key={offer.number} {...offer} />
-          ))}
         </div>
       </main>
     </div>
