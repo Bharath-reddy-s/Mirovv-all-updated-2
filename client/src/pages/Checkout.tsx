@@ -18,12 +18,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Copy, CheckCircle2, Zap, Timer } from "lucide-react";
+import { Copy, CheckCircle2, Zap, Timer, Percent } from "lucide-react";
 
 export default function CheckoutPage() {
   const [, setLocation] = useLocation();
   const { items, subtotal, clearCart } = useCart();
-  const { flashOffer } = useDeveloper();
+  const { flashOffer, checkoutDiscount } = useDeveloper();
   const { challengeStarted, challengeExpired, timeRemaining, discountPercent, markChallengeCompleted } = useTimeChallenge();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,7 +67,11 @@ export default function CheckoutPage() {
   
   const isTimeChallengeActive = challengeStarted && !challengeExpired && discountPercent > 0;
   const timeChallengeDiscount = isTimeChallengeActive ? Math.round(subtotal * discountPercent / 100) : 0;
-  const displayTotal = isFlashOfferActive ? 0 : (subtotal - timeChallengeDiscount);
+  
+  const isCheckoutDiscountActive = checkoutDiscount && checkoutDiscount.discountPercent > 0;
+  const checkoutDiscountAmount = isCheckoutDiscountActive ? Math.round(subtotal * checkoutDiscount.discountPercent / 100) : 0;
+  
+  const displayTotal = isFlashOfferActive ? 0 : (subtotal - timeChallengeDiscount - checkoutDiscountAmount);
 
   const copyOrderNumber = () => {
     if (orderDetails?.orderNumber) {
@@ -298,6 +302,16 @@ export default function CheckoutPage() {
               </div>
             )}
             
+            {isCheckoutDiscountActive && !isFlashOfferActive && (
+              <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl p-4 mb-6" data-testid="checkout-discount-banner">
+                <div className="flex items-center gap-2 mb-2">
+                  <Percent className="w-5 h-5" />
+                  <span className="font-bold">{checkoutDiscount.discountPercent}% Special Discount!</span>
+                </div>
+                <p className="text-sm">You're saving ₹{checkoutDiscountAmount} on this order!</p>
+              </div>
+            )}
+            
             <div className="space-y-6">
               <div className="space-y-4">
                 {items.map((item) => (
@@ -362,6 +376,14 @@ export default function CheckoutPage() {
                       Time Challenge ({discountPercent}% off)
                     </span>
                     <span className="font-semibold">-₹{timeChallengeDiscount}</span>
+                  </div>
+                )}
+                {isCheckoutDiscountActive && !isFlashOfferActive && (
+                  <div className="flex justify-between text-base text-green-600 dark:text-green-400" data-testid="checkout-discount-applied">
+                    <span className="flex items-center gap-1">
+                      Special Discount ({checkoutDiscount.discountPercent}% off)
+                    </span>
+                    <span className="font-semibold">-₹{checkoutDiscountAmount}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-base pt-3 border-t border-gray-200 dark:border-neutral-800">
