@@ -141,7 +141,7 @@ export default function CartSheet() {
               <span className="font-semibold text-gray-900 dark:text-gray-100 text-base">₹{subtotal}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-400 text-base">Shipping</span>
+              <span className="text-gray-600 dark:text-gray-400 text-base">Delivery fees</span>
               <span className="font-semibold text-gray-900 dark:text-gray-100 text-base">₹39</span>
             </div>
             <div className="border-t border-gray-200 dark:border-neutral-800 pt-4">
