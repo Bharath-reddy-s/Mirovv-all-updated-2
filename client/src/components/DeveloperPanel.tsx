@@ -328,14 +328,14 @@ export default function DeveloperPanel() {
 
           <Tabs defaultValue="stock" className="w-full">
             <TabsList className="grid w-full grid-cols-8 mb-3">
-              <TabsTrigger value="stock" data-testid="tab-stock">Stock</TabsTrigger>
-              <TabsTrigger value="products" data-testid="tab-products">Products</TabsTrigger>
-              <TabsTrigger value="filters" data-testid="tab-filters">Filters</TabsTrigger>
-              <TabsTrigger value="banner" data-testid="tab-banner">Banner</TabsTrigger>
-              <TabsTrigger value="flash" data-testid="tab-flash">Flash</TabsTrigger>
-              <TabsTrigger value="address" data-testid="tab-address">Address</TabsTrigger>
-              <TabsTrigger value="timer" data-testid="tab-timer">Timer</TabsTrigger>
-              <TabsTrigger value="discount" data-testid="tab-discount">%</TabsTrigger>
+              <TabsTrigger value="stock" data-testid="tab-stock">1</TabsTrigger>
+              <TabsTrigger value="products" data-testid="tab-products">2</TabsTrigger>
+              <TabsTrigger value="filters" data-testid="tab-filters">3</TabsTrigger>
+              <TabsTrigger value="banner" data-testid="tab-banner">4</TabsTrigger>
+              <TabsTrigger value="flash" data-testid="tab-flash">5</TabsTrigger>
+              <TabsTrigger value="address" data-testid="tab-address">6</TabsTrigger>
+              <TabsTrigger value="timer" data-testid="tab-timer">7</TabsTrigger>
+              <TabsTrigger value="discount" data-testid="tab-discount">8</TabsTrigger>
             </TabsList>
 
             <TabsContent value="stock">
