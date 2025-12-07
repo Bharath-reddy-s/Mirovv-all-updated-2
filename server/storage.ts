@@ -680,6 +680,71 @@ export class DBStorage implements IStorage {
       return created as CheckoutDiscount;
     }
   }
+
+  async getOffers(): Promise<Offer[]> {
+    if (isCacheValid(cache.offers)) {
+      return cache.offers.data;
+    }
+    const offers = await sql.select().from(offersTable).orderBy(asc(offersTable.displayOrder));
+    cache.offers = { data: offers as Offer[], timestamp: Date.now() };
+    return offers as Offer[];
+  }
+
+  async createOffer(offerData: InsertOffer): Promise<Offer> {
+    const maxOrder = await sql.select({ max: sqlOp<number>`max(${offersTable.displayOrder})` }).from(offersTable);
+    const nextOrder = (maxOrder[0]?.max ?? -1) + 1;
+    
+    const [newOffer] = await sql.insert(offersTable)
+      .values({ ...offerData, displayOrder: nextOrder })
+      .returning();
+    invalidateOffersCache();
+    return newOffer as Offer;
+  }
+
+  async updateOffer(id: number, updates: Partial<UpdateOffer>): Promise<Offer | undefined> {
+    const updateData: Record<string, unknown> = {};
+    if (updates.title !== undefined) updateData.title = updates.title;
+    if (updates.description !== undefined) updateData.description = updates.description;
+    if (updates.images !== undefined) updateData.images = updates.images;
+    
+    const [updated] = await sql.update(offersTable)
+      .set(updateData)
+      .where(eq(offersTable.id, id))
+      .returning();
+    invalidateOffersCache();
+    return updated as Offer | undefined;
+  }
+
+  async deleteOffer(id: number): Promise<boolean> {
+    const result = await sql.delete(offersTable)
+      .where(eq(offersTable.id, id))
+      .returning();
+    invalidateOffersCache();
+    return result.length > 0;
+  }
+
+  async reorderOffers(offerId: number, direction: 'up' | 'down'): Promise<Offer[]> {
+    const offers = await this.getOffers();
+    const currentIndex = offers.findIndex(o => o.id === offerId);
+    if (currentIndex === -1) return offers;
+    
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= offers.length) return offers;
+    
+    const currentOffer = offers[currentIndex];
+    const swapOffer = offers[newIndex];
+    
+    await sql.update(offersTable)
+      .set({ displayOrder: swapOffer.displayOrder })
+      .where(eq(offersTable.id, currentOffer.id));
+    
+    await sql.update(offersTable)
+      .set({ displayOrder: currentOffer.displayOrder })
+      .where(eq(offersTable.id, swapOffer.id));
+    
+    invalidateOffersCache();
+    return this.getOffers();
+  }
 }
 
 export const storage = new DBStorage();
