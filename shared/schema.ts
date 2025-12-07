@@ -66,6 +66,7 @@ export const flashOffersTable = pgTable("flash_offers", {
   startedAt: timestamp("started_at"),
   endsAt: timestamp("ends_at"),
   bannerText: text("banner_text").notNull().default("First 5 orders are FREE!"),
+  discountPercent: integer("discount_percent").notNull().default(100),
 });
 
 export const deliveryAddressesTable = pgTable("delivery_addresses", {
