@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-type SortOption = "default" | "low-to-high" | "high-to-low";
+type SortOption = "default" | "low-to-high" | "high-to-low" | "random";
 
 export default function ShopPage() {
   const { addToCart } = useCart();
@@ -59,6 +59,12 @@ export default function ShopPage() {
       result = result.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
     } else if (sortOption === "high-to-low") {
       result = result.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));
+    } else if (sortOption === "random") {
+      // Fisher-Yates shuffle
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
     }
     
     return result;
@@ -135,6 +141,14 @@ export default function ShopPage() {
                   >
                     Price: High to Low
                     {sortOption === "high-to-low" && <Check className="w-4 h-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setSortOption("random")}
+                    className="flex items-center justify-between"
+                    data-testid="button-sort-random"
+                  >
+                    Random
+                    {sortOption === "random" && <Check className="w-4 h-4" />}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
