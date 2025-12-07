@@ -1,36 +1,8 @@
 import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
 import clockImage from "@assets/Screenshot_2025-12-07_at_5.56.49_PM_1765111881674.png";
 import timerImage from "@assets/Screenshot_2025-12-07_at_5.57.18_PM_1765111881674.png";
 import orderSummaryImage from "@assets/Screenshot_2025-12-07_at_5.58.35_PM_1765111881674.png";
-
-function CurvedArrow() {
-  return (
-    <svg 
-      width="60" 
-      height="24" 
-      viewBox="0 0 60 24" 
-      fill="none" 
-      xmlns="http://www.w3.org/2000/svg"
-      className="flex-shrink-0"
-    >
-      <path 
-        d="M2 18C2 18 20 6 30 6C40 6 58 18 58 18" 
-        stroke="#9ca3af" 
-        strokeWidth="1.5" 
-        strokeLinecap="round"
-        fill="none"
-      />
-      <path 
-        d="M52 14L58 18L52 22" 
-        stroke="#9ca3af" 
-        strokeWidth="1.5" 
-        strokeLinecap="round" 
-        strokeLinejoin="round"
-        fill="none"
-      />
-    </svg>
-  );
-}
 
 export default function OffersPage() {
   return (
@@ -64,7 +36,7 @@ export default function OffersPage() {
                 className="w-20 h-20 md:w-24 md:h-24 object-contain"
               />
               
-              <CurvedArrow />
+              <ArrowRight className="w-8 h-8 text-gray-500 dark:text-gray-400 flex-shrink-0" />
               
               <img 
                 src={timerImage} 
@@ -72,7 +44,7 @@ export default function OffersPage() {
                 className="w-20 h-20 md:w-24 md:h-24 object-contain"
               />
               
-              <CurvedArrow />
+              <ArrowRight className="w-8 h-8 text-gray-500 dark:text-gray-400 flex-shrink-0" />
               
               <img 
                 src={orderSummaryImage} 
