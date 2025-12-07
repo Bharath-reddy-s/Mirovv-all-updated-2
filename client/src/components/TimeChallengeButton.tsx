@@ -191,7 +191,7 @@ export function TimeChallengeButton() {
                     e.stopPropagation();
                     startChallenge();
                   }}
-                  className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                  className="w-full hover:bg-green-600 font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-[#000000] bg-[#fafafa]"
                   data-testid="button-start-challenge"
                 >
                   <Play className="w-4 h-4" />
