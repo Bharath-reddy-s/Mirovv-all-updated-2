@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Plus, Edit, Upload, Trash2, Zap, MapPin, Clock } from "lucide-react";
+import { X, Plus, Edit, Upload, Trash2, Zap, MapPin, Clock, Percent } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -25,7 +25,7 @@ import type { Product } from "@shared/schema";
 const DEFAULT_LONG_DESCRIPTION = "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"";
 
 export default function DeveloperPanel() {
-  const { isDeveloperMode, stockStatus, products, priceFilters, promotionalSettings, flashOffer, deliveryAddresses, timeChallenge, toggleStockStatus, createProduct, updateProduct, deleteProduct, setProductPosition, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, startFlashOffer, stopFlashOffer, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, updateTimeChallenge, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters, isUpdatingPromotionalSettings, isTogglingFlashOffer, isManagingAddresses, isLoadingAddresses, isUpdatingTimeChallenge } = useDeveloper();
+  const { isDeveloperMode, stockStatus, products, priceFilters, promotionalSettings, flashOffer, deliveryAddresses, timeChallenge, checkoutDiscount, toggleStockStatus, createProduct, updateProduct, deleteProduct, setProductPosition, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, startFlashOffer, stopFlashOffer, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, updateTimeChallenge, updateCheckoutDiscount, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters, isUpdatingPromotionalSettings, isTogglingFlashOffer, isManagingAddresses, isLoadingAddresses, isUpdatingTimeChallenge, isUpdatingCheckoutDiscount } = useDeveloper();
   const [isVisible, setIsVisible] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -53,6 +53,7 @@ export default function DeveloperPanel() {
   const [challengeName, setChallengeName] = useState("");
   const [challengeDuration, setChallengeDuration] = useState("120");
   const [challengeDiscount, setChallengeDiscount] = useState("20");
+  const [discountPercent, setDiscountPercent] = useState("");
 
   useEffect(() => {
     if (promotionalSettings) {
@@ -75,6 +76,12 @@ export default function DeveloperPanel() {
       setChallengeDiscount(timeChallenge.discountPercent.toString());
     }
   }, [timeChallenge]);
+
+  useEffect(() => {
+    if (checkoutDiscount) {
+      setDiscountPercent(checkoutDiscount.discountPercent.toString());
+    }
+  }, [checkoutDiscount]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -320,7 +327,7 @@ export default function DeveloperPanel() {
           </div>
 
           <Tabs defaultValue="stock" className="w-full">
-            <TabsList className="grid w-full grid-cols-7 mb-3">
+            <TabsList className="grid w-full grid-cols-8 mb-3">
               <TabsTrigger value="stock" data-testid="tab-stock">Stock</TabsTrigger>
               <TabsTrigger value="products" data-testid="tab-products">Products</TabsTrigger>
               <TabsTrigger value="filters" data-testid="tab-filters">Filters</TabsTrigger>
@@ -328,6 +335,7 @@ export default function DeveloperPanel() {
               <TabsTrigger value="flash" data-testid="tab-flash">Flash</TabsTrigger>
               <TabsTrigger value="address" data-testid="tab-address">Address</TabsTrigger>
               <TabsTrigger value="timer" data-testid="tab-timer">Timer</TabsTrigger>
+              <TabsTrigger value="discount" data-testid="tab-discount">%</TabsTrigger>
             </TabsList>
 
             <TabsContent value="stock">
@@ -1297,6 +1305,81 @@ export default function DeveloperPanel() {
                 <div className="text-xs opacity-60 space-y-1">
                   <p>When active, a floating button appears for customers to start the timer.</p>
                   <p>If they complete checkout within the time, they get the discount.</p>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="discount">
+              <p className="text-xs mb-3 opacity-80">Set a global discount percentage applied to all orders</p>
+              <div className="space-y-3">
+                <div className="p-3 rounded bg-gray-800 dark:bg-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Percent className="w-4 h-4 text-green-500" />
+                    <span className="text-sm font-semibold">Current Discount</span>
+                  </div>
+                  <div className="text-sm">
+                    {checkoutDiscount && checkoutDiscount.discountPercent > 0 ? (
+                      <p className="text-green-400">{checkoutDiscount.discountPercent}% off all orders</p>
+                    ) : (
+                      <p className="text-gray-400">No discount active</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="discount-percent">Discount Percentage</Label>
+                  <Input
+                    id="discount-percent"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={discountPercent}
+                    onChange={(e) => setDiscountPercent(e.target.value)}
+                    placeholder="0"
+                    className="bg-gray-900 text-white focus-visible:ring-0 focus-visible:border-gray-600"
+                    data-testid="input-checkout-discount"
+                  />
+                  <p className="text-xs text-gray-400">Enter 0 to disable discount, or 1-100 for percentage off</p>
+                </div>
+
+                <Button
+                  onClick={async () => {
+                    const percent = parseInt(discountPercent);
+                    if (isNaN(percent) || percent < 0 || percent > 100) {
+                      toast({
+                        title: "Invalid discount",
+                        description: "Discount must be between 0 and 100%",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    try {
+                      await updateCheckoutDiscount(percent);
+                      toast({
+                        title: percent > 0 ? "Discount applied" : "Discount removed",
+                        description: percent > 0 
+                          ? `${percent}% discount will be applied to all orders`
+                          : "No discount will be applied to orders",
+                      });
+                    } catch (error) {
+                      toast({
+                        title: "Error",
+                        description: "Failed to update discount",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  disabled={isUpdatingCheckoutDiscount}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  data-testid="button-save-discount"
+                >
+                  <Percent className="w-4 h-4 mr-2" />
+                  {isUpdatingCheckoutDiscount ? "Saving..." : "Save Discount"}
+                </Button>
+
+                <div className="text-xs opacity-60 space-y-1">
+                  <p>This discount is applied automatically to all orders at checkout.</p>
+                  <p>Customers will not see this discount on the frontend.</p>
                 </div>
               </div>
             </TabsContent>

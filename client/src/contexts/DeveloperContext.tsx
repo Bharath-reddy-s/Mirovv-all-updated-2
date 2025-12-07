@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { StockStatus, Product, CreateProduct, UpdateProduct, PriceFilter, PromotionalSettings, FlashOffer, DeliveryAddress, TimeChallenge } from "@shared/schema";
+import type { StockStatus, Product, CreateProduct, UpdateProduct, PriceFilter, PromotionalSettings, FlashOffer, DeliveryAddress, TimeChallenge, CheckoutDiscount } from "@shared/schema";
 
 interface DeveloperContextType {
   isDeveloperMode: boolean;
@@ -12,6 +12,7 @@ interface DeveloperContextType {
   flashOffer: FlashOffer | null;
   deliveryAddresses: DeliveryAddress[];
   timeChallenge: TimeChallenge | null;
+  checkoutDiscount: CheckoutDiscount | null;
   toggleStockStatus: (productId: number) => void;
   createProduct: (product: CreateProduct) => Promise<any>;
   updateProduct: (id: number, updates: Partial<UpdateProduct>) => Promise<any>;
@@ -28,6 +29,7 @@ interface DeveloperContextType {
   updateDeliveryAddress: (id: number, name: string) => Promise<any>;
   deleteDeliveryAddress: (id: number) => Promise<any>;
   updateTimeChallenge: (settings: { name?: string; isActive?: boolean; durationSeconds?: number; discountPercent?: number }) => Promise<TimeChallenge>;
+  updateCheckoutDiscount: (discountPercent: number) => Promise<CheckoutDiscount>;
   isCreatingProduct: boolean;
   isUpdatingProduct: boolean;
   isDeletingProduct: boolean;
@@ -39,6 +41,7 @@ interface DeveloperContextType {
   isManagingAddresses: boolean;
   isLoadingAddresses: boolean;
   isUpdatingTimeChallenge: boolean;
+  isUpdatingCheckoutDiscount: boolean;
 }
 
 const DeveloperContext = createContext<DeveloperContextType | undefined>(undefined);
@@ -74,6 +77,10 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
 
   const { data: timeChallenge = null } = useQuery<TimeChallenge | null>({
     queryKey: ["/api/time-challenge"],
+  });
+
+  const { data: checkoutDiscount = null } = useQuery<CheckoutDiscount | null>({
+    queryKey: ["/api/checkout-discount"],
   });
 
   const updateStockMutation = useMutation({
@@ -221,6 +228,15 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const updateCheckoutDiscountMutation = useMutation({
+    mutationFn: async (discountPercent: number) => {
+      return apiRequest("PATCH", "/api/checkout-discount", { discountPercent });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/checkout-discount"] });
+    },
+  });
+
   const secretPhrase = "dormamu is a aunty";
 
   useEffect(() => {
@@ -313,6 +329,10 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     return updateTimeChallengeMutation.mutateAsync(settings);
   };
 
+  const updateCheckoutDiscount = async (discountPercent: number): Promise<CheckoutDiscount> => {
+    return updateCheckoutDiscountMutation.mutateAsync(discountPercent);
+  };
+
   return (
     <DeveloperContext.Provider 
       value={{ 
@@ -324,6 +344,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         flashOffer,
         deliveryAddresses,
         timeChallenge,
+        checkoutDiscount,
         toggleStockStatus, 
         createProduct,
         updateProduct,
@@ -340,6 +361,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         updateDeliveryAddress,
         deleteDeliveryAddress,
         updateTimeChallenge,
+        updateCheckoutDiscount,
         isCreatingProduct: createProductMutation.isPending,
         isUpdatingProduct: updateProductMutation.isPending,
         isDeletingProduct: deleteProductMutation.isPending,
@@ -351,6 +373,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         isManagingAddresses: createDeliveryAddressMutation.isPending || updateDeliveryAddressMutation.isPending || deleteDeliveryAddressMutation.isPending,
         isLoadingAddresses,
         isUpdatingTimeChallenge: updateTimeChallengeMutation.isPending,
+        isUpdatingCheckoutDiscount: updateCheckoutDiscountMutation.isPending,
       }}
     >
       {children}
