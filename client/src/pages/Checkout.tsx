@@ -358,7 +358,7 @@ export default function CheckoutPage() {
                   </span>
                 </div>
                 <div className="flex justify-between text-base">
-                  <span className="text-gray-600 dark:text-gray-400">Shipping</span>
+                  <span className="text-gray-600 dark:text-gray-400">Delivery fees</span>
                   <span className="font-semibold text-gray-900 dark:text-gray-100">
                     {isFlashOfferActive ? (
                       <span className="flex items-center gap-2">
