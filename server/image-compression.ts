@@ -158,18 +158,19 @@ export async function compressOfferImages(images: string[]): Promise<string[]> {
     return [];
   }
   
-  const results = await Promise.all(
+  const processedImages = await Promise.all(
     images.map(async (img, index) => {
       if (isImageKitUrl(img)) {
         return img;
       }
       const fileName = `offer-${index + 1}-${Date.now()}.webp`;
       const imageKitUrl = await uploadToImageKit(img, fileName, '/offers');
-      return imageKitUrl;
+      if (imageKitUrl) {
+        return imageKitUrl;
+      }
+      return compressBase64Image(img);
     })
   );
-  
-  const processedImages = results.filter((url): url is string => url !== null);
   
   return processedImages;
 }
