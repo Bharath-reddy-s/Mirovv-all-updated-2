@@ -2,23 +2,48 @@ import { ShoppingCart, Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useTimeChallenge } from "@/contexts/TimeChallengeContext";
+import { useDeveloper } from "@/contexts/DeveloperContext";
 import { Link, useLocation } from "wouter";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Product } from "@shared/schema";
 
 export default function Navbar() {
   const { setIsCartOpen, cartCount } = useCart();
   const { challengeStarted, challengeExpired } = useTimeChallenge();
+  const { flashOffer } = useDeveloper();
   const [location, setLocation] = useLocation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [flashTimeLeft, setFlashTimeLeft] = useState(0);
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
+
+  useEffect(() => {
+    if (!flashOffer?.isActive || !flashOffer?.endsAt) {
+      setFlashTimeLeft(0);
+      return;
+    }
+
+    const calculateFlashTimeLeft = () => {
+      const now = Date.now();
+      const endTime = new Date(flashOffer.endsAt!).getTime();
+      const difference = Math.max(0, Math.floor((endTime - now) / 1000));
+      setFlashTimeLeft(difference);
+    };
+
+    calculateFlashTimeLeft();
+    const timer = setInterval(calculateFlashTimeLeft, 100);
+
+    return () => clearInterval(timer);
+  }, [flashOffer?.isActive, flashOffer?.endsAt]);
+
+  const isFlashOfferActive = flashOffer?.isActive && flashTimeLeft > 0 && 
+    flashOffer.claimedCount < flashOffer.maxClaims;
 
   const filteredProducts = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -36,7 +61,7 @@ export default function Navbar() {
     setLocation(`/product/${productId}`);
   };
 
-  const isSearchEnabled = !challengeStarted || challengeExpired;
+  const isSearchEnabled = (!challengeStarted || challengeExpired) && !isFlashOfferActive;
 
   const handleSearchClick = () => {
     if (isSearchEnabled) {

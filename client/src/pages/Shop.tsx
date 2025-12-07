@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
+import { useDeveloper } from "@/contexts/DeveloperContext";
 import { type Product, type PriceFilter, type TimeChallenge } from "@shared/schema";
 import { Link } from "wouter";
 import { useState, useEffect, useMemo } from "react";
@@ -18,9 +19,11 @@ type SortOption = "default" | "low-to-high" | "high-to-low" | "random";
 
 export default function ShopPage() {
   const { addToCart } = useCart();
+  const { flashOffer } = useDeveloper();
   const [currentImageIndices, setCurrentImageIndices] = useState<{[key: number]: number}>({});
   const [selectedPriceFilter, setSelectedPriceFilter] = useState<number | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>("default");
+  const [flashTimeLeft, setFlashTimeLeft] = useState(0);
   
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
@@ -33,6 +36,28 @@ export default function ShopPage() {
   const { data: timeChallenge } = useQuery<TimeChallenge>({
     queryKey: ["/api/time-challenge"],
   });
+
+  useEffect(() => {
+    if (!flashOffer?.isActive || !flashOffer?.endsAt) {
+      setFlashTimeLeft(0);
+      return;
+    }
+
+    const calculateFlashTimeLeft = () => {
+      const now = Date.now();
+      const endTime = new Date(flashOffer.endsAt!).getTime();
+      const difference = Math.max(0, Math.floor((endTime - now) / 1000));
+      setFlashTimeLeft(difference);
+    };
+
+    calculateFlashTimeLeft();
+    const timer = setInterval(calculateFlashTimeLeft, 100);
+
+    return () => clearInterval(timer);
+  }, [flashOffer?.isActive, flashOffer?.endsAt]);
+
+  const isFlashOfferActive = flashOffer?.isActive && flashTimeLeft > 0 && 
+    flashOffer.claimedCount < flashOffer.maxClaims;
 
   const priceFilterOptions = priceFilters.length > 0 
     ? priceFilters.map(filter => filter.value)
@@ -59,8 +84,8 @@ export default function ShopPage() {
       result = [...products];
     }
     
-    // When time challenge is active, force sort by price low-to-high
-    if (timeChallenge?.isActive) {
+    // When time challenge or flash offer is active, force sort by price low-to-high
+    if (timeChallenge?.isActive || isFlashOfferActive) {
       result = result.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
     } else if (sortOption === "low-to-high") {
       result = result.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
@@ -76,7 +101,7 @@ export default function ShopPage() {
     // "default" keeps the server's displayOrder (no sorting applied)
     
     return result;
-  }, [products, selectedPriceFilter, sortOption, priceFilterOptions, timeChallenge?.isActive]);
+  }, [products, selectedPriceFilter, sortOption, priceFilterOptions, timeChallenge?.isActive, isFlashOfferActive]);
 
   useEffect(() => {
     const intervals: {[key: number]: NodeJS.Timeout} = {};
