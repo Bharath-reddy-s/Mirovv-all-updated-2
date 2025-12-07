@@ -65,6 +65,9 @@ export default function DeveloperPanel() {
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
   const [editingOfferPositionId, setEditingOfferPositionId] = useState<number | null>(null);
   const [editingOfferPositionValue, setEditingOfferPositionValue] = useState("");
+  const offerImage1Ref = useRef<HTMLInputElement>(null);
+  const offerImage2Ref = useRef<HTMLInputElement>(null);
+  const offerImage3Ref = useRef<HTMLInputElement>(null);
 
   const { data: offers = [], isLoading: isLoadingOffers } = useQuery<Offer[]>({
     queryKey: ["/api/offers"],
@@ -124,6 +127,26 @@ export default function DeveloperPanel() {
     setOfferImage2(offer.images[1] || "");
     setOfferImage3(offer.images[2] || "");
     setIsOfferDialogOpen(true);
+  };
+
+  const handleOfferImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, setImage: (value: string) => void) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const base64 = await convertFileToBase64(file);
+        setImage(base64);
+        toast({
+          title: "Image uploaded",
+          description: "Image has been uploaded successfully.",
+        });
+      } catch (error) {
+        toast({
+          title: "Upload failed",
+          description: "Failed to upload image. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   const handleOfferSubmit = async () => {
@@ -1900,30 +1923,84 @@ export default function DeveloperPanel() {
               <div className="space-y-2">
                 <div className="space-y-1">
                   <Label className="text-xs opacity-70">Image 1 *</Label>
-                  <Input
-                    value={offerImage1}
-                    onChange={(e) => setOfferImage1(e.target.value)}
-                    placeholder="https://example.com/image1.jpg"
-                    data-testid="input-offer-image-1"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      value={offerImage1}
+                      onChange={(e) => setOfferImage1(e.target.value)}
+                      placeholder="https://example.com/image1.jpg"
+                      data-testid="input-offer-image-1"
+                    />
+                    <input
+                      ref={offerImage1Ref}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleOfferImageUpload(e, setOfferImage1)}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => offerImage1Ref.current?.click()}
+                      data-testid="button-upload-offer-image-1"
+                    >
+                      <Upload className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs opacity-70">Image 2 (optional)</Label>
-                  <Input
-                    value={offerImage2}
-                    onChange={(e) => setOfferImage2(e.target.value)}
-                    placeholder="https://example.com/image2.jpg"
-                    data-testid="input-offer-image-2"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      value={offerImage2}
+                      onChange={(e) => setOfferImage2(e.target.value)}
+                      placeholder="https://example.com/image2.jpg"
+                      data-testid="input-offer-image-2"
+                    />
+                    <input
+                      ref={offerImage2Ref}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleOfferImageUpload(e, setOfferImage2)}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => offerImage2Ref.current?.click()}
+                      data-testid="button-upload-offer-image-2"
+                    >
+                      <Upload className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs opacity-70">Image 3 (optional)</Label>
-                  <Input
-                    value={offerImage3}
-                    onChange={(e) => setOfferImage3(e.target.value)}
-                    placeholder="https://example.com/image3.jpg"
-                    data-testid="input-offer-image-3"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      value={offerImage3}
+                      onChange={(e) => setOfferImage3(e.target.value)}
+                      placeholder="https://example.com/image3.jpg"
+                      data-testid="input-offer-image-3"
+                    />
+                    <input
+                      ref={offerImage3Ref}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleOfferImageUpload(e, setOfferImage3)}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => offerImage3Ref.current?.click()}
+                      data-testid="button-upload-offer-image-3"
+                    >
+                      <Upload className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
