@@ -225,7 +225,6 @@ export function TimeChallengeButton() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    clearCart();
                     startChallenge();
                   }}
                   className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
