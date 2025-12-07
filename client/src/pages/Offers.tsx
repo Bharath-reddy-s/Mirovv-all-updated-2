@@ -37,7 +37,7 @@ export default function OffersPage() {
               <img 
                 src={clockImage} 
                 alt="Clock" 
-                className="w-20 h-20 md:w-24 md:h-24 object-contain cursor-pointer hover:opacity-80 transition-opacity"
+                className="w-20 h-20 md:w-24 md:h-24 object-contain cursor-pointer hover:opacity-80 transition-opacity rounded-lg"
                 onClick={() => setSelectedImage(clockImage)}
                 data-testid="img-clock"
               />
@@ -47,7 +47,7 @@ export default function OffersPage() {
               <img 
                 src={timerImage} 
                 alt="Timer 0:24" 
-                className="w-20 h-20 md:w-24 md:h-24 object-contain cursor-pointer hover:opacity-80 transition-opacity"
+                className="w-20 h-20 md:w-24 md:h-24 object-contain cursor-pointer hover:opacity-80 transition-opacity rounded-lg"
                 onClick={() => setSelectedImage(timerImage)}
                 data-testid="img-timer"
               />
