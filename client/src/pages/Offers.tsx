@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import clockImage from "@assets/Screenshot_2025-12-07_at_5.56.49_PM_1765111881674.png";
 import timerImage from "@assets/Screenshot_2025-12-07_at_5.57.18_PM_1765111881674.png";
 import orderSummaryImage from "@assets/Screenshot_2025-12-07_at_5.58.35_PM_1765111881674.png";
+import backgroundImage from "@assets/image_1765114994871.png";
 
 function CurvedArrow() {
   return (
@@ -34,7 +35,10 @@ function CurvedArrow() {
 
 export default function OffersPage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-neutral-950">
+    <div 
+      className="min-h-screen bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+    >
       <main className="container mx-auto px-4 pt-32 pb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
