@@ -74,6 +74,14 @@ export const deliveryAddressesTable = pgTable("delivery_addresses", {
   displayOrder: integer("display_order").notNull().default(0),
 });
 
+export const timeChallengeTable = pgTable("time_challenge", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().default("Time is Money"),
+  isActive: boolean("is_active").notNull().default(false),
+  durationSeconds: integer("duration_seconds").notNull().default(30),
+  discountPercent: integer("discount_percent").notNull().default(30),
+});
+
 export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, isInStock: true, displayOrder: true });
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof productsTable.$inferSelect;
@@ -119,6 +127,8 @@ export const insertDeliveryAddressSchema = createInsertSchema(deliveryAddressesT
 });
 export type InsertDeliveryAddress = z.infer<typeof insertDeliveryAddressSchema>;
 export type DeliveryAddress = typeof deliveryAddressesTable.$inferSelect;
+
+export type TimeChallenge = typeof timeChallengeTable.$inferSelect;
 
 export interface StockStatus {
   [productId: number]: boolean;
