@@ -3,7 +3,7 @@ import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
 import { Pool, neonConfig } from "@neondatabase/serverless";
 import ws from "ws";
-import { compressProductImages } from "./image-compression";
+import { compressProductImages, compressOfferImages } from "./image-compression";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL environment variable is required");
@@ -694,8 +694,10 @@ export class DBStorage implements IStorage {
     const maxOrder = await sql.select({ max: sqlOp<number>`max(${offersTable.displayOrder})` }).from(offersTable);
     const nextOrder = (maxOrder[0]?.max ?? -1) + 1;
     
+    const processedImages = await compressOfferImages(offerData.images);
+    
     const [newOffer] = await sql.insert(offersTable)
-      .values({ ...offerData, displayOrder: nextOrder })
+      .values({ ...offerData, images: processedImages, displayOrder: nextOrder })
       .returning();
     invalidateOffersCache();
     return newOffer as Offer;
@@ -705,7 +707,9 @@ export class DBStorage implements IStorage {
     const updateData: Record<string, unknown> = {};
     if (updates.title !== undefined) updateData.title = updates.title;
     if (updates.description !== undefined) updateData.description = updates.description;
-    if (updates.images !== undefined) updateData.images = updates.images;
+    if (updates.images !== undefined) {
+      updateData.images = await compressOfferImages(updates.images);
+    }
     
     const [updated] = await sql.update(offersTable)
       .set(updateData)

@@ -10,7 +10,7 @@ function isImageKitUrl(str: string | null | undefined): boolean {
   return !!str && (str.includes('imagekit.io') || str.includes('ik.imagekit.io'));
 }
 
-async function uploadToImageKit(imageData: string, fileName: string): Promise<string | null> {
+async function uploadToImageKit(imageData: string, fileName: string, folder: string = '/products'): Promise<string | null> {
   const privateKey = process.env.IMAGEKIT_PRIVATE_KEY;
   
   if (!privateKey) {
@@ -61,7 +61,7 @@ async function uploadToImageKit(imageData: string, fileName: string): Promise<st
     const formData = new FormData();
     formData.append('file', base64Data);
     formData.append('fileName', fileName);
-    formData.append('folder', '/products');
+    formData.append('folder', folder);
 
     const authHeader = 'Basic ' + Buffer.from(privateKey + ':').toString('base64');
 
@@ -151,4 +151,26 @@ export async function compressProductImages(
     image: processedImage,
     additionalImages: processedAdditional
   };
+}
+
+export async function compressOfferImages(images: string[]): Promise<string[]> {
+  if (!images || images.length === 0) {
+    return [];
+  }
+  
+  const processedImages = await Promise.all(
+    images.map(async (img, index) => {
+      if (isImageKitUrl(img)) {
+        return img;
+      }
+      const fileName = `offer-${index + 1}-${Date.now()}.webp`;
+      const imageKitUrl = await uploadToImageKit(img, fileName, '/offers');
+      if (imageKitUrl) {
+        return imageKitUrl;
+      }
+      return compressBase64Image(img);
+    })
+  );
+  
+  return processedImages;
 }
