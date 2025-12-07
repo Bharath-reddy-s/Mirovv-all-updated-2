@@ -14,13 +14,20 @@ export function TimeChallengeButton() {
     challengeSettings,
   } = useTimeChallenge();
 
-  const [position, setPosition] = useState({ x: 20, y: window.innerHeight - 120 });
+  const [isMounted, setIsMounted] = useState(false);
+  const [position, setPosition] = useState({ x: 20, y: 100 });
   const [isDragging, setIsDragging] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const dragRef = useRef<{ startX: number; startY: number; startPosX: number; startPosY: number } | null>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setIsMounted(true);
+    setPosition({ x: 20, y: window.innerHeight - 120 });
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
     const handleResize = () => {
       setPosition(prev => ({
         x: Math.min(prev.x, window.innerWidth - 70),
@@ -29,7 +36,7 @@ export function TimeChallengeButton() {
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [isMounted]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
@@ -108,7 +115,7 @@ export function TimeChallengeButton() {
     document.addEventListener("mouseup", handleMouseUp);
   };
 
-  if (!isChallengeActive) {
+  if (!isMounted || !isChallengeActive) {
     return null;
   }
 
