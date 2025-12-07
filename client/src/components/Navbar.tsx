@@ -1,15 +1,62 @@
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
+import { useTimeChallenge } from "@/contexts/TimeChallengeContext";
 import { Link, useLocation } from "wouter";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { Product } from "@shared/schema";
 
 export default function Navbar() {
   const { setIsCartOpen, cartCount } = useCart();
-  const [location] = useLocation();
+  const { challengeStarted, challengeExpired } = useTimeChallenge();
+  const [location, setLocation] = useLocation();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const { data: products = [], isLoading } = useQuery<Product[]>({
+    queryKey: ["/api/products"],
+  });
+
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+    return products.filter(
+      (product) =>
+        product.title.toLowerCase().includes(query) ||
+        product.description.toLowerCase().includes(query)
+    );
+  }, [searchQuery, products]);
+
+  const handleProductClick = (productId: number) => {
+    setIsSearchOpen(false);
+    setSearchQuery("");
+    setLocation(`/product/${productId}`);
+  };
+
+  const isSearchEnabled = !challengeStarted || challengeExpired;
+
+  const handleSearchClick = () => {
+    if (isSearchEnabled) {
+      setIsSearchOpen(true);
+    }
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800">
-      <div className="container mx-auto px-6 h-16 flex items-center justify-center gap-4">
+      <div className="container mx-auto px-6 h-16 flex items-center justify-between gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSearchClick}
+            className={!isSearchEnabled ? "opacity-50 cursor-not-allowed" : ""}
+            data-testid="button-search"
+          >
+            <Search className="w-5 h-5 text-black dark:text-white" />
+          </Button>
+
         <div className="flex items-center gap-1">
           <Link href="/" onClick={() => setIsCartOpen(false)}>
             <Button 
@@ -55,6 +102,65 @@ export default function Navbar() {
           </Button>
         </div>
       </div>
+
+      <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Search Products</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
+            <Input
+              placeholder="Search for products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
+              autoFocus
+              data-testid="input-search"
+            />
+            <div className="flex-1 overflow-y-auto space-y-2">
+              {!searchQuery.trim() ? (
+                <p className="text-center text-gray-500 dark:text-gray-400 py-8">
+                  Start typing to search products...
+                </p>
+              ) : isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
+                </div>
+              ) : filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    onClick={() => handleProductClick(product.id)}
+                    className="flex gap-4 p-3 rounded-lg hover-elevate active-elevate-2 cursor-pointer"
+                    data-testid={`search-result-${product.id}`}
+                  >
+                    <img
+                      src={product.image}
+                      alt={product.title}
+                      className="w-16 h-16 object-cover rounded-xl"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-black dark:text-white">
+                        {product.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                        {product.description}
+                      </p>
+                      <p className="text-sm font-bold text-black dark:text-white mt-1">
+                        {product.price}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-gray-500 dark:text-gray-400 py-8">
+                  No products found
+                </p>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </nav>
   );
 }
