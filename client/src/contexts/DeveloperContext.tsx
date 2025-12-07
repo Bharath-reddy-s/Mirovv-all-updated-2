@@ -21,7 +21,7 @@ interface DeveloperContextType {
   createPriceFilter: (value: number) => Promise<any>;
   updatePriceFilter: (id: number, value: number) => Promise<any>;
   deletePriceFilter: (id: number) => Promise<any>;
-  updateOfferBanner: (text: string, days: number, deliveryText: string) => Promise<void>;
+  updateOfferBanner: (text: string, seconds: number, deliveryText: string) => Promise<void>;
   startFlashOffer: (maxClaims?: number, durationSeconds?: number, bannerText?: string) => Promise<FlashOffer>;
   stopFlashOffer: () => Promise<FlashOffer | null>;
   createDeliveryAddress: (name: string) => Promise<any>;
@@ -158,8 +158,8 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
   });
 
   const updatePromotionalSettingsMutation = useMutation({
-    mutationFn: async ({ bannerText, timerDays, deliveryText }: { bannerText: string; timerDays: number; deliveryText: string }) => {
-      return apiRequest("PATCH", "/api/promotional-settings", { bannerText, timerDays, deliveryText });
+    mutationFn: async ({ bannerText, timerSeconds, deliveryText }: { bannerText: string; timerSeconds: number; deliveryText: string }) => {
+      return apiRequest("PATCH", "/api/promotional-settings", { bannerText, timerSeconds, deliveryText });
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["/api/promotional-settings"], data);
@@ -285,8 +285,8 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     return deletePriceFilterMutation.mutateAsync(id);
   };
 
-  const updateOfferBanner = async (text: string, days: number, deliveryText: string) => {
-    await updatePromotionalSettingsMutation.mutateAsync({ bannerText: text, timerDays: days, deliveryText });
+  const updateOfferBanner = async (text: string, seconds: number, deliveryText: string) => {
+    await updatePromotionalSettingsMutation.mutateAsync({ bannerText: text, timerSeconds: seconds, deliveryText });
   };
 
   const startFlashOffer = async (maxClaims?: number, durationSeconds?: number, bannerText?: string): Promise<FlashOffer> => {

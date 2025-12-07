@@ -113,7 +113,7 @@ export interface IStorage {
   updatePriceFilter(id: number, value: number): Promise<PriceFilter | undefined>;
   deletePriceFilter(id: number): Promise<boolean>;
   getPromotionalSettings(): Promise<PromotionalSettings>;
-  updatePromotionalSettings(bannerText: string, timerDays: number, deliveryText: string): Promise<PromotionalSettings>;
+  updatePromotionalSettings(bannerText: string, timerSeconds: number, deliveryText: string): Promise<PromotionalSettings>;
   createOrder(order: InsertOrder): Promise<Order>;
   getOrderByNumber(orderNumber: string): Promise<Order | undefined>;
   getFlashOffer(): Promise<FlashOffer | null>;
@@ -420,7 +420,7 @@ export class DBStorage implements IStorage {
     if (!settings) {
       const [newSettings] = await sql.insert(promotionalSettingsTable).values({
         bannerText: "₹10 off on every product",
-        timerDays: 7,
+        timerSeconds: 604800,
         deliveryText: "Shop for ₹199 and get free delivery",
       }).returning();
       cache.promotionalSettings = { data: newSettings as PromotionalSettings, timestamp: Date.now() };
@@ -430,10 +430,10 @@ export class DBStorage implements IStorage {
     return settings as PromotionalSettings;
   }
 
-  async updatePromotionalSettings(bannerText: string, timerDays: number, deliveryText: string): Promise<PromotionalSettings> {
-    const timerEndTime = new Date(Date.now() + (timerDays * 24 * 60 * 60 * 1000));
+  async updatePromotionalSettings(bannerText: string, timerSeconds: number, deliveryText: string): Promise<PromotionalSettings> {
+    const timerEndTime = new Date(Date.now() + (timerSeconds * 1000));
     const [updated] = await sql.update(promotionalSettingsTable)
-      .set({ bannerText, timerDays, timerEndTime, deliveryText })
+      .set({ bannerText, timerSeconds, timerEndTime, deliveryText })
       .where(eq(promotionalSettingsTable.id, 1))
       .returning();
     invalidatePromotionalCache();
