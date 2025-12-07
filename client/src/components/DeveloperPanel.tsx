@@ -381,7 +381,7 @@ export default function DeveloperPanel() {
                             max={products.length}
                             value={editingPositionValue}
                             onChange={(e) => setEditingPositionValue(e.target.value)}
-                            className="w-16 h-8 text-xs"
+                            className="w-16 h-8 text-xs bg-[#000000]"
                             data-testid={`input-position-${product.id}`}
                           />
                           <Button
