@@ -412,7 +412,7 @@ export default function ProductDetailPage() {
               )}
               
               <p className="text-sm dark:text-gray-400 mt-2 text-[#000000]" data-testid="text-free-delivery">
-                {promotionalSettings?.deliveryText || "Products will be delivered in 7-10 days"}
+                Products will be delivered in 7-10 days
               </p>
             </div>
 
