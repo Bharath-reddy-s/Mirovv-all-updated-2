@@ -1,4 +1,4 @@
-import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, type FlashOffer, type DeliveryAddress, type InsertDeliveryAddress, type TimeChallenge, type CheckoutDiscount, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable, flashOffersTable, deliveryAddressesTable, timeChallengeTable, checkoutDiscountTable } from "@shared/schema";
+import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, type FlashOffer, type DeliveryAddress, type InsertDeliveryAddress, type TimeChallenge, type CheckoutDiscount, type Offer, type InsertOffer, type UpdateOffer, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable, flashOffersTable, deliveryAddressesTable, timeChallengeTable, checkoutDiscountTable, offersTable } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
 import { Pool, neonConfig } from "@neondatabase/serverless";
@@ -33,12 +33,14 @@ const cache: {
   priceFilters: CacheEntry<PriceFilter[]> | null;
   promotionalSettings: CacheEntry<PromotionalSettings> | null;
   deliveryAddresses: CacheEntry<DeliveryAddress[]> | null;
+  offers: CacheEntry<Offer[]> | null;
 } = {
   products: null,
   stock: null,
   priceFilters: null,
   promotionalSettings: null,
   deliveryAddresses: null,
+  offers: null,
 };
 
 function isCacheValid<T>(entry: CacheEntry<T> | null): entry is CacheEntry<T> {
@@ -60,6 +62,10 @@ function invalidatePromotionalCache() {
 
 function invalidateDeliveryAddressCache() {
   cache.deliveryAddresses = null;
+}
+
+function invalidateOffersCache() {
+  cache.offers = null;
 }
 
 function parsePriceToNumber(priceStr: string): number {
@@ -133,6 +139,11 @@ export interface IStorage {
   updateTimeChallenge(settings: { name?: string; isActive?: boolean; durationSeconds?: number; discountPercent?: number }): Promise<TimeChallenge>;
   getCheckoutDiscount(): Promise<CheckoutDiscount>;
   updateCheckoutDiscount(discountPercent: number): Promise<CheckoutDiscount>;
+  getOffers(): Promise<Offer[]>;
+  createOffer(offer: InsertOffer): Promise<Offer>;
+  updateOffer(id: number, updates: Partial<UpdateOffer>): Promise<Offer | undefined>;
+  deleteOffer(id: number): Promise<boolean>;
+  reorderOffers(offerId: number, direction: 'up' | 'down'): Promise<Offer[]>;
 }
 
 export class DBStorage implements IStorage {
