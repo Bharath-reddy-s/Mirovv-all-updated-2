@@ -440,6 +440,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/checkout-discount", async (req, res) => {
+    try {
+      const discount = await storage.getCheckoutDiscount();
+      res.json(discount);
+    } catch (error) {
+      console.error("Failed to get checkout discount:", error);
+      res.status(500).json({ error: "Failed to get checkout discount" });
+    }
+  });
+
+  app.patch("/api/checkout-discount", async (req, res) => {
+    try {
+      const { discountPercent } = req.body;
+      if (typeof discountPercent !== 'number' || discountPercent < 0 || discountPercent > 100) {
+        return res.status(400).json({ error: "Discount percent must be a number between 0 and 100" });
+      }
+      const discount = await storage.updateCheckoutDiscount(discountPercent);
+      res.json(discount);
+    } catch (error) {
+      console.error("Failed to update checkout discount:", error);
+      res.status(500).json({ error: "Failed to update checkout discount" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

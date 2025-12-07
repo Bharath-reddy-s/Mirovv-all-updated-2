@@ -1,4 +1,4 @@
-import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, type FlashOffer, type DeliveryAddress, type InsertDeliveryAddress, type TimeChallenge, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable, flashOffersTable, deliveryAddressesTable, timeChallengeTable } from "@shared/schema";
+import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, type FlashOffer, type DeliveryAddress, type InsertDeliveryAddress, type TimeChallenge, type CheckoutDiscount, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable, flashOffersTable, deliveryAddressesTable, timeChallengeTable, checkoutDiscountTable } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
 import { Pool, neonConfig } from "@neondatabase/serverless";
@@ -122,7 +122,7 @@ export interface IStorage {
   createOrder(order: InsertOrder): Promise<Order>;
   getOrderByNumber(orderNumber: string): Promise<Order | undefined>;
   getFlashOffer(): Promise<FlashOffer | null>;
-  startFlashOffer(maxClaims?: number, durationSeconds?: number, bannerText?: string, discountPercent?: number): Promise<FlashOffer>;
+  startFlashOffer(maxClaims?: number, durationSeconds?: number, bannerText?: string): Promise<FlashOffer>;
   stopFlashOffer(): Promise<FlashOffer | null>;
   claimFlashOffer(): Promise<{ success: boolean; flashOffer: FlashOffer | null; spotsRemaining: number }>;
   getDeliveryAddresses(): Promise<DeliveryAddress[]>;
@@ -131,6 +131,8 @@ export interface IStorage {
   deleteDeliveryAddress(id: number): Promise<boolean>;
   getTimeChallenge(): Promise<TimeChallenge | null>;
   updateTimeChallenge(settings: { name?: string; isActive?: boolean; durationSeconds?: number; discountPercent?: number }): Promise<TimeChallenge>;
+  getCheckoutDiscount(): Promise<CheckoutDiscount>;
+  updateCheckoutDiscount(discountPercent: number): Promise<CheckoutDiscount>;
 }
 
 export class DBStorage implements IStorage {
@@ -488,13 +490,12 @@ export class DBStorage implements IStorage {
     return offer as FlashOffer;
   }
 
-  async startFlashOffer(maxClaims?: number, durationSeconds?: number, bannerText?: string, discountPercent?: number): Promise<FlashOffer> {
+  async startFlashOffer(maxClaims?: number, durationSeconds?: number, bannerText?: string): Promise<FlashOffer> {
     const existing = await sql.select().from(flashOffersTable).limit(1);
     const now = new Date();
     const duration = durationSeconds ?? 30;
     const slots = maxClaims ?? 5;
     const text = bannerText ?? "First 5 orders are FREE!";
-    const discount = discountPercent ?? 100;
     const endsAt = new Date(now.getTime() + duration * 1000);
     
     if (existing.length > 0) {
@@ -505,7 +506,6 @@ export class DBStorage implements IStorage {
           maxClaims: slots,
           durationSeconds: duration,
           bannerText: text,
-          discountPercent: discount,
           startedAt: now, 
           endsAt: endsAt 
         })
@@ -522,7 +522,6 @@ export class DBStorage implements IStorage {
           startedAt: now,
           endsAt: endsAt,
           bannerText: text,
-          discountPercent: discount,
         })
         .returning();
       return created as FlashOffer;
@@ -640,6 +639,34 @@ export class DBStorage implements IStorage {
         })
         .returning();
       return created as TimeChallenge;
+    }
+  }
+
+  async getCheckoutDiscount(): Promise<CheckoutDiscount> {
+    const [discount] = await sql.select().from(checkoutDiscountTable).limit(1);
+    if (!discount) {
+      const [created] = await sql.insert(checkoutDiscountTable)
+        .values({ discountPercent: 0 })
+        .returning();
+      return created as CheckoutDiscount;
+    }
+    return discount as CheckoutDiscount;
+  }
+
+  async updateCheckoutDiscount(discountPercent: number): Promise<CheckoutDiscount> {
+    const existing = await sql.select().from(checkoutDiscountTable).limit(1);
+    
+    if (existing.length > 0) {
+      const [updated] = await sql.update(checkoutDiscountTable)
+        .set({ discountPercent })
+        .where(eq(checkoutDiscountTable.id, existing[0].id))
+        .returning();
+      return updated as CheckoutDiscount;
+    } else {
+      const [created] = await sql.insert(checkoutDiscountTable)
+        .values({ discountPercent })
+        .returning();
+      return created as CheckoutDiscount;
     }
   }
 }

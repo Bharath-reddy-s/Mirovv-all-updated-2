@@ -66,7 +66,11 @@ export const flashOffersTable = pgTable("flash_offers", {
   startedAt: timestamp("started_at"),
   endsAt: timestamp("ends_at"),
   bannerText: text("banner_text").notNull().default("First 5 orders are FREE!"),
-  discountPercent: integer("discount_percent").notNull().default(100),
+});
+
+export const checkoutDiscountTable = pgTable("checkout_discount", {
+  id: serial("id").primaryKey(),
+  discountPercent: integer("discount_percent").notNull().default(0),
 });
 
 export const deliveryAddressesTable = pgTable("delivery_addresses", {
@@ -130,6 +134,8 @@ export type InsertDeliveryAddress = z.infer<typeof insertDeliveryAddressSchema>;
 export type DeliveryAddress = typeof deliveryAddressesTable.$inferSelect;
 
 export type TimeChallenge = typeof timeChallengeTable.$inferSelect;
+
+export type CheckoutDiscount = typeof checkoutDiscountTable.$inferSelect;
 
 export interface StockStatus {
   [productId: number]: boolean;
