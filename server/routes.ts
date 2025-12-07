@@ -5,6 +5,15 @@ import { updateStockStatusSchema, createProductSchema, updateProductSchema, inse
 import { z } from "zod";
 import { sendOrderToTelegram } from "./telegram";
 
+function applyCheckoutDiscount(total: string, discountPercent: number): string {
+  const numericValue = parseInt(total.replace(/[^\d]/g, ''), 10);
+  if (isNaN(numericValue) || discountPercent <= 0) {
+    return total;
+  }
+  const discountedValue = Math.round(numericValue * (1 - discountPercent / 100));
+  return `₹${discountedValue}`;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/stock", async (req, res) => {
     try {
@@ -305,7 +314,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: validation.error });
       }
 
-      const order = await storage.createOrder(validation.data);
+      const checkoutDiscount = await storage.getCheckoutDiscount();
+      let orderData = validation.data;
+      
+      if (checkoutDiscount && checkoutDiscount.discountPercent > 0) {
+        orderData = {
+          ...orderData,
+          total: applyCheckoutDiscount(orderData.total, checkoutDiscount.discountPercent)
+        };
+      }
+
+      const order = await storage.createOrder(orderData);
       
       try {
         await sendOrderToTelegram(order);
