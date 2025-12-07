@@ -1,4 +1,4 @@
-import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, type FlashOffer, type DeliveryAddress, type InsertDeliveryAddress, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable, flashOffersTable, deliveryAddressesTable } from "@shared/schema";
+import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, type FlashOffer, type DeliveryAddress, type InsertDeliveryAddress, type TimeChallenge, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable, flashOffersTable, deliveryAddressesTable, timeChallengeTable } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
 import { Pool, neonConfig } from "@neondatabase/serverless";
@@ -124,6 +124,8 @@ export interface IStorage {
   createDeliveryAddress(address: InsertDeliveryAddress): Promise<DeliveryAddress>;
   updateDeliveryAddress(id: number, name: string): Promise<DeliveryAddress | undefined>;
   deleteDeliveryAddress(id: number): Promise<boolean>;
+  getTimeChallenge(): Promise<TimeChallenge | null>;
+  updateTimeChallenge(settings: { name?: string; isActive?: boolean; durationSeconds?: number; discountPercent?: number }): Promise<TimeChallenge>;
 }
 
 export class DBStorage implements IStorage {
@@ -603,6 +605,36 @@ export class DBStorage implements IStorage {
       .returning();
     invalidateDeliveryAddressCache();
     return result.length > 0;
+  }
+
+  async getTimeChallenge(): Promise<TimeChallenge | null> {
+    const [challenge] = await sql.select().from(timeChallengeTable).limit(1);
+    if (!challenge) {
+      return null;
+    }
+    return challenge as TimeChallenge;
+  }
+
+  async updateTimeChallenge(settings: { name?: string; isActive?: boolean; durationSeconds?: number; discountPercent?: number }): Promise<TimeChallenge> {
+    const existing = await sql.select().from(timeChallengeTable).limit(1);
+    
+    if (existing.length > 0) {
+      const [updated] = await sql.update(timeChallengeTable)
+        .set(settings)
+        .where(eq(timeChallengeTable.id, existing[0].id))
+        .returning();
+      return updated as TimeChallenge;
+    } else {
+      const [created] = await sql.insert(timeChallengeTable)
+        .values({
+          name: settings.name ?? "Time is Money",
+          isActive: settings.isActive ?? false,
+          durationSeconds: settings.durationSeconds ?? 30,
+          discountPercent: settings.discountPercent ?? 30,
+        })
+        .returning();
+      return created as TimeChallenge;
+    }
   }
 }
 

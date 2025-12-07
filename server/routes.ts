@@ -419,6 +419,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/time-challenge", async (req, res) => {
+    try {
+      const challenge = await storage.getTimeChallenge();
+      res.json(challenge);
+    } catch (error) {
+      console.error("Failed to get time challenge:", error);
+      res.status(500).json({ error: "Failed to get time challenge" });
+    }
+  });
+
+  app.patch("/api/time-challenge", async (req, res) => {
+    try {
+      const { name, isActive, durationSeconds, discountPercent } = req.body;
+      const challenge = await storage.updateTimeChallenge({ name, isActive, durationSeconds, discountPercent });
+      res.json(challenge);
+    } catch (error) {
+      console.error("Failed to update time challenge:", error);
+      res.status(500).json({ error: "Failed to update time challenge" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
