@@ -42,9 +42,7 @@ export default function OffersPage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-black dark:text-white" data-testid="text-offers-title">
-            Special Offers
-          </h1>
+          <h1 className="md:text-6xl mb-6 text-black dark:text-white text-[51px] font-semibold" data-testid="text-offers-title">Learn How To Lootify Us!!</h1>
         </motion.div>
 
         <div className="max-w-5xl mx-auto">
