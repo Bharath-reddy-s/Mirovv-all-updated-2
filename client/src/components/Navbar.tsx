@@ -86,6 +86,20 @@ export default function Navbar() {
             </Button>
           </Link>
 
+          <Link href="/offers" onClick={() => setIsCartOpen(false)}>
+            <Button 
+              className={`rounded-full px-6 h-9 text-sm font-medium ${
+                location === "/offers" 
+                  ? "bg-black dark:bg-white text-white dark:text-black" 
+                  : "bg-transparent text-black dark:text-white"
+              }`}
+              variant={location === "/offers" ? "default" : "ghost"}
+              data-testid="link-offers"
+            >
+              Offers
+            </Button>
+          </Link>
+
           <Button
             variant="ghost"
             size="icon"
