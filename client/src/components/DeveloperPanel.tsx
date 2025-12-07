@@ -58,9 +58,13 @@ export default function DeveloperPanel() {
   const [discountPercent, setDiscountPercent] = useState("");
   const [offerTitle, setOfferTitle] = useState("");
   const [offerDescription, setOfferDescription] = useState("");
-  const [offerImages, setOfferImages] = useState("");
+  const [offerImage1, setOfferImage1] = useState("");
+  const [offerImage2, setOfferImage2] = useState("");
+  const [offerImage3, setOfferImage3] = useState("");
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
-  const offerImageInputRef = useRef<HTMLInputElement>(null);
+  const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
+  const [editingOfferPositionId, setEditingOfferPositionId] = useState<number | null>(null);
+  const [editingOfferPositionValue, setEditingOfferPositionValue] = useState("");
 
   const { data: offers = [], isLoading: isLoadingOffers } = useQuery<Offer[]>({
     queryKey: ["/api/offers"],
@@ -92,6 +96,94 @@ export default function DeveloperPanel() {
       queryClient.invalidateQueries({ queryKey: ["/api/offers"] });
     },
   });
+
+  const setOfferPositionMutation = useMutation({
+    mutationFn: async ({ offerId, newPosition }: { offerId: number; newPosition: number }) => {
+      return apiRequest("PATCH", `/api/offers/${offerId}`, { displayOrder: newPosition });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/offers"] });
+    },
+  });
+
+  const openOfferCreateDialog = () => {
+    setEditingOffer(null);
+    setOfferTitle("");
+    setOfferDescription("");
+    setOfferImage1("");
+    setOfferImage2("");
+    setOfferImage3("");
+    setIsOfferDialogOpen(true);
+  };
+
+  const openOfferEditDialog = (offer: Offer) => {
+    setEditingOffer(offer);
+    setOfferTitle(offer.title);
+    setOfferDescription(offer.description);
+    setOfferImage1(offer.images[0] || "");
+    setOfferImage2(offer.images[1] || "");
+    setOfferImage3(offer.images[2] || "");
+    setIsOfferDialogOpen(true);
+  };
+
+  const handleOfferSubmit = async () => {
+    if (!offerTitle.trim() || !offerDescription.trim()) {
+      toast({
+        title: "Missing fields",
+        description: "Please enter title and description",
+        variant: "destructive",
+      });
+      return;
+    }
+    const images = [offerImage1, offerImage2, offerImage3].filter(Boolean);
+    if (images.length === 0) {
+      toast({
+        title: "Missing images",
+        description: "Please add at least one image URL",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      if (editingOffer) {
+        await updateOfferMutation.mutateAsync({
+          id: editingOffer.id,
+          updates: {
+            title: offerTitle,
+            description: offerDescription,
+            images,
+          },
+        });
+        toast({
+          title: "Offer updated",
+          description: "Offer banner has been updated successfully",
+        });
+      } else {
+        await createOfferMutation.mutateAsync({
+          title: offerTitle,
+          description: offerDescription,
+          images,
+        });
+        toast({
+          title: "Offer created",
+          description: "Offer banner has been created successfully",
+        });
+      }
+      setIsOfferDialogOpen(false);
+      setOfferTitle("");
+      setOfferDescription("");
+      setOfferImage1("");
+      setOfferImage2("");
+      setOfferImage3("");
+      setEditingOffer(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to save offer",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     if (promotionalSettings) {
@@ -1424,290 +1516,135 @@ export default function DeveloperPanel() {
             </TabsContent>
 
             <TabsContent value="nine">
-              <p className="text-xs mb-3 opacity-80">Manage Offer Banners</p>
               <div className="space-y-3">
-                <div className="p-3 rounded bg-gray-800 dark:bg-gray-200">
-                  <div className="space-y-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="offer-title" className="text-white dark:text-black">
-                        {editingOffer ? "Edit Title" : "Offer Title"}
-                      </Label>
-                      <Input
-                        id="offer-title"
-                        value={offerTitle}
-                        onChange={(e) => setOfferTitle(e.target.value)}
-                        placeholder="e.g., Timer Challenge"
-                        className="bg-gray-900 text-white focus-visible:ring-0 focus-visible:border-gray-600"
-                        data-testid="input-offer-title"
-                      />
-                    </div>
+                <Button
+                  onClick={openOfferCreateDialog}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  data-testid="button-create-offer"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create New Offer
+                </Button>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="offer-description" className="text-white dark:text-black">
-                        {editingOffer ? "Edit Description" : "Offer Description"}
-                      </Label>
-                      <Textarea
-                        id="offer-description"
-                        value={offerDescription}
-                        onChange={(e) => setOfferDescription(e.target.value)}
-                        placeholder="Describe the offer..."
-                        rows={3}
-                        className="bg-gray-900 text-white focus-visible:ring-0 focus-visible:border-gray-600"
-                        data-testid="input-offer-description"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="offer-images" className="text-white dark:text-black">
-                        {editingOffer ? "Edit Images" : "Offer Images"}
-                      </Label>
-                      <div className="flex gap-2">
-                        <Textarea
-                          id="offer-images"
-                          value={offerImages}
-                          onChange={(e) => setOfferImages(e.target.value)}
-                          onPaste={async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-                            const items = e.clipboardData?.items;
-                            if (!items) return;
-                            const imageFiles: File[] = [];
-                            for (let i = 0; i < items.length; i++) {
-                              if (items[i].type.indexOf('image') !== -1) {
-                                const file = items[i].getAsFile();
-                                if (file) imageFiles.push(file);
-                              }
-                            }
-                            if (imageFiles.length > 0) {
-                              e.preventDefault();
-                              try {
-                                const base64Images = await Promise.all(
-                                  imageFiles.map(file => {
-                                    return new Promise<string>((resolve, reject) => {
-                                      const reader = new FileReader();
-                                      reader.onload = () => resolve(reader.result as string);
-                                      reader.onerror = reject;
-                                      reader.readAsDataURL(file);
-                                    });
-                                  })
-                                );
-                                const currentImages = offerImages ? offerImages.split("\n").filter(Boolean) : [];
-                                const allImages = [...currentImages, ...base64Images].join("\n");
-                                setOfferImages(allImages);
-                                toast({
-                                  title: "Images pasted",
-                                  description: `${imageFiles.length} image(s) added from clipboard.`,
-                                });
-                              } catch (error) {
-                                toast({
-                                  title: "Paste failed",
-                                  description: "Failed to process pasted images.",
-                                  variant: "destructive",
-                                });
-                              }
-                            }
-                          }}
-                          placeholder="Paste image URLs (one per line) or paste/upload images"
-                          rows={2}
-                          className="flex-1 bg-gray-900 text-white focus-visible:ring-0 focus-visible:border-gray-600"
-                          data-testid="input-offer-images"
-                        />
-                      </div>
-                      <div className="flex gap-2">
-                        <input
-                          ref={offerImageInputRef}
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
-                            const files = e.target.files;
-                            if (files && files.length > 0) {
-                              try {
-                                const base64Images = await Promise.all(
-                                  Array.from(files).map(file => {
-                                    return new Promise<string>((resolve, reject) => {
-                                      const reader = new FileReader();
-                                      reader.onload = () => resolve(reader.result as string);
-                                      reader.onerror = reject;
-                                      reader.readAsDataURL(file);
-                                    });
-                                  })
-                                );
-                                const currentImages = offerImages ? offerImages.split("\n").filter(Boolean) : [];
-                                const allImages = [...currentImages, ...base64Images].join("\n");
-                                setOfferImages(allImages);
-                                toast({
-                                  title: "Images uploaded",
-                                  description: `${files.length} image(s) uploaded successfully.`,
-                                });
-                              } catch (error) {
-                                toast({
-                                  title: "Upload failed",
-                                  description: "Failed to upload images.",
-                                  variant: "destructive",
-                                });
-                              }
-                            }
-                          }}
-                          className="hidden"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => offerImageInputRef.current?.click()}
-                          className="w-full"
-                          data-testid="button-upload-offer-images"
-                        >
-                          <Upload className="w-4 h-4 mr-2" />
-                          Upload Images
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={async () => {
-                          if (!offerTitle.trim() || !offerDescription.trim()) {
-                            toast({
-                              title: "Missing fields",
-                              description: "Please enter title and description",
-                              variant: "destructive",
-                            });
-                            return;
-                          }
-                          const images = offerImages.split("\n").filter(Boolean);
-                          if (images.length === 0) {
-                            toast({
-                              title: "Missing images",
-                              description: "Please add at least one image",
-                              variant: "destructive",
-                            });
-                            return;
-                          }
-                          try {
-                            if (editingOffer) {
-                              await updateOfferMutation.mutateAsync({
-                                id: editingOffer.id,
-                                updates: {
-                                  title: offerTitle,
-                                  description: offerDescription,
-                                  images,
-                                },
-                              });
-                              toast({
-                                title: "Offer updated",
-                                description: "Offer banner has been updated successfully",
-                              });
-                            } else {
-                              await createOfferMutation.mutateAsync({
-                                title: offerTitle,
-                                description: offerDescription,
-                                images,
-                              });
-                              toast({
-                                title: "Offer created",
-                                description: "Offer banner has been created successfully",
-                              });
-                            }
-                            setOfferTitle("");
-                            setOfferDescription("");
-                            setOfferImages("");
-                            setEditingOffer(null);
-                          } catch (error) {
-                            toast({
-                              title: "Error",
-                              description: error instanceof Error ? error.message : "Failed to save offer",
-                              variant: "destructive",
-                            });
-                          }
-                        }}
-                        disabled={createOfferMutation.isPending || updateOfferMutation.isPending}
-                        className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                        data-testid="button-save-offer"
-                      >
-                        <Gift className="w-4 h-4 mr-2" />
-                        {createOfferMutation.isPending || updateOfferMutation.isPending
-                          ? "Saving..."
-                          : editingOffer
-                          ? "Update Offer"
-                          : "Create Offer"}
-                      </Button>
-                      {editingOffer && (
-                        <Button
-                          onClick={() => {
-                            setEditingOffer(null);
-                            setOfferTitle("");
-                            setOfferDescription("");
-                            setOfferImages("");
-                          }}
-                          variant="outline"
-                          data-testid="button-cancel-offer-edit"
-                        >
-                          Cancel
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2 max-h-[200px] overflow-y-auto">
-                  <p className="text-xs opacity-60">Existing Offers ({offers.length})</p>
+                <div className="space-y-2 max-h-[400px] overflow-y-auto">
                   {isLoadingOffers ? (
-                    <p className="text-sm text-gray-400">Loading offers...</p>
+                    <p className="text-sm text-gray-400 text-center py-4">Loading offers...</p>
                   ) : offers.length === 0 ? (
-                    <p className="text-sm text-gray-400">No offers created yet</p>
+                    <p className="text-sm text-gray-400 text-center py-4">No offers created yet</p>
                   ) : (
-                    offers.map((offer) => (
+                    offers.map((offer, index) => (
                       <div
                         key={offer.id}
                         className="flex items-center gap-2 p-2 rounded bg-gray-800 dark:bg-gray-200"
                         data-testid={`offer-item-${offer.id}`}
                       >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{offer.title}</p>
-                          <p className="text-xs opacity-70 truncate">{offer.description}</p>
-                          <p className="text-xs opacity-50">{offer.images.length} image(s)</p>
-                        </div>
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            setEditingOffer(offer);
-                            setOfferTitle(offer.title);
-                            setOfferDescription(offer.description);
-                            setOfferImages(offer.images.join("\n"));
-                          }}
-                          className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white"
-                          data-testid={`button-edit-offer-${offer.id}`}
-                        >
-                          <Edit className="w-3 h-3" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={async () => {
-                            try {
-                              await deleteOfferMutation.mutateAsync(offer.id);
-                              toast({
-                                title: "Offer deleted",
-                                description: "Offer banner has been deleted successfully",
-                              });
-                              if (editingOffer?.id === offer.id) {
-                                setEditingOffer(null);
-                                setOfferTitle("");
-                                setOfferDescription("");
-                                setOfferImages("");
-                              }
-                            } catch (error) {
-                              toast({
-                                title: "Error",
-                                description: "Failed to delete offer",
-                                variant: "destructive",
-                              });
-                            }
-                          }}
-                          disabled={deleteOfferMutation.isPending}
-                          className="h-8 px-3 text-xs bg-red-600 hover:bg-red-700 text-white"
-                          data-testid={`button-delete-offer-${offer.id}`}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
+                        {editingOfferPositionId === offer.id ? (
+                          <>
+                            <Input
+                              type="number"
+                              min="1"
+                              max={offers.length}
+                              value={editingOfferPositionValue}
+                              onChange={(e) => setEditingOfferPositionValue(e.target.value)}
+                              className="w-16 h-8 text-xs bg-[#000000]"
+                              data-testid={`input-offer-position-${offer.id}`}
+                            />
+                            <Button
+                              size="sm"
+                              onClick={async () => {
+                                const newPos = parseInt(editingOfferPositionValue);
+                                if (!editingOfferPositionValue || newPos < 1 || newPos > offers.length) {
+                                  toast({
+                                    title: "Invalid position",
+                                    description: `Please enter a number between 1 and ${offers.length}`,
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
+                                try {
+                                  await setOfferPositionMutation.mutateAsync({ offerId: offer.id, newPosition: newPos });
+                                  setEditingOfferPositionId(null);
+                                  setEditingOfferPositionValue("");
+                                  toast({
+                                    title: "Position updated",
+                                    description: "Offer position updated successfully",
+                                  });
+                                } catch (error) {
+                                  toast({
+                                    title: "Error",
+                                    description: "Failed to update position",
+                                    variant: "destructive",
+                                  });
+                                }
+                              }}
+                              disabled={setOfferPositionMutation.isPending}
+                              className="h-8 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
+                              data-testid={`button-save-offer-position-${offer.id}`}
+                            >
+                              Set
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setEditingOfferPositionId(null);
+                                setEditingOfferPositionValue("");
+                              }}
+                              className="h-8 px-2 text-xs"
+                              data-testid={`button-cancel-offer-position-${offer.id}`}
+                            >
+                              Cancel
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <div 
+                              className="w-8 h-8 flex items-center justify-center bg-gray-700 dark:bg-gray-300 rounded text-xs font-bold cursor-pointer hover-elevate active-elevate-2"
+                              onClick={() => {
+                                setEditingOfferPositionId(offer.id);
+                                setEditingOfferPositionValue((index + 1).toString());
+                              }}
+                              data-testid={`offer-position-indicator-${offer.id}`}
+                            >
+                              {index + 1}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{offer.title}</p>
+                              <p className="text-xs opacity-70 truncate">{offer.description}</p>
+                              <p className="text-xs opacity-50">{offer.images.length} image(s)</p>
+                            </div>
+                            <Button
+                              size="sm"
+                              onClick={() => openOfferEditDialog(offer)}
+                              className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white"
+                              data-testid={`button-edit-offer-${offer.id}`}
+                            >
+                              <Edit className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={async () => {
+                                try {
+                                  await deleteOfferMutation.mutateAsync(offer.id);
+                                  toast({
+                                    title: "Offer deleted",
+                                    description: "Offer banner has been deleted successfully",
+                                  });
+                                } catch (error) {
+                                  toast({
+                                    title: "Error",
+                                    description: "Failed to delete offer",
+                                    variant: "destructive",
+                                  });
+                                }
+                              }}
+                              disabled={deleteOfferMutation.isPending}
+                              className="h-8 px-3 text-xs bg-red-600 hover:bg-red-700 text-white"
+                              data-testid={`button-delete-offer-${offer.id}`}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     ))
                   )}
@@ -1918,6 +1855,103 @@ export default function DeveloperPanel() {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isOfferDialogOpen} onOpenChange={setIsOfferDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle data-testid="dialog-title-offer">
+              {editingOffer ? "Edit Offer" : "Create New Offer"}
+            </DialogTitle>
+            <DialogDescription>
+              {editingOffer 
+                ? "Update the offer details below." 
+                : "Fill in the offer details below."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="offer-title">Offer Title *</Label>
+              <Input
+                id="offer-title"
+                value={offerTitle}
+                onChange={(e) => setOfferTitle(e.target.value)}
+                placeholder="e.g., Special Discount"
+                data-testid="input-offer-title"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="offer-description">Description *</Label>
+              <Textarea
+                id="offer-description"
+                value={offerDescription}
+                onChange={(e) => setOfferDescription(e.target.value)}
+                placeholder="Describe the offer..."
+                rows={3}
+                data-testid="input-offer-description"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Image URLs (at least 1 required)</Label>
+              <div className="space-y-2">
+                <div className="space-y-1">
+                  <Label className="text-xs opacity-70">Image 1 *</Label>
+                  <Input
+                    value={offerImage1}
+                    onChange={(e) => setOfferImage1(e.target.value)}
+                    placeholder="https://example.com/image1.jpg"
+                    data-testid="input-offer-image-1"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs opacity-70">Image 2 (optional)</Label>
+                  <Input
+                    value={offerImage2}
+                    onChange={(e) => setOfferImage2(e.target.value)}
+                    placeholder="https://example.com/image2.jpg"
+                    data-testid="input-offer-image-2"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs opacity-70">Image 3 (optional)</Label>
+                  <Input
+                    value={offerImage3}
+                    onChange={(e) => setOfferImage3(e.target.value)}
+                    placeholder="https://example.com/image3.jpg"
+                    data-testid="input-offer-image-3"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button
+                onClick={handleOfferSubmit}
+                disabled={createOfferMutation.isPending || updateOfferMutation.isPending}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                data-testid="button-save-offer"
+              >
+                <Gift className="w-4 h-4 mr-2" />
+                {createOfferMutation.isPending || updateOfferMutation.isPending
+                  ? "Saving..."
+                  : editingOffer
+                  ? "Update Offer"
+                  : "Create Offer"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsOfferDialogOpen(false)}
+                data-testid="button-cancel-offer"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </>
