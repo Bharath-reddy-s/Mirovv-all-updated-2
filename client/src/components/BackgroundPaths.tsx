@@ -134,7 +134,7 @@ export default function BackgroundPaths({
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 1.5, duration: 1 }}
-                        className="hidden md:flex justify-center mt-8"
+                        className="flex justify-center mt-8"
                     >
                         <Button
                             variant="ghost"
@@ -147,35 +147,13 @@ export default function BackgroundPaths({
                             className="rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm
                             border border-black/10 dark:border-white/10 hover:bg-white dark:hover:bg-black
                             animate-bounce"
-                            data-testid="button-scroll-to-about-desktop"
+                            data-testid="button-scroll-to-about"
                         >
                             <ChevronDown className="h-5 w-5 text-black dark:text-white" />
                         </Button>
                     </motion.div>
                 </motion.div>
             </div>
-            <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.5, duration: 1 }}
-                className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 md:hidden"
-            >
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                        document.getElementById('about-us')?.scrollIntoView({ 
-                            behavior: 'smooth' 
-                        });
-                    }}
-                    className="rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm
-                    border border-black/10 dark:border-white/10 hover:bg-white dark:hover:bg-black
-                    animate-bounce"
-                    data-testid="button-scroll-to-about"
-                >
-                    <ChevronDown className="h-5 w-5 text-black dark:text-white" />
-                </Button>
-            </motion.div>
         </div>
     );
 }

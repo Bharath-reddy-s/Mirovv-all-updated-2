@@ -21,7 +21,7 @@ export default function OffersPage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="md:text-6xl mb-6 text-black dark:text-white font-semibold text-[33px]" data-testid="text-offers-title">See How To Lootify Us!!</h1>
+          <h1 className="md:text-6xl mb-6 text-black dark:text-white font-semibold text-[33px] whitespace-nowrap" data-testid="text-offers-title">See How To Lootify Us!!</h1>
         </motion.div>
 
         <div className="max-w-5xl mx-auto space-y-8">
@@ -48,7 +48,7 @@ export default function OffersPage() {
                 </p>
 
                 {offer.images.length > 0 && (
-                  <div className="flex items-center justify-center gap-1 md:gap-2 flex-wrap">
+                  <div className="flex items-center justify-center gap-1 md:gap-2 flex-nowrap">
                     {offer.images.map((image, imgIndex) => (
                       <div key={imgIndex} className="flex items-center">
                         <img 

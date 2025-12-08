@@ -134,7 +134,7 @@ export default function ShopPage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-black dark:text-white">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-black dark:text-white whitespace-nowrap">
             Explore Mystery Boxes
           </h1>
           
