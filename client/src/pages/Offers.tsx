@@ -40,7 +40,7 @@ export default function OffersPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="dark:bg-neutral-900 rounded-[2rem] border-2 border-black dark:border-white p-6 md:p-8 bg-[#a3ada326]"
+                className="dark:bg-neutral-900 rounded-[2rem] border-2 border-black dark:border-white p-6 md:p-8 bg-[#a3ada326] font-medium"
                 data-testid={`card-offer-${offer.id}`}
               >
                 <p className="text-sm md:text-base text-black dark:text-white leading-relaxed text-center mb-8">
