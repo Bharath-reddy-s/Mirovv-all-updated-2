@@ -145,7 +145,7 @@ export default function BackgroundPaths({
                     }}
                     className="rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm
                     border border-black/10 dark:border-white/10 hover:bg-white dark:hover:bg-black
-                    animate-bounce"
+                    animate-bounce mt-[230px] mb-[230px]"
                     data-testid="button-scroll-to-about"
                 >
                     <ChevronDown className="h-5 w-5 text-black dark:text-white" />
