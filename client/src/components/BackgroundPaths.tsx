@@ -143,7 +143,7 @@ export default function BackgroundPaths({
                             behavior: 'smooth' 
                         });
                     }}
-                    className="rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm
+                    className="mt-[50px] mb-[50px] rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm
                     border border-black/10 dark:border-white/10 hover:bg-white dark:hover:bg-black
                     animate-bounce"
                     data-testid="button-scroll-to-about"
