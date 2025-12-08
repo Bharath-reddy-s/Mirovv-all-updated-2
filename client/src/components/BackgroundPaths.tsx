@@ -58,19 +58,19 @@ export default function BackgroundPaths({
     const words = title.split(" ");
 
     return (
-        <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-white dark:bg-neutral-950">
-            <div className="absolute inset-0 -top-24 sm:-top-16 md:top-0 flex items-center justify-center pt-[0px] pb-[0px] pl-[250px] pr-[250px] mt-[0px] mb-[0px] ml-[0px] mr-[0px]">
+        <div className="relative h-[calc(100vh-120px)] w-full flex items-center justify-center overflow-hidden bg-white dark:bg-neutral-950">
+            <div className="absolute inset-0 flex items-center justify-center">
                 <FloatingPaths position={1} />
                 <FloatingPaths position={-1} />
             </div>
-            <div className="relative z-10 container mx-auto px-4 md:px-6 text-center -mt-24 sm:-mt-16 md:mt-0">
+            <div className="relative z-10 container mx-auto px-4 md:px-6 text-center">
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 2 }}
                     className="max-w-4xl mx-auto"
                 >
-                    <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter mt-[159px] mb-[159px]">
+                    <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter mb-8">
                         {words.map((word, wordIndex) => (
                             <span
                                 key={wordIndex}
@@ -143,7 +143,7 @@ export default function BackgroundPaths({
                             behavior: 'smooth' 
                         });
                     }}
-                    className="mt-[50px] mb-[50px] rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm
+                    className="rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm
                     border border-black/10 dark:border-white/10 hover:bg-white dark:hover:bg-black
                     animate-bounce"
                     data-testid="button-scroll-to-about"
