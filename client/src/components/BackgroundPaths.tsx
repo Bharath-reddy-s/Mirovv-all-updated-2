@@ -59,7 +59,7 @@ export default function BackgroundPaths({
 
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-white dark:bg-neutral-950">
-            <div className="absolute inset-0 -top-24 sm:-top-16 md:top-0 flex items-center justify-center mt-[150px] mb-[150px]">
+            <div className="absolute inset-0 -top-24 sm:-top-16 md:top-0 flex items-center justify-center">
                 <FloatingPaths position={1} />
                 <FloatingPaths position={-1} />
             </div>
@@ -70,7 +70,7 @@ export default function BackgroundPaths({
                     transition={{ duration: 2 }}
                     className="max-w-4xl mx-auto"
                 >
-                    <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter mt-[80px] mb-[80px]">
+                    <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter mb-8">
                         {words.map((word, wordIndex) => (
                             <span
                                 key={wordIndex}
@@ -145,7 +145,7 @@ export default function BackgroundPaths({
                     }}
                     className="rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm
                     border border-black/10 dark:border-white/10 hover:bg-white dark:hover:bg-black
-                    animate-bounce mt-[150px] mb-[150px]"
+                    animate-bounce"
                     data-testid="button-scroll-to-about"
                 >
                     <ChevronDown className="h-5 w-5 text-black dark:text-white" />
