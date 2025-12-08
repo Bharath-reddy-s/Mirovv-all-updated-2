@@ -14,7 +14,7 @@ export default function OffersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-neutral-950">
-      <main className="container mx-auto px-4 pt-32 pb-16">
+      <main className="container mx-auto px-4 pt-32 pb-16 text-[33px] text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
