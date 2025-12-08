@@ -1,7 +1,6 @@
 import BackgroundPaths from "@/components/BackgroundPaths";
 import OfferBanner from "@/components/OfferBanner";
 import { Card, CardContent } from "@/components/ui/card";
-import videoSrc from "@assets/_ copy_1763317377238.mp4";
 
 export default function Home() {
   return (
@@ -27,18 +26,6 @@ export default function Home() {
                 </p>
               </CardContent>
             </Card>
-            
-            <div className="w-full rounded-md overflow-hidden bg-black flex items-center justify-center" data-testid="container-video">
-              <video
-                src={videoSrc}
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-contain"
-                data-testid="video-mystery-box"
-              />
-            </div>
           </div>
         </div>
       </section>
