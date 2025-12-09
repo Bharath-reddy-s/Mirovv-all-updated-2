@@ -1,5 +1,6 @@
 import BackgroundPaths from "@/components/BackgroundPaths";
 import OfferBanner from "@/components/OfferBanner";
+import { Card } from "@/components/ui/card";
 import { HelpCircle, Shield, Eye, Truck } from "lucide-react";
 
 const aboutPoints = [
@@ -41,24 +42,26 @@ export default function Home() {
             We're on a mission to bring you honest pricing and genuine products, cutting out the middlemen.
           </p>
           
-          <div className="space-y-0">
-            {aboutPoints.map((point, index) => (
-              <div key={index} data-testid={`about-point-${index}`}>
-                <div className="py-10">
-                  <point.icon className="w-8 h-8 text-foreground mb-6" strokeWidth={1.5} />
-                  <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-4">
-                    {point.title}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {point.description}
-                  </p>
+          <Card className="p-8 md:p-12 shadow-sm" data-testid="card-about-content">
+            <div className="space-y-0">
+              {aboutPoints.map((point, index) => (
+                <div key={index} data-testid={`about-point-${index}`}>
+                  <div className="py-8">
+                    <point.icon className="w-8 h-8 text-foreground mb-6" strokeWidth={1.5} />
+                    <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-4">
+                      {point.title}
+                    </h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {point.description}
+                    </p>
+                  </div>
+                  {index < aboutPoints.length - 1 && (
+                    <div className="border-t border-border/40" />
+                  )}
                 </div>
-                {index < aboutPoints.length - 1 && (
-                  <div className="border-t border-border/40" />
-                )}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </Card>
         </div>
       </section>
     </div>
