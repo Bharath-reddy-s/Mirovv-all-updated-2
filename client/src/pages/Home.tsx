@@ -44,10 +44,12 @@ export default function Home() {
           <div className="flex flex-col gap-6">
             {aboutPoints.map((point, index) => (
               <Card key={index} className="p-6 md:p-8 shadow-sm" data-testid={`card-about-${index}`}>
-                <point.icon className="w-7 h-7 text-foreground mb-5" strokeWidth={1.5} />
-                <h3 className="text-lg md:text-xl font-semibold text-foreground mb-3">
-                  {point.title}
-                </h3>
+                <div className="flex items-center gap-3 mb-3">
+                  <point.icon className="w-6 h-6 text-foreground" strokeWidth={1.5} />
+                  <h3 className="text-lg md:text-xl font-semibold text-foreground">
+                    {point.title}
+                  </h3>
+                </div>
                 <p className="text-muted-foreground leading-relaxed text-sm">
                   {point.description}
                 </p>
