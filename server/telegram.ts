@@ -21,10 +21,10 @@ export async function sendOrderToTelegram(order: Order): Promise<void> {
   }
 
   try {
-    const items = order.items as { productId: number; title: string; price: string; quantity: number; image: string }[];
+    const items = order.items as { productId: number; productCode?: string; title: string; price: string; quantity: number; image: string }[];
     
     const itemsList = items
-      .map(item => `• ${item.title} x${item.quantity} - ${item.price}`)
+      .map(item => `• ${item.productCode ? `${item.productCode} ` : ''}${item.title} x${item.quantity} - ${item.price}`)
       .join('\n');
 
     const orderTime = new Date(order.createdAt).toLocaleString('en-IN', { 
@@ -34,7 +34,7 @@ export async function sendOrderToTelegram(order: Order): Promise<void> {
       hour12: true
     });
 
-    const message = `🍽️ *New Order #${order.orderNumber}*
+    const message = `🛒 *New Order #${order.orderNumber}*
 
 👤 *Customer:* ${order.customerName}
 📱 *Mobile:* ${order.mobile}
@@ -48,30 +48,15 @@ ${itemsList}
 
 ${orderTime}`.trim();
 
-    const productImage = items[0]?.image;
-
-    if (productImage && productImage.startsWith('http')) {
-      await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: chatId,
-          photo: productImage,
-          caption: message,
-          parse_mode: 'Markdown',
-        }),
-      });
-    } else {
-      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: message,
-          parse_mode: 'Markdown',
-        }),
-      });
-    }
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+        parse_mode: 'Markdown',
+      }),
+    });
 
     console.log(`Order #${order.orderNumber} sent to Telegram successfully`);
   } catch (error) {
@@ -89,10 +74,10 @@ export async function sendOrderDetailsToTelegram(order: Order, targetChatId: str
   }
 
   try {
-    const items = order.items as { productId: number; title: string; price: string; quantity: number; image: string }[];
+    const items = order.items as { productId: number; productCode?: string; title: string; price: string; quantity: number; image: string }[];
     
     const itemsList = items
-      .map(item => `• ${item.title} x${item.quantity} - ${item.price}`)
+      .map(item => `• ${item.productCode ? `${item.productCode} ` : ''}${item.title} x${item.quantity} - ${item.price}`)
       .join('\n');
 
     const orderTime = new Date(order.createdAt).toLocaleString('en-IN', { 
@@ -115,30 +100,15 @@ ${itemsList}
 
 🕐 *Ordered on:* ${orderTime}`.trim();
 
-    const productImage = items[0]?.image;
-
-    if (productImage && productImage.startsWith('http')) {
-      await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: targetChatId,
-          photo: productImage,
-          caption: message,
-          parse_mode: 'Markdown',
-        }),
-      });
-    } else {
-      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: targetChatId,
-          text: message,
-          parse_mode: 'Markdown',
-        }),
-      });
-    }
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: targetChatId,
+        text: message,
+        parse_mode: 'Markdown',
+      }),
+    });
 
     console.log(`Order #${order.orderNumber} details sent to chat ${targetChatId}`);
   } catch (error) {
@@ -165,12 +135,55 @@ async function sendTelegramMessage(targetChatId: string, text: string): Promise<
   }
 }
 
+async function sendProductDetails(product: any, targetChatId: string): Promise<void> {
+  const botToken = getTelegramBotToken();
+  if (!botToken) return;
+
+  const message = `📦 *Product Details*
+
+🏷️ *Code:* ${product.productCode || 'N/A'}
+📝 *Title:* ${product.title}
+💰 *Price:* ${product.price}${product.originalPrice ? ` (was ${product.originalPrice})` : ''}
+📊 *Stock:* ${product.isInStock ? 'In Stock' : 'Out of Stock'}
+
+📄 *Description:*
+${product.description}`.trim();
+
+  try {
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: targetChatId,
+        text: message,
+        parse_mode: 'Markdown',
+      }),
+    });
+  } catch (error) {
+    console.error('Failed to send product details:', error);
+  }
+}
+
 async function processIncomingMessage(message: any): Promise<void> {
   const text = message.text?.trim();
   const chatId = message.chat.id.toString();
 
   if (!text) return;
 
+  // Check for product code (e.g., #01, #02, #123)
+  const productCodePattern = /^#\d+$/;
+  if (productCodePattern.test(text)) {
+    const product = await storage.getProductByCode(text);
+    
+    if (product) {
+      await sendProductDetails(product, chatId);
+    } else {
+      await sendTelegramMessage(chatId, `❌ Product ${text} not found. Please check the product code and try again.`);
+    }
+    return;
+  }
+
+  // Check for order number (5-digit)
   const orderNumberPattern = /^\d{5}$/;
   if (orderNumberPattern.test(text)) {
     const order = await storage.getOrderByNumber(text);

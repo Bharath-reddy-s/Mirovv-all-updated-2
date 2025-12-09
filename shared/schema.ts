@@ -4,6 +4,7 @@ import { createInsertSchema } from "drizzle-zod";
 
 export const productsTable = pgTable("products", {
   id: serial("id").primaryKey(),
+  productCode: text("product_code"),
   title: text("title").notNull(),
   label: text("label").notNull(),
   price: text("price").notNull(),
@@ -51,7 +52,7 @@ export const ordersTable = pgTable("orders", {
   mobile: text("mobile").notNull(),
   address: text("address").notNull(),
   instagram: text("instagram").notNull(),
-  items: jsonb("items").$type<{ productId: number; title: string; price: string; quantity: number; image: string }[]>().notNull(),
+  items: jsonb("items").$type<{ productId: number; productCode: string; title: string; price: string; quantity: number; image: string }[]>().notNull(),
   total: text("total").notNull(),
   isFlashOffer: boolean("is_flash_offer").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),

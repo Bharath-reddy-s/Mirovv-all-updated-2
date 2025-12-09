@@ -185,6 +185,14 @@ export class DBStorage implements IStorage {
     return product as Product | undefined;
   }
 
+  async getProductByCode(code: string): Promise<Product | undefined> {
+    if (isCacheValid(cache.products)) {
+      return cache.products.data.find(p => p.productCode === code);
+    }
+    const [product] = await sql.select().from(productsTable).where(eq(productsTable.productCode, code));
+    return product as Product | undefined;
+  }
+
   async getSimilarProducts(productId: number, limit: number = 6): Promise<Product[]> {
     const currentProduct = await this.getProductById(productId);
     if (!currentProduct) {
