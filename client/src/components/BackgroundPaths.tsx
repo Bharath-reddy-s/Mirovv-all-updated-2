@@ -117,9 +117,7 @@ export default function BackgroundPaths({
                                 hover:shadow-md dark:hover:shadow-neutral-800/50"
                                 data-testid="button-discover-excellence"
                             >
-                                <span className="opacity-90 group-hover:opacity-100 transition-opacity">
-                                    Experience The Ultimate
-                                </span>
+                                <span className="opacity-90 group-hover:opacity-100 transition-opacity font-semibold bg-[transparent] ml-[0px] mr-[0px] mt-[0px] mb-[0px] pt-[0px] pb-[0px]">Explore  us</span>
                                 <span
                                     className="ml-3 opacity-70 group-hover:opacity-100 group-hover:translate-x-1.5 
                                     transition-all duration-300"
