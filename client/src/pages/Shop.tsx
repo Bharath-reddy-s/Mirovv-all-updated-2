@@ -133,7 +133,7 @@ export default function ShopPage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="md:text-6xl text-black dark:text-white whitespace-nowrap mt-[0px] mb-[0px] font-semibold text-[30px]">EXPLORE Our Products </h1>
+          <h1 className="text-[30px] md:text-6xl text-black dark:text-white whitespace-nowrap mt-0 mb-0 font-semibold">Explore Our Products</h1>
           
           <div className="overflow-x-auto scrollbar-hide">
             <div className="flex gap-2 min-w-max md:min-w-0 px-4 md:justify-center md:w-full items-center mt-[0px] mb-[0px] pl-[0px] pr-[0px]">
