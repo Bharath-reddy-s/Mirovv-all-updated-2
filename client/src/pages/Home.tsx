@@ -34,7 +34,6 @@ export default function Home() {
       
       <section id="about-us" className="min-h-screen bg-background py-20 px-4">
         <div className="container mx-auto max-w-4xl">
-          <p className="text-xs tracking-widest text-muted-foreground mb-4 text-center">[ OUR VALUES ]</p>
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-6 text-foreground" data-testid="heading-about-us">
             About Us
           </h2>
@@ -42,7 +41,7 @@ export default function Home() {
             We're on a mission to bring you honest pricing and genuine products, cutting out the middlemen.
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex flex-col gap-6">
             {aboutPoints.map((point, index) => (
               <Card key={index} className="p-6 md:p-8 shadow-sm" data-testid={`card-about-${index}`}>
                 <point.icon className="w-7 h-7 text-foreground mb-5" strokeWidth={1.5} />
