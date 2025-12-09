@@ -177,6 +177,7 @@ export default function ProductDetailPage() {
   const handleAddToCart = () => {
     addToCart({
       id: product.id,
+      productCode: product.productCode || '',
       title: product.title,
       label: product.label,
       price: product.price,
@@ -187,6 +188,7 @@ export default function ProductDetailPage() {
   const handleBuyNow = () => {
     addToCart({
       id: product.id,
+      productCode: product.productCode || '',
       title: product.title,
       label: product.label,
       price: product.price,

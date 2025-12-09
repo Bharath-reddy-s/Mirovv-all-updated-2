@@ -5,6 +5,7 @@ import type { FlashOffer } from "@shared/schema";
 
 interface CartItem {
   id: number;
+  productCode?: string;
   title: string;
   label: string;
   price: string;

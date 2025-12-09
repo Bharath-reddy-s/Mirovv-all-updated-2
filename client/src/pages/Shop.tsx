@@ -264,7 +264,14 @@ export default function ShopPage() {
                     variant="ghost"
                     onClick={(e) => {
                       e.preventDefault();
-                      addToCart(box);
+                      addToCart({
+                        id: box.id,
+                        productCode: box.productCode || '',
+                        title: box.title,
+                        label: box.label,
+                        price: box.price,
+                        image: box.image,
+                      });
                     }}
                     className="w-full bg-[#3a3a3a] hover:bg-[#4a4a4a] text-white rounded-xl h-12 text-sm font-medium"
                     data-testid={`button-add-to-cart-${box.id}`}

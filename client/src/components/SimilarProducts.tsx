@@ -171,7 +171,14 @@ export default function SimilarProducts({ productId, limit = 6 }: SimilarProduct
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        addToCart(product);
+                        addToCart({
+                          id: product.id,
+                          productCode: product.productCode || '',
+                          title: product.title,
+                          label: product.label,
+                          price: product.price,
+                          image: product.image,
+                        });
                       }}
                       className="w-full text-xs"
                       data-testid={`button-add-to-cart-similar-${product.id}`}

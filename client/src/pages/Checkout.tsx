@@ -146,6 +146,7 @@ export default function CheckoutPage() {
         instagram: formData.instagram,
         items: items.map(item => ({
           productId: item.id,
+          productCode: item.productCode || '',
           title: item.title,
           price: item.price,
           quantity: item.quantity,
