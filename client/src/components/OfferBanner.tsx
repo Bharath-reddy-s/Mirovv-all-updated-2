@@ -71,27 +71,27 @@ export default function OfferBanner() {
     
     return (
       <div
-        className="w-full bg-black text-white py-4 px-4 flex flex-col items-center justify-center gap-2"
+        className="w-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-500 text-black py-4 px-4 flex flex-col items-center justify-center gap-2"
         data-testid="banner-flash-offer"
       >
         <div className="flex flex-col items-center gap-1">
           <div className="flex items-center gap-2">
-            <Zap className="h-6 w-6 fill-white" />
+            <Zap className="h-6 w-6 fill-black" />
             <span className="text-xl md:text-2xl font-bold" data-testid="text-flash-offer-title">
               {flashOffer.bannerText || "First 5 orders are FREE!"}
             </span>
-            <Zap className="h-6 w-6 fill-white" />
+            <Zap className="h-6 w-6 fill-black" />
           </div>
-          <span className="text-xs font-light text-white/70">For products upto ₹200</span>
+          <span className="text-xs font-light text-black/70">For products upto ₹200</span>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
+          <div className="flex items-center gap-2 bg-black/10 rounded-lg px-4 py-2">
             <span className="text-sm md:text-base font-medium">Time Left:</span>
             <span className="font-mono text-2xl md:text-3xl font-bold tabular-nums" data-testid="text-flash-timer">
               {flashTimeLeft}s
             </span>
           </div>
-          <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
+          <div className="flex items-center gap-2 bg-black/10 rounded-lg px-4 py-2">
             <span className="text-sm md:text-base font-medium">Spots Left:</span>
             <span className="font-mono text-2xl md:text-3xl font-bold tabular-nums" data-testid="text-flash-spots">
               {spotsRemaining}/{flashOffer.maxClaims}
@@ -108,7 +108,7 @@ export default function OfferBanner() {
 
   return (
     <div
-      className="w-full bg-black text-white py-4 px-4 flex flex-col items-center justify-center gap-2 pt-[15px] pb-[15px]"
+      className="w-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-500 text-black py-4 px-4 flex flex-col items-center justify-center gap-2 pt-[15px] pb-[15px]"
       data-testid="banner-offer"
     >
       <span className="text-lg md:text-xl font-semibold" data-testid="text-offer-title">
