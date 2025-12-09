@@ -74,12 +74,15 @@ export default function OfferBanner() {
         className="w-full bg-black text-white py-4 px-4 flex flex-col items-center justify-center gap-2"
         data-testid="banner-flash-offer"
       >
-        <div className="flex items-center gap-2">
-          <Zap className="h-6 w-6 fill-white" />
-          <span className="text-xl md:text-2xl font-bold" data-testid="text-flash-offer-title">
-            {flashOffer.bannerText || "First 5 orders are FREE!"}
-          </span>
-          <Zap className="h-6 w-6 fill-white" />
+        <div className="flex flex-col items-center gap-1">
+          <div className="flex items-center gap-2">
+            <Zap className="h-6 w-6 fill-white" />
+            <span className="text-xl md:text-2xl font-bold" data-testid="text-flash-offer-title">
+              {flashOffer.bannerText || "First 5 orders are FREE!"}
+            </span>
+            <Zap className="h-6 w-6 fill-white" />
+          </div>
+          <span className="text-xs font-light text-white/70">For products upto ₹200</span>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
