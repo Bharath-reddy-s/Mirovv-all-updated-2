@@ -40,10 +40,16 @@ export default function OffersPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="dark:bg-neutral-900 rounded-[2rem] border-2 border-black dark:border-white p-6 md:p-8 bg-[#a3ada326] font-medium"
+                className={`rounded-[2rem] border-2 border-black dark:border-white p-6 md:p-8 font-medium ${
+                  index === 1 
+                    ? "bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-500" 
+                    : "dark:bg-neutral-900 bg-[#a3ada326]"
+                }`}
                 data-testid={`card-offer-${offer.id}`}
               >
-                <p className="text-sm md:text-base text-black dark:text-white leading-relaxed text-center mb-8">
+                <p className={`text-sm md:text-base leading-relaxed text-center mb-8 ${
+                  index === 1 ? "text-black" : "text-black dark:text-white"
+                }`}>
                   <span className="font-bold">{index + 1}. {offer.title}</span> - {offer.description}
                 </p>
 
