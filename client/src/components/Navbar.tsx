@@ -51,7 +51,8 @@ export default function Navbar() {
     return products.filter(
       (product) =>
         product.title.toLowerCase().includes(query) ||
-        product.description.toLowerCase().includes(query)
+        product.description.toLowerCase().includes(query) ||
+        (product.productCode && product.productCode.toLowerCase().includes(query))
     );
   }, [searchQuery, products]);
 
