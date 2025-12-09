@@ -97,7 +97,7 @@ export default function BackgroundPaths({
                                         </motion.span>
                                     ))}
                                 </span>
-                                {wordIndex === 0 && <br className="hidden md:block" />}
+                                {wordIndex === 0 && <br />}
                             </span>
                         ))}
                     </h1>
