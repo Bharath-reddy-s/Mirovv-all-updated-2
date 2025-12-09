@@ -42,26 +42,19 @@ export default function Home() {
             We're on a mission to bring you honest pricing and genuine products, cutting out the middlemen.
           </p>
           
-          <Card className="p-8 md:p-12 shadow-sm" data-testid="card-about-content">
-            <div className="space-y-0">
-              {aboutPoints.map((point, index) => (
-                <div key={index} data-testid={`about-point-${index}`}>
-                  <div className="py-8">
-                    <point.icon className="w-8 h-8 text-foreground mb-6" strokeWidth={1.5} />
-                    <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-4">
-                      {point.title}
-                    </h3>
-                    <p className="text-muted-foreground leading-relaxed">
-                      {point.description}
-                    </p>
-                  </div>
-                  {index < aboutPoints.length - 1 && (
-                    <div className="border-t border-border/40" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {aboutPoints.map((point, index) => (
+              <Card key={index} className="p-6 md:p-8 shadow-sm" data-testid={`card-about-${index}`}>
+                <point.icon className="w-7 h-7 text-foreground mb-5" strokeWidth={1.5} />
+                <h3 className="text-lg md:text-xl font-semibold text-foreground mb-3">
+                  {point.title}
+                </h3>
+                <p className="text-muted-foreground leading-relaxed text-sm">
+                  {point.description}
+                </p>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
     </div>
