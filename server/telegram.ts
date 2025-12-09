@@ -188,10 +188,7 @@ export async function startTelegramBot(): Promise<void> {
   let botToken = getTelegramBotToken();
   let retries = 5;
   
-  console.log(`Initial telegram token check: ${botToken ? 'found' : 'not found'}`);
-  
   while (!botToken && retries > 0) {
-    console.log(`Waiting for telegram token... retries left: ${retries}`);
     await new Promise(resolve => setTimeout(resolve, 2000));
     botToken = getTelegramBotToken();
     retries--;
@@ -202,7 +199,7 @@ export async function startTelegramBot(): Promise<void> {
     return;
   }
 
-  console.log("Starting Telegram bot polling...");
+  console.log("Telegram bot started successfully");
 
   const pollUpdates = async () => {
     const token = getTelegramBotToken();
