@@ -1,6 +1,29 @@
 import BackgroundPaths from "@/components/BackgroundPaths";
 import OfferBanner from "@/components/OfferBanner";
-import { Card, CardContent } from "@/components/ui/card";
+import { HelpCircle, Shield, Eye, Truck } from "lucide-react";
+
+const aboutPoints = [
+  {
+    icon: HelpCircle,
+    title: "Why do we exist?",
+    description: "Most of you have used Flipkart or Amazon. You've probably seen products that are clearly overpriced compared to what they should cost. That happens because sellers on those platforms pay platform fees—usually 5% to 25%—and they increase the product price to cover it. We remove that entire commission layer, so you get the same products at a far more reasonable and honest price."
+  },
+  {
+    icon: Shield,
+    title: "Our Promise",
+    description: "If you find the same product on Amazon or Flipkart for less, we don't just match it—we beat it. Show us the price, we match it instantly, and then slash an additional 5% off the matched price. No excuses, no games. Just the guaranteed lowest price, every time."
+  },
+  {
+    icon: Eye,
+    title: "Vision",
+    description: "We're constantly hunting for real wholesalers across India to source genuine products at the lowest possible prices. No middlemen, no inflated margins—just direct sourcing so you save on every single order and never get ripped off by overpriced marketplaces. We'll keep tracking down better products and negotiating even better prices, so you always get maximum value."
+  },
+  {
+    icon: Truck,
+    title: "Delivery & Return Policy",
+    description: "Your order will arrive in 7–10 days. The reason is simple—we source products directly from wholesalers across different regions of India, not from inflated middlemen warehouses. That takes a little longer, but it's what lets us give you the lowest prices. Faster delivery is already in the works, and we'll roll it out as soon as it's ready."
+  }
+];
 
 export default function Home() {
   return (
@@ -8,24 +31,33 @@ export default function Home() {
       <OfferBanner />
       <BackgroundPaths title="Mirovv Welcomes You" />
       
-      <section id="about-us" className="min-h-screen bg-gray-50 dark:bg-neutral-900 py-20 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <h2 className="text-5xl font-bold text-center mb-12 text-black dark:text-white" data-testid="heading-about-us">
+      <section id="about-us" className="min-h-screen bg-background py-20 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <p className="text-xs tracking-widest text-muted-foreground mb-4 text-center">[ OUR VALUES ]</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-6 text-foreground" data-testid="heading-about-us">
             About Us
           </h2>
+          <p className="text-center text-muted-foreground mb-16 max-w-2xl mx-auto">
+            We're on a mission to bring you honest pricing and genuine products, cutting out the middlemen.
+          </p>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="hover-elevate flex flex-col" data-testid="card-about-description">
-              <CardContent className="p-8 space-y-6 flex-1 flex flex-col justify-center">
-                <p className="text-left text-base leading-relaxed text-foreground">
-                  We sell Mystery Boxes that include a surprise item, a letter, and a lucky draw ticket that gives you free entry into our exclusive giveaway. Winners are picked live on Instagram every few days, and prizes may include earphones, AirPods, and more — depending on the box you choose.
-                </p>
-                
-                <p className="text-center text-lg font-semibold text-foreground">
-                  Our goal is to get a smile on your face with every order
-                </p>
-              </CardContent>
-            </Card>
+          <div className="space-y-0">
+            {aboutPoints.map((point, index) => (
+              <div key={index} data-testid={`about-point-${index}`}>
+                <div className="py-10">
+                  <point.icon className="w-8 h-8 text-foreground mb-6" strokeWidth={1.5} />
+                  <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-4">
+                    {point.title}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {point.description}
+                  </p>
+                </div>
+                {index < aboutPoints.length - 1 && (
+                  <div className="border-t border-border/40" />
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
