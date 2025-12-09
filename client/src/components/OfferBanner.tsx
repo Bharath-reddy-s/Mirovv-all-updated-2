@@ -108,7 +108,7 @@ export default function OfferBanner() {
 
   return (
     <div
-      className="w-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-500 text-black py-4 px-4 flex flex-col items-center justify-center gap-2 pt-[15px] pb-[15px]"
+      className="w-full bg-black text-white py-4 px-4 flex flex-col items-center justify-center gap-2 pt-[15px] pb-[15px]"
       data-testid="banner-offer"
     >
       <span className="text-lg md:text-xl font-semibold" data-testid="text-offer-title">
