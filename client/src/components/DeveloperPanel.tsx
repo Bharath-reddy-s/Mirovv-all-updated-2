@@ -709,7 +709,7 @@ export default function DeveloperPanel() {
                     value={newFilterValue}
                     onChange={(e) => setNewFilterValue(e.target.value)}
                     placeholder="e.g., 99"
-                    className="flex-1"
+                    className="flex-1 bg-[#000000]"
                     data-testid="input-new-filter-value"
                   />
                   <Button
@@ -1167,7 +1167,7 @@ export default function DeveloperPanel() {
                     value={newAddressName}
                     onChange={(e) => setNewAddressName(e.target.value)}
                     placeholder="Enter new address name"
-                    className="flex-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-black"
+                    className="flex-1 bg-[#000000] bg-gray-900 dark:bg-gray-100 text-white dark:text-black"
                     data-testid="input-new-address"
                   />
                   <Button
