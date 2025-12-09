@@ -72,7 +72,12 @@ export default function CheckoutPage() {
   const checkoutDiscountAmount = isCheckoutDiscountActive ? Math.round(subtotal * checkoutDiscount.discountPercent / 100) : 0;
   
   const shippingCost = 39;
-  const displayTotal = isFlashOfferActive ? shippingCost : (subtotal + shippingCost - timeChallengeDiscount - checkoutDiscountAmount);
+  const flashOfferLimit = 200;
+  const flashOfferDiscount = isFlashOfferActive ? Math.min(subtotal, flashOfferLimit) : 0;
+  const flashOfferBalance = isFlashOfferActive ? Math.max(0, subtotal - flashOfferLimit) : 0;
+  const displayTotal = isFlashOfferActive 
+    ? flashOfferBalance + shippingCost 
+    : (subtotal + shippingCost - timeChallengeDiscount - checkoutDiscountAmount);
 
   const copyOrderNumber = () => {
     if (orderDetails?.orderNumber) {
@@ -132,7 +137,7 @@ export default function CheckoutPage() {
         markChallengeCompleted();
       }
       
-      const finalTotal = isFlashOrder ? shippingCost : displayTotal;
+      const finalTotal = displayTotal;
       
       const orderData = {
         customerName: formData.firstName,
@@ -142,12 +147,13 @@ export default function CheckoutPage() {
         items: items.map(item => ({
           productId: item.id,
           title: item.title,
-          price: isFlashOrder ? "₹0" : item.price,
+          price: item.price,
           quantity: item.quantity,
           image: item.image,
         })),
         total: `₹${finalTotal}`,
         isFlashOffer: isFlashOrder,
+        flashOfferDiscount: isFlashOrder ? flashOfferDiscount : 0,
       };
 
       const response: any = await apiRequest('POST', '/api/orders', orderData);
@@ -157,6 +163,7 @@ export default function CheckoutPage() {
         items: items,
         total: finalTotal,
         isFlashOffer: isFlashOrder,
+        flashOfferDiscount: isFlashOrder ? flashOfferDiscount : 0,
         hasTimeChallengeDiscount,
         timeChallengeDiscount,
         discountPercent,
@@ -287,8 +294,14 @@ export default function CheckoutPage() {
                   <Zap className="w-5 h-5" />
                   <span className="font-bold">Flash Offer Applied!</span>
                 </div>
-                <p className="text-sm">Your order is FREE! Only {spotsRemaining} spot{spotsRemaining !== 1 ? 's' : ''} remaining.</p>
-                <p className="text-xs mt-1 opacity-80">Time left: {flashTimeLeft}s</p>
+                <p className="text-sm">
+                  {subtotal <= flashOfferLimit 
+                    ? `Products FREE! Just pay delivery.` 
+                    : `First ₹${flashOfferLimit} FREE! Pay ₹${flashOfferBalance} + delivery.`}
+                </p>
+                <p className="text-xs mt-1 opacity-80">
+                  {spotsRemaining} spot{spotsRemaining !== 1 ? 's' : ''} left | Time: {flashTimeLeft}s
+                </p>
               </div>
             )}
             
@@ -330,14 +343,7 @@ export default function CheckoutPage() {
                       <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Qty: {item.quantity}</p>
                     </div>
                     <div className="font-semibold text-base">
-                      {isFlashOfferActive ? (
-                        <span className="flex flex-col items-end">
-                          <span className="text-green-600 dark:text-green-400">₹0</span>
-                          <span className="text-xs text-gray-400 line-through">{item.price}</span>
-                        </span>
-                      ) : (
-                        item.price
-                      )}
+                      {item.price}
                     </div>
                   </div>
                 ))}
@@ -346,16 +352,7 @@ export default function CheckoutPage() {
               <div className="border-t border-gray-200 dark:border-neutral-800 pt-6 space-y-3">
                 <div className="flex justify-between text-base">
                   <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">
-                    {isFlashOfferActive ? (
-                      <span className="flex items-center gap-2">
-                        <span className="text-green-600 dark:text-green-400">₹0</span>
-                        <span className="text-sm text-gray-400 line-through">₹{subtotal}</span>
-                      </span>
-                    ) : (
-                      `₹${subtotal}`
-                    )}
-                  </span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">₹{subtotal}</span>
                 </div>
                 <div className="flex justify-between text-base">
                   <span className="text-gray-600 dark:text-gray-400">Delivery fees</span>
@@ -365,9 +362,9 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-base text-green-600 dark:text-green-400">
                     <span className="flex items-center gap-1">
                       <Zap className="w-4 h-4" />
-                      Flash Discount
+                      Flash Discount (up to ₹{flashOfferLimit})
                     </span>
-                    <span className="font-semibold">-₹{subtotal}</span>
+                    <span className="font-semibold">-₹{flashOfferDiscount}</span>
                   </div>
                 )}
                 {isTimeChallengeActive && !isFlashOfferActive && (
@@ -447,7 +444,7 @@ export default function CheckoutPage() {
                 {orderDetails?.isFlashOffer && (
                   <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-md p-2 mb-2 flex items-center gap-1">
                     <Zap className="w-3 h-3" />
-                    <span className="text-xs font-bold">Flash Offer Applied - FREE Order!</span>
+                    <span className="text-xs font-bold">Flash Offer - ₹{orderDetails.flashOfferDiscount} Discount!</span>
                   </div>
                 )}
                 <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1.5">Items:</p>
@@ -456,7 +453,7 @@ export default function CheckoutPage() {
                     <div key={item.id} className="flex justify-between text-xs">
                       <span className="text-gray-600 dark:text-gray-400">{item.title} x{item.quantity}</span>
                       <span className="font-medium text-gray-900 dark:text-gray-100">
-                        {orderDetails?.isFlashOffer ? '₹0' : item.price}
+                        {item.price}
                       </span>
                     </div>
                   ))}
