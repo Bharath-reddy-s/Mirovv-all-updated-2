@@ -174,6 +174,7 @@ export const updateStockStatusSchema = z.object({
 export type UpdateStockStatus = z.infer<typeof updateStockStatusSchema>;
 
 export const createProductSchema = z.object({
+  productCode: z.string().min(1),
   title: z.string().min(1),
   label: z.string().min(1),
   price: z.string().min(1),
@@ -194,6 +195,7 @@ export const createProductSchema = z.object({
 
 export const updateProductSchema = z.object({
   id: z.number(),
+  productCode: z.string().min(1).optional(),
   title: z.string().min(1).optional(),
   label: z.string().min(1).optional(),
   price: z.string().min(1).optional(),

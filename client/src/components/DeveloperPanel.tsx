@@ -237,6 +237,7 @@ export default function DeveloperPanel() {
   }, [checkoutDiscount]);
 
   const [formData, setFormData] = useState({
+    productCode: "",
     title: "",
     price: "",
     originalPrice: "",
@@ -369,6 +370,7 @@ export default function DeveloperPanel() {
 
   const resetForm = () => {
     setFormData({
+      productCode: "",
       title: "",
       price: "",
       originalPrice: "",
@@ -388,6 +390,7 @@ export default function DeveloperPanel() {
   const openEditDialog = (product: Product) => {
     setEditingProduct(product);
     setFormData({
+      productCode: product.productCode ?? "",
       title: product.title ?? "",
       price: product.price ?? "",
       originalPrice: product.originalPrice ?? "",
@@ -404,6 +407,7 @@ export default function DeveloperPanel() {
 
     try {
       const productData = {
+        productCode: formData.productCode,
         title: formData.title,
         label: "Giveaway Ticket Included",
         price: formData.price,
@@ -1696,17 +1700,31 @@ export default function DeveloperPanel() {
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Product Title *</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="e.g., Lightts"
-                required
-                className="focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
-                data-testid="input-product-title"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="productCode">Product Code *</Label>
+                <Input
+                  id="productCode"
+                  value={formData.productCode}
+                  onChange={(e) => setFormData({ ...formData, productCode: e.target.value })}
+                  placeholder="e.g., #07"
+                  required
+                  className="focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
+                  data-testid="input-product-code"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="title">Product Title *</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="e.g., Lightts"
+                  required
+                  className="focus-visible:ring-0 focus-visible:border-gray-300 dark:focus-visible:border-gray-600"
+                  data-testid="input-product-title"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
