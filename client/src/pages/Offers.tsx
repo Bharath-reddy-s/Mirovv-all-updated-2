@@ -22,7 +22,7 @@ export default function OffersPage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="text-[33px] md:text-6xl mb-6 font-semibold whitespace-nowrap max-[380px]:text-[22px] text-transparent bg-clip-text bg-gradient-to-r from-neutral-900 to-neutral-700/80 dark:from-white dark:to-white/80" data-testid="text-offers-title">See How To Lootify Us!!</h1>
+          <h1 className="text-[33px] md:text-6xl mb-6 font-semibold whitespace-nowrap max-[380px]:text-[22px] text-black dark:text-white" data-testid="text-offers-title">See How To Lootify Us!!</h1>
         </motion.div>
 
         <div className="max-w-5xl mx-auto space-y-8">
