@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTimeChallenge } from "@/contexts/TimeChallengeContext";
 import { useCart } from "@/contexts/CartContext";
 import { Timer, X, Play } from "lucide-react";
@@ -17,121 +17,11 @@ export function TimeChallengeButton() {
   const { clearCart } = useCart();
 
   const [isMounted, setIsMounted] = useState(false);
-  const [position, setPosition] = useState({ x: 20, y: 100 });
-  const [isDragging, setIsDragging] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const dragRef = useRef<{ startX: number; startY: number; startPosX: number; startPosY: number } | null>(null);
-  const buttonRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsMounted(true);
-    setPosition({ x: 20, y: window.innerHeight - 120 });
   }, []);
-
-  useEffect(() => {
-    if (!isMounted) return;
-    const handleResize = () => {
-      setPosition(prev => ({
-        x: Math.min(prev.x, window.innerWidth - 70),
-        y: Math.min(prev.y, window.innerHeight - 70),
-      }));
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [isMounted]);
-
-  const hasMoved = useRef(false);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    dragRef.current = {
-      startX: touch.clientX,
-      startY: touch.clientY,
-      startPosX: position.x,
-      startPosY: position.y,
-    };
-    hasMoved.current = false;
-    setIsDragging(true);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!dragRef.current) return;
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - dragRef.current.startX;
-    const deltaY = touch.clientY - dragRef.current.startY;
-    
-    if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
-      hasMoved.current = true;
-    }
-    
-    const newX = Math.max(10, Math.min(window.innerWidth - 70, dragRef.current.startPosX + deltaX));
-    const newY = Math.max(10, Math.min(window.innerHeight - 70, dragRef.current.startPosY + deltaY));
-    
-    setPosition({ x: newX, y: newY });
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    e.preventDefault(); // Prevent click event from firing
-    if (!hasMoved.current) {
-      setIsExpanded(prev => !prev);
-    }
-    
-    dragRef.current = null;
-    setIsDragging(false);
-    justTouched.current = true;
-  };
-
-  const justTouched = useRef(false);
-
-  const handleClick = (e: React.MouseEvent) => {
-    // Prevent click if we just handled a touch event (mobile)
-    if (justTouched.current) {
-      justTouched.current = false;
-      return;
-    }
-    // On desktop, mouseDown handles expansion, so skip click
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    dragRef.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      startPosX: position.x,
-      startPosY: position.y,
-    };
-    setIsDragging(true);
-    
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!dragRef.current) return;
-      const deltaX = e.clientX - dragRef.current.startX;
-      const deltaY = e.clientY - dragRef.current.startY;
-      
-      const newX = Math.max(10, Math.min(window.innerWidth - 70, dragRef.current.startPosX + deltaX));
-      const newY = Math.max(10, Math.min(window.innerHeight - 70, dragRef.current.startPosY + deltaY));
-      
-      setPosition({ x: newX, y: newY });
-    };
-    
-    const handleMouseUp = () => {
-      if (dragRef.current) {
-        const moved = Math.abs(position.x - dragRef.current.startPosX) > 5 || 
-                      Math.abs(position.y - dragRef.current.startPosY) > 5;
-        
-        if (!moved) {
-          setIsExpanded(!isExpanded);
-        }
-      }
-      
-      dragRef.current = null;
-      setIsDragging(false);
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-    
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-  };
 
   if (!isMounted || !isChallengeActive) {
     return null;
@@ -143,30 +33,25 @@ export function TimeChallengeButton() {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const toggleExpanded = () => {
+    setIsExpanded(prev => !prev);
+  };
+
   return (
     <div
-      ref={buttonRef}
-      className="fixed z-50 select-none"
-      style={{
-        left: position.x,
-        top: position.y,
-        cursor: isDragging ? "grabbing" : "grab",
-      }}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onMouseDown={handleMouseDown}
-      onClick={handleClick}
+      className="fixed bottom-20 left-4 z-50"
       data-testid="time-challenge-button"
     >
       <AnimatePresence mode="wait">
         {!isExpanded ? (
-          <motion.div
+          <motion.button
             key="collapsed"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
-            className="w-14 h-14 rounded-full bg-black dark:bg-white flex items-center justify-center shadow-lg"
+            onClick={toggleExpanded}
+            className="w-14 h-14 rounded-full bg-black dark:bg-white flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+            type="button"
           >
             {challengeStarted && !challengeExpired ? (
               <span className="text-white dark:text-black font-bold text-sm" data-testid="text-challenge-timer-collapsed">
@@ -175,7 +60,7 @@ export function TimeChallengeButton() {
             ) : (
               <Timer className="w-6 h-6 text-white dark:text-black" />
             )}
-          </motion.div>
+          </motion.button>
         ) : (
           <motion.div
             key="expanded"
@@ -189,11 +74,9 @@ export function TimeChallengeButton() {
                 {challengeSettings?.name || "Time is Money"}
               </span>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsExpanded(false);
-                }}
-                className="text-white/70 dark:text-black/70 hover:text-white dark:hover:text-black"
+                onClick={toggleExpanded}
+                className="text-white/70 dark:text-black/70 hover:text-white dark:hover:text-black p-1"
+                type="button"
                 data-testid="button-close-challenge"
               >
                 <X className="w-4 h-4" />
@@ -206,12 +89,12 @@ export function TimeChallengeButton() {
                   Complete checkout in {challengeSettings?.durationSeconds || 30}s for {challengeSettings?.discountPercent || 30}% off!
                 </p>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
+                  onClick={() => {
                     clearCart();
                     startChallenge();
                   }}
                   className="w-full hover:bg-green-600 font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-[#000000] bg-[#fcfcfc]"
+                  type="button"
                   data-testid="button-start-challenge"
                 >
                   <Play className="w-4 h-4" />
@@ -240,11 +123,9 @@ export function TimeChallengeButton() {
                   Time's up!
                 </p>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    startChallenge();
-                  }}
+                  onClick={startChallenge}
                   className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                  type="button"
                   data-testid="button-retry-challenge"
                 >
                   <Play className="w-4 h-4" />
