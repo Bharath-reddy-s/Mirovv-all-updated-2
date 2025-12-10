@@ -411,7 +411,7 @@ export default function ProductDetailPage() {
                 Products will be delivered in 7-10 days
               </p>
               <Link 
-                href="/#about-us" 
+                href="/#delivery-return-policy" 
                 className="text-sm text-black dark:text-white hover:underline cursor-pointer font-semibold text-justify"
                 data-testid="link-delivery-policy"
               >     View Delivery and Return Policy</Link>
