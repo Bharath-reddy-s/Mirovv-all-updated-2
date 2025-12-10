@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { formatBoldText } from "@/lib/formatText";
 import {
   Dialog,
   DialogContent,
@@ -991,8 +992,9 @@ export default function DeveloperPanel() {
 
                 <div className="mt-3 p-3 rounded bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900">
                   <p className="text-xs font-semibold mb-2">Preview:</p>
-                  <p className="text-sm">{bannerText || "Enter banner text"}</p>
+                  <p className="text-sm">{formatBoldText(bannerText || "Enter banner text")}</p>
                   <p className="text-xs opacity-70 mt-1">Timer: {timerHours || "0"}h {timerMinutes || "0"}m {timerSeconds || "0"}s</p>
+                  <p className="text-xs opacity-50 mt-2">Tip: Use *text* to make text bold</p>
                 </div>
               </div>
             </TabsContent>

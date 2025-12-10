@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { z } from "zod";
+import { formatBoldText } from "@/lib/formatText";
 
 const reviewFormSchema = insertReviewSchema.omit({ productId: true });
 type ReviewFormData = z.infer<typeof reviewFormSchema>;
@@ -360,14 +361,7 @@ export default function ProductDetailPage() {
                 {product.title}
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-400 mb-4">
-                {product.description.split("'GET A GIVEAWAY TICKET TO WIN BOAT NIRVANA ION'").map((part, index, array) => (
-                  index < array.length - 1 ? (
-                    <>
-                      {part}
-                      <span className="text-black dark:text-white font-semibold">'GET A GIVEAWAY TICKET TO WIN BOAT NIRVANA ION'</span>
-                    </>
-                  ) : part
-                ))}
+                {formatBoldText(product.description)}
               </p>
               {product.id !== 4 && (
                 <div className="flex items-baseline gap-3 flex-wrap">
@@ -476,7 +470,7 @@ export default function ProductDetailPage() {
               </h3>
               <div className="space-y-3">
                 <div className="flex items-start py-2">
-                  <span className="text-gray-900 dark:text-gray-100">{product.longDescription}</span>
+                  <span className="text-gray-900 dark:text-gray-100">{formatBoldText(product.longDescription)}</span>
                 </div>
               </div>
             </div>

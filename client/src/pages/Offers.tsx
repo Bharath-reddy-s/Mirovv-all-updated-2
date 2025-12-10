@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import type { Offer } from "@shared/schema";
+import { formatBoldText } from "@/lib/formatText";
 
 export default function OffersPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -50,7 +51,7 @@ export default function OffersPage() {
                 <p className={`text-sm md:text-base leading-relaxed text-center mb-8 ${
                   index === 1 ? "text-black" : "text-black dark:text-white"
                 }`}>
-                  <span className="font-bold">{index + 1}. {offer.title}</span> - {offer.description}
+                  <span className="font-bold">{index + 1}. {formatBoldText(offer.title)}</span> - {formatBoldText(offer.description)}
                 </p>
 
                 {offer.images.length > 0 && (

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDeveloper } from "@/contexts/DeveloperContext";
 import { Zap } from "lucide-react";
+import { formatBoldText } from "@/lib/formatText";
 
 export default function OfferBanner() {
   const { promotionalSettings, flashOffer } = useDeveloper();
@@ -78,7 +79,7 @@ export default function OfferBanner() {
           <div className="flex items-center gap-2">
             <Zap className="h-6 w-6 fill-black" />
             <span className="text-xl md:text-2xl font-bold" data-testid="text-flash-offer-title">
-              {flashOffer.bannerText || "First 5 orders are FREE!"}
+              {formatBoldText(flashOffer.bannerText || "First 5 orders are FREE!")}
             </span>
             <Zap className="h-6 w-6 fill-black" />
           </div>
@@ -112,7 +113,7 @@ export default function OfferBanner() {
       data-testid="banner-offer"
     >
       <span className="text-lg md:text-xl font-semibold" data-testid="text-offer-title">
-        {promotionalSettings?.bannerText || "₹10 off on every product"}
+        {formatBoldText(promotionalSettings?.bannerText || "₹10 off on every product")}
       </span>
       <div className="flex items-center gap-1 font-mono text-xl md:text-2xl font-bold tabular-nums" data-testid="container-timer">
         <span data-testid="text-hours">{timeLeft.hours}</span>
