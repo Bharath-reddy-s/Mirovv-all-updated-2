@@ -43,7 +43,7 @@ export default function Home() {
           
           <div className="flex flex-col gap-6">
             {aboutPoints.map((point, index) => (
-              <Card key={index} className="p-6 md:p-8 shadow-sm" data-testid={`card-about-${index}`} id={point.title === "Delivery & Return Policy" ? "delivery-return-policy" : undefined}></old_str>
+              <Card key={index} className="p-6 md:p-8 shadow-sm" data-testid={`card-about-${index}`} id={point.title === "Delivery & Return Policy" ? "delivery-return-policy" : undefined}>
                 <div className="flex items-center gap-3 mb-3">
                   <point.icon className="w-6 h-6 text-foreground" strokeWidth={1.5} />
                   <h3 className="text-lg md:text-xl font-semibold text-foreground">
