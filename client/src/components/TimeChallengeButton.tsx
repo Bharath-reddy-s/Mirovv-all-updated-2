@@ -130,7 +130,7 @@ export function TimeChallengeButton() {
   return (
     <div
       ref={buttonRef}
-      className="fixed z-50 select-none touch-none"
+      className="fixed z-50 select-none"
       style={{
         left: position.x,
         top: position.y,
