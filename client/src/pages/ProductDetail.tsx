@@ -410,11 +410,19 @@ export default function ProductDetailPage() {
               <p className="text-sm dark:text-gray-400 mt-2 text-[#000000]" data-testid="text-free-delivery">
                 Products will be delivered in 7-10 days
               </p>
-              <Link 
-                href="/#delivery-return-policy" 
+              <span 
+                onClick={() => {
+                  setLocation('/');
+                  setTimeout(() => {
+                    const element = document.getElementById('delivery-return-policy');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }, 100);
+                }}
                 className="text-sm text-black dark:text-white hover:underline cursor-pointer font-semibold text-justify"
                 data-testid="link-delivery-policy"
-              >     View Delivery and Return Policy</Link>
+              >View Delivery and Return Policy</span>
             </div>
 
             {product.id !== 4 && isInStock && (

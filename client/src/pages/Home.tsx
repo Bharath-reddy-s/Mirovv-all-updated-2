@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import BackgroundPaths from "@/components/BackgroundPaths";
 import OfferBanner from "@/components/OfferBanner";
 import { Card } from "@/components/ui/card";
@@ -27,6 +28,18 @@ const aboutPoints = [
 ];
 
 export default function Home() {
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      setTimeout(() => {
+        const element = document.getElementById(hash.substring(1));
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
+  }, []);
+
   return (
     <div className="pt-16">
       <OfferBanner />
