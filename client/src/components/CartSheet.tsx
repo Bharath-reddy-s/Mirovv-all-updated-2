@@ -47,9 +47,6 @@ export default function CartSheet() {
               <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
                 Your cart is empty
               </h3>
-              <p className="text-sm text-gray-400 dark:text-gray-500 mb-8">
-                Add some mystery boxes to get started!
-              </p>
               <Link href="/shop">
                 <Button
                   onClick={() => setIsCartOpen(false)}
