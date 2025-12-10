@@ -133,7 +133,7 @@ export default function ShopPage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="text-[30px] md:text-6xl text-black dark:text-white whitespace-nowrap font-semibold pt-[0px] pb-[0px] mt-[11px] mb-[11px]">Explore Our Products</h1>
+          <h1 className="text-[30px] md:text-6xl whitespace-nowrap font-semibold pt-[0px] pb-[0px] mt-[11px] mb-[11px] text-transparent bg-clip-text bg-gradient-to-r from-neutral-900 to-neutral-700/80 dark:from-white dark:to-white/80">Explore Our Products</h1>
           
           <div className="overflow-x-auto scrollbar-hide">
             <div className="flex gap-2 min-w-max md:min-w-0 px-4 md:justify-center md:w-full items-center mt-[0px] mb-[0px] pl-[0px] pr-[0px] ml-[30px] mr-[30px]">

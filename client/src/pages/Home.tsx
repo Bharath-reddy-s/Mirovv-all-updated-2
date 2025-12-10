@@ -34,7 +34,7 @@ export default function Home() {
       
       <section id="about-us" className="min-h-screen bg-background py-20 px-4">
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-6 text-foreground" data-testid="heading-about-us">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-neutral-900 to-neutral-700/80 dark:from-white dark:to-white/80" data-testid="heading-about-us">
             About Us
           </h2>
           <p className="text-center text-muted-foreground mb-16 max-w-2xl mx-auto">
