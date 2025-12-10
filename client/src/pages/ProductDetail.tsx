@@ -412,11 +412,9 @@ export default function ProductDetailPage() {
               </p>
               <Link 
                 href="/#about-us" 
-                className="text-sm text-black dark:text-white hover:underline cursor-pointer"
+                className="text-sm text-black dark:text-white hover:underline cursor-pointer font-semibold text-justify"
                 data-testid="link-delivery-policy"
-              >
-                View Delivery and Return Policy
-              </Link>
+              >     View Delivery and Return Policy</Link>
             </div>
 
             {product.id !== 4 && isInStock && (
