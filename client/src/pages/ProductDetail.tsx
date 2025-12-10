@@ -1,4 +1,4 @@
-import { useParams, useLocation } from "wouter";
+import { useParams, useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -410,6 +410,13 @@ export default function ProductDetailPage() {
               <p className="text-sm dark:text-gray-400 mt-2 text-[#000000]" data-testid="text-free-delivery">
                 Products will be delivered in 7-10 days
               </p>
+              <Link 
+                href="/#about-us" 
+                className="text-sm text-black dark:text-white hover:underline cursor-pointer"
+                data-testid="link-delivery-policy"
+              >
+                View Delivery and Return Policy
+              </Link>
             </div>
 
             {product.id !== 4 && isInStock && (
