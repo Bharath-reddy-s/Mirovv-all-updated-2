@@ -40,6 +40,8 @@ export function TimeChallengeButton() {
     return () => window.removeEventListener("resize", handleResize);
   }, [isMounted]);
 
+  const hasMoved = useRef(false);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
     dragRef.current = {
@@ -48,6 +50,7 @@ export function TimeChallengeButton() {
       startPosX: position.x,
       startPosY: position.y,
     };
+    hasMoved.current = false;
     setIsDragging(true);
   };
 
@@ -57,23 +60,36 @@ export function TimeChallengeButton() {
     const deltaX = touch.clientX - dragRef.current.startX;
     const deltaY = touch.clientY - dragRef.current.startY;
     
+    if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+      hasMoved.current = true;
+    }
+    
     const newX = Math.max(10, Math.min(window.innerWidth - 70, dragRef.current.startPosX + deltaX));
     const newY = Math.max(10, Math.min(window.innerHeight - 70, dragRef.current.startPosY + deltaY));
     
     setPosition({ x: newX, y: newY });
   };
 
-  const handleTouchEnd = () => {
-    if (!dragRef.current) return;
-    const moved = Math.abs(position.x - dragRef.current.startPosX) > 5 || 
-                  Math.abs(position.y - dragRef.current.startPosY) > 5;
-    
-    if (!moved) {
-      setIsExpanded(!isExpanded);
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent click event from firing
+    if (!hasMoved.current) {
+      setIsExpanded(prev => !prev);
     }
     
     dragRef.current = null;
     setIsDragging(false);
+    justTouched.current = true;
+  };
+
+  const justTouched = useRef(false);
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Prevent click if we just handled a touch event (mobile)
+    if (justTouched.current) {
+      justTouched.current = false;
+      return;
+    }
+    // On desktop, mouseDown handles expansion, so skip click
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -140,6 +156,7 @@ export function TimeChallengeButton() {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onMouseDown={handleMouseDown}
+      onClick={handleClick}
       data-testid="time-challenge-button"
     >
       <AnimatePresence mode="wait">
