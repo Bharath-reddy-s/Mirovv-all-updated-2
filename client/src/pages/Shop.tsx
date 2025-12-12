@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
 import { useDeveloper } from "@/contexts/DeveloperContext";
+import { useTryNowChallenge } from "@/contexts/TryNowChallengeContext";
 import { type Product, type PriceFilter, type TimeChallenge } from "@shared/schema";
 import { Link } from "wouter";
 import { useState, useEffect, useMemo } from "react";
@@ -20,6 +21,7 @@ type SortOption = "default" | "low-to-high" | "high-to-low" | "random";
 export default function ShopPage() {
   const { addToCart } = useCart();
   const { flashOffer } = useDeveloper();
+  const { isTryNowActive } = useTryNowChallenge();
   const [currentImageIndices, setCurrentImageIndices] = useState<{[key: number]: number}>({});
   const [selectedPriceFilter, setSelectedPriceFilter] = useState<number | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>("default");
@@ -84,8 +86,8 @@ export default function ShopPage() {
       result = [...products];
     }
     
-    // When time challenge or flash offer is active, force sort by price low-to-high
-    if (timeChallenge?.isActive || isFlashOfferActive) {
+    // When time challenge, flash offer, or Try Now challenge is active, force sort by price low-to-high
+    if (timeChallenge?.isActive || isFlashOfferActive || isTryNowActive) {
       result = result.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
     } else if (sortOption === "low-to-high") {
       result = result.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
@@ -101,7 +103,7 @@ export default function ShopPage() {
     // "default" keeps the server's displayOrder (no sorting applied)
     
     return result;
-  }, [products, selectedPriceFilter, sortOption, priceFilterOptions, timeChallenge?.isActive, isFlashOfferActive]);
+  }, [products, selectedPriceFilter, sortOption, priceFilterOptions, timeChallenge?.isActive, isFlashOfferActive, isTryNowActive]);
 
   useEffect(() => {
     const intervals: {[key: number]: NodeJS.Timeout} = {};

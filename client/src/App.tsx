@@ -6,9 +6,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
 import { DeveloperProvider } from "@/contexts/DeveloperContext";
 import { TimeChallengeProvider } from "@/contexts/TimeChallengeContext";
+import { TryNowChallengeProvider } from "@/contexts/TryNowChallengeContext";
 import CartSheet from "@/components/CartSheet";
 import DeveloperPanel from "@/components/DeveloperPanel";
 import { TimeChallengeButton } from "@/components/TimeChallengeButton";
+import { TryNowChallengePopup } from "@/components/TryNowChallengePopup";
+import { TryNowChallengeTimer } from "@/components/TryNowChallengeTimer";
 import Navbar from "@/components/Navbar";
 import Home from "@/pages/Home";
 import Shop from "@/pages/Shop";
@@ -45,12 +48,16 @@ function App() {
         <DeveloperProvider>
           <TimeChallengeProvider>
             <CartProvider>
-              <Toaster />
-              <CartSheet />
-              <DeveloperPanel />
-              <TimeChallengeButton />
-              <Navbar />
-              <Router />
+              <TryNowChallengeProvider>
+                <Toaster />
+                <CartSheet />
+                <DeveloperPanel />
+                <TimeChallengeButton />
+                <TryNowChallengeTimer />
+                <TryNowChallengePopup />
+                <Navbar />
+                <Router />
+              </TryNowChallengeProvider>
             </CartProvider>
           </TimeChallengeProvider>
         </DeveloperProvider>

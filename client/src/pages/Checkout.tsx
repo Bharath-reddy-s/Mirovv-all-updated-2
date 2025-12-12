@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/CartContext";
 import { useDeveloper } from "@/contexts/DeveloperContext";
 import { useTimeChallenge } from "@/contexts/TimeChallengeContext";
+import { useTryNowChallenge } from "@/contexts/TryNowChallengeContext";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { apiRequest } from "@/lib/queryClient";
@@ -18,13 +19,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Copy, CheckCircle2, Zap, Timer, Percent } from "lucide-react";
+import { Copy, CheckCircle2, Zap, Timer, Percent, Play } from "lucide-react";
 
 export default function CheckoutPage() {
   const [, setLocation] = useLocation();
   const { items, subtotal, clearCart } = useCart();
   const { flashOffer, checkoutDiscount } = useDeveloper();
   const { challengeStarted, challengeExpired, timeRemaining, discountPercent, markChallengeCompleted } = useTimeChallenge();
+  const { 
+    isTryNowActive, 
+    challengeType: tryNowType, 
+    discountPercent: tryNowDiscount, 
+    timeRemaining: tryNowTimeRemaining,
+    completeTryNowChallenge 
+  } = useTryNowChallenge();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showOrderSuccess, setShowOrderSuccess] = useState(false);
@@ -68,6 +76,8 @@ export default function CheckoutPage() {
   const isTimeChallengeActive = challengeStarted && !challengeExpired && discountPercent > 0;
   const timeChallengeDiscount = isTimeChallengeActive ? Math.round(subtotal * discountPercent / 100) : 0;
   
+  const tryNowChallengeDiscount = isTryNowActive ? Math.round(subtotal * tryNowDiscount / 100) : 0;
+  
   const isCheckoutDiscountActive = checkoutDiscount && checkoutDiscount.discountPercent > 0;
   const checkoutDiscountAmount = isCheckoutDiscountActive ? Math.round(subtotal * checkoutDiscount.discountPercent / 100) : 0;
   
@@ -75,9 +85,16 @@ export default function CheckoutPage() {
   const flashOfferLimit = 200;
   const flashOfferDiscount = isFlashOfferActive ? Math.min(subtotal, flashOfferLimit) : 0;
   const flashOfferBalance = isFlashOfferActive ? Math.max(0, subtotal - flashOfferLimit) : 0;
+  
+  const isTryNowFlashActive = isTryNowActive && tryNowType === "flash";
+  const tryNowFlashDiscount = isTryNowFlashActive ? Math.min(subtotal, flashOfferLimit) : 0;
+  const tryNowFlashBalance = isTryNowFlashActive ? Math.max(0, subtotal - flashOfferLimit) : 0;
+  
   const displayTotal = isFlashOfferActive 
     ? flashOfferBalance + shippingCost 
-    : (subtotal + shippingCost - timeChallengeDiscount - checkoutDiscountAmount);
+    : isTryNowFlashActive
+    ? tryNowFlashBalance + shippingCost
+    : (subtotal + shippingCost - timeChallengeDiscount - tryNowChallengeDiscount - checkoutDiscountAmount);
 
   const copyOrderNumber = () => {
     if (orderDetails?.orderNumber) {
@@ -128,6 +145,12 @@ export default function CheckoutPage() {
     try {
       const isFlashOrder = isFlashOfferActive;
       const hasTimeChallengeDiscount = isTimeChallengeActive;
+      const hasTryNowDiscount = isTryNowActive;
+      const hasTryNowFlash = isTryNowFlashActive;
+      
+      const finalTotal = displayTotal;
+      const finalTryNowDiscount = hasTryNowFlash ? tryNowFlashDiscount : tryNowChallengeDiscount;
+      const finalTryNowType = tryNowType;
       
       if (isFlashOrder) {
         await apiRequest('POST', '/api/flash-offer/claim');
@@ -137,7 +160,9 @@ export default function CheckoutPage() {
         markChallengeCompleted();
       }
       
-      const finalTotal = displayTotal;
+      if (hasTryNowDiscount) {
+        completeTryNowChallenge();
+      }
       
       const orderData = {
         customerName: formData.firstName,
@@ -155,6 +180,7 @@ export default function CheckoutPage() {
         total: `₹${finalTotal}`,
         isFlashOffer: isFlashOrder,
         flashOfferDiscount: isFlashOrder ? flashOfferDiscount : 0,
+        isTryNowChallenge: hasTryNowDiscount,
       };
 
       const response: any = await apiRequest('POST', '/api/orders', orderData);
@@ -317,6 +343,33 @@ export default function CheckoutPage() {
               </div>
             )}
             
+            {isTryNowActive && !isFlashOfferActive && (
+              <div className={`rounded-xl p-4 mb-6 ${
+                tryNowType === "timer" 
+                  ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white" 
+                  : "bg-gradient-to-r from-yellow-500 to-orange-500 text-black"
+              }`} data-testid="try-now-challenge-applied">
+                <div className="flex items-center gap-2 mb-2">
+                  {tryNowType === "timer" ? <Timer className="w-5 h-5" /> : <Zap className="w-5 h-5" />}
+                  <span className="font-bold flex items-center gap-1">
+                    <Play className="w-4 h-4" />
+                    Try Now Challenge Active!
+                  </span>
+                </div>
+                <p className="text-sm">
+                  {isTryNowFlashActive 
+                    ? (subtotal <= flashOfferLimit 
+                        ? `Products FREE! Just pay delivery.` 
+                        : `First ₹${flashOfferLimit} FREE! Pay ₹${tryNowFlashBalance} + delivery.`)
+                    : `Complete checkout now to save ₹${tryNowChallengeDiscount}!`
+                  }
+                </p>
+                <p className="text-xs mt-1 opacity-80">
+                  Time remaining: {Math.floor(tryNowTimeRemaining / 60)}:{(tryNowTimeRemaining % 60).toString().padStart(2, '0')}
+                </p>
+              </div>
+            )}
+            
             {isCheckoutDiscountActive && !isFlashOfferActive && (
               <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl p-4 mb-6" data-testid="checkout-discount-banner">
                 <div className="flex items-center gap-2 mb-2">
@@ -375,6 +428,24 @@ export default function CheckoutPage() {
                       Time Challenge ({discountPercent}% off)
                     </span>
                     <span className="font-semibold">-₹{timeChallengeDiscount}</span>
+                  </div>
+                )}
+                {isTryNowActive && !isFlashOfferActive && !isTryNowFlashActive && (
+                  <div className="flex justify-between text-base text-green-600 dark:text-green-400" data-testid="try-now-discount-line">
+                    <span className="flex items-center gap-1">
+                      <Play className="w-4 h-4" />
+                      Try Now Challenge ({tryNowDiscount}% off)
+                    </span>
+                    <span className="font-semibold">-₹{tryNowChallengeDiscount}</span>
+                  </div>
+                )}
+                {isTryNowFlashActive && (
+                  <div className="flex justify-between text-base text-green-600 dark:text-green-400" data-testid="try-now-flash-discount-line">
+                    <span className="flex items-center gap-1">
+                      <Play className="w-4 h-4" />
+                      Try Now Flash (up to ₹{flashOfferLimit})
+                    </span>
+                    <span className="font-semibold">-₹{tryNowFlashDiscount}</span>
                   </div>
                 )}
                 {isCheckoutDiscountActive && !isFlashOfferActive && (

@@ -314,6 +314,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: validation.error });
       }
 
+      // Skip database storage and Telegram for Try Now challenge orders
+      if (req.body.isTryNowChallenge) {
+        // Return a mock order response without storing in database
+        const mockOrder = {
+          id: 0,
+          orderNumber: `TRY-${Date.now()}`,
+          ...validation.data,
+        };
+        return res.json(mockOrder);
+      }
+
       const checkoutDiscount = await storage.getCheckoutDiscount();
       let orderData = validation.data;
       

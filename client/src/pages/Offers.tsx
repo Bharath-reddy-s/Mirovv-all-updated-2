@@ -1,17 +1,44 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Play, Timer, Zap } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import type { Offer } from "@shared/schema";
+import { useTryNowChallenge } from "@/contexts/TryNowChallengeContext";
+import type { Offer, TimeChallenge } from "@shared/schema";
 import { formatBoldText } from "@/lib/formatText";
 
 export default function OffersPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [, setLocation] = useLocation();
+  const { startTryNowChallenge, isTryNowActive } = useTryNowChallenge();
 
   const { data: offers = [], isLoading } = useQuery<Offer[]>({
     queryKey: ["/api/offers"],
   });
+
+  const { data: timeChallenge } = useQuery<TimeChallenge | null>({
+    queryKey: ["/api/time-challenge"],
+  });
+
+  const handleTryNow = (offerTitle: string) => {
+    if (isTryNowActive) return;
+    
+    if (offerTitle.toLowerCase().includes("timer")) {
+      const duration = timeChallenge?.durationSeconds || 30;
+      const discount = timeChallenge?.discountPercent || 30;
+      startTryNowChallenge("timer", duration, discount);
+    } else if (offerTitle.toLowerCase().includes("flash")) {
+      startTryNowChallenge("flash", 30, 100);
+    }
+    setLocation("/shop");
+  };
+
+  const shouldShowTryNow = (title: string) => {
+    const lowerTitle = title.toLowerCase();
+    return lowerTitle.includes("timer") || lowerTitle.includes("flash");
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-neutral-950">
@@ -70,6 +97,29 @@ export default function OffersPage() {
                         )}
                       </div>
                     ))}
+                  </div>
+                )}
+
+                {shouldShowTryNow(offer.title) && (
+                  <div className="mt-6 flex justify-center">
+                    <Button
+                      onClick={() => handleTryNow(offer.title)}
+                      disabled={isTryNowActive}
+                      className={`font-bold px-8 py-3 rounded-full gap-2 ${
+                        offer.title.toLowerCase().includes("timer")
+                          ? "bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+                          : "bg-black text-white hover:bg-gray-800"
+                      }`}
+                      data-testid={`button-try-now-${offer.id}`}
+                    >
+                      {offer.title.toLowerCase().includes("timer") ? (
+                        <Timer className="w-5 h-5" />
+                      ) : (
+                        <Zap className="w-5 h-5" />
+                      )}
+                      <Play className="w-4 h-4" />
+                      Try Now
+                    </Button>
                   </div>
                 )}
               </motion.div>
