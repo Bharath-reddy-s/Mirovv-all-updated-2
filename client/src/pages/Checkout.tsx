@@ -496,10 +496,7 @@ export default function CheckoutPage() {
               {isTrialOrder ? "Trial Order Complete!" : "Order Placed!"}
             </DialogTitle>
             <DialogDescription className="text-center text-sm">
-              {isTrialOrder 
-                ? "This was a trial order to test the checkout flow. No payment is required."
-                : "Send the order number to us on Instagram and Recive the payment link to confirm order"
-              }
+              Send the order number to us on Instagram and Recive the payment link to confirm order
             </DialogDescription>
           </DialogHeader>
           
@@ -563,35 +560,23 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {!isTrialOrder && (
-              <>
-                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-                  <p className="text-xs text-blue-900 dark:text-blue-100 text-center">
-                    📸 Send <span className="font-bold">#{orderDetails?.orderNumber}</span> to our Instagram DM do the paymnet and confirm order
-                  </p>
-                </div>
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+              <p className="text-xs text-blue-900 dark:text-blue-100 text-center">
+                📸 Send <span className="font-bold">#{orderDetails?.orderNumber}</span> to our Instagram DM do the paymnet and confirm order
+              </p>
+            </div>
 
-                <div className="text-center">
-                  <p className="text-xs text-red-600 dark:text-red-400 italic">
-                    Note: Orders are only confirmed when the order number is sent to Instagram DM
-                  </p>
-                </div>
-              </>
-            )}
+            <div className="text-center">
+              <p className="text-xs text-red-600 dark:text-red-400 italic">
+                Note: Orders are only confirmed when the order number is sent to Instagram DM
+              </p>
+            </div>
 
-            {isTrialOrder ? (
-              <Button
-                onClick={handleCloseTrialDialog}
-                className="w-full h-10 bg-black hover:bg-neutral-800 text-white rounded-full text-sm"
-                data-testid="button-close-order-success"
-              >Close</Button>
-            ) : (
-              <Button
-                onClick={handleCloseDialog}
-                className="w-full h-10 bg-black hover:bg-neutral-800 text-white rounded-full text-sm"
-                data-testid="button-close-order-success"
-              >Instagram DM</Button>
-            )}
+            <Button
+              onClick={isTrialOrder ? handleCloseTrialDialog : handleCloseDialog}
+              className="w-full h-10 bg-black hover:bg-neutral-800 text-white rounded-full text-sm"
+              data-testid="button-close-order-success"
+            >{isTrialOrder ? "Close" : "Instagram DM"}</Button>
           </div>
         </DialogContent>
       </Dialog>
