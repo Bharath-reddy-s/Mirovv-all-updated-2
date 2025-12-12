@@ -19,7 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Copy, CheckCircle2, Zap, Timer, Percent, Play } from "lucide-react";
+import { Copy, CheckCircle2, Zap, Timer, Percent, Play, X } from "lucide-react";
 
 export default function CheckoutPage() {
   const [, setLocation] = useLocation();
@@ -119,6 +119,14 @@ export default function CheckoutPage() {
     clearCart();
     setLocation("/");
   };
+
+  const handleCloseTrialDialog = () => {
+    setShowOrderSuccess(false);
+    clearCart();
+    setLocation("/");
+  };
+
+  const isTrialOrder = orderDetails?.orderNumber?.startsWith("TRY-");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -467,15 +475,29 @@ export default function CheckoutPage() {
           </motion.div>
         </div>
       </main>
-      <Dialog open={showOrderSuccess} onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-sm max-h-[90vh] overflow-y-auto [&>button]:hidden">
+      <Dialog open={showOrderSuccess} onOpenChange={isTrialOrder ? handleCloseTrialDialog : () => {}}>
+        <DialogContent className="sm:max-w-sm max-h-[90vh] overflow-y-auto">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleCloseTrialDialog}
+            className="absolute right-4 top-4 h-6 w-6"
+            data-testid="button-close-dialog"
+          >
+            <X className="h-4 w-4" />
+          </Button>
           <DialogHeader>
             <div className="flex justify-center mb-2">
               <CheckCircle2 className="w-12 h-12 text-green-500" />
             </div>
-            <DialogTitle className="text-center text-xl">Order Placed!</DialogTitle>
+            <DialogTitle className="text-center text-xl">
+              {isTrialOrder ? "Trial Order Complete!" : "Order Placed!"}
+            </DialogTitle>
             <DialogDescription className="text-center text-sm">
-              Send the order number to us on Instagram and Recive the payment link to confirm order
+              {isTrialOrder 
+                ? "This was a trial order to test the checkout flow. No payment is required."
+                : "Send the order number to us on Instagram and Recive the payment link to confirm order"
+              }
             </DialogDescription>
           </DialogHeader>
           
@@ -539,23 +561,35 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-              <p className="text-xs text-blue-900 dark:text-blue-100 text-center">
-                📸 Send <span className="font-bold">#{orderDetails?.orderNumber}</span> to our Instagram DM do the paymnet and confirm order
-              </p>
-            </div>
+            {!isTrialOrder && (
+              <>
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+                  <p className="text-xs text-blue-900 dark:text-blue-100 text-center">
+                    📸 Send <span className="font-bold">#{orderDetails?.orderNumber}</span> to our Instagram DM do the paymnet and confirm order
+                  </p>
+                </div>
 
-            <div className="text-center">
-              <p className="text-xs text-red-600 dark:text-red-400 italic">
-                Note: Orders are only confirmed when the order number is sent to Instagram DM
-              </p>
-            </div>
+                <div className="text-center">
+                  <p className="text-xs text-red-600 dark:text-red-400 italic">
+                    Note: Orders are only confirmed when the order number is sent to Instagram DM
+                  </p>
+                </div>
+              </>
+            )}
 
-            <Button
-              onClick={handleCloseDialog}
-              className="w-full h-10 bg-black hover:bg-neutral-800 text-white rounded-full text-sm"
-              data-testid="button-close-order-success"
-            >Instagram DM</Button>
+            {isTrialOrder ? (
+              <Button
+                onClick={handleCloseTrialDialog}
+                className="w-full h-10 bg-black hover:bg-neutral-800 text-white rounded-full text-sm"
+                data-testid="button-close-order-success"
+              >Close</Button>
+            ) : (
+              <Button
+                onClick={handleCloseDialog}
+                className="w-full h-10 bg-black hover:bg-neutral-800 text-white rounded-full text-sm"
+                data-testid="button-close-order-success"
+              >Instagram DM</Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
