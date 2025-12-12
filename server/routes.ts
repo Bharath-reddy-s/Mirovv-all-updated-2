@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { updateStockStatusSchema, createProductSchema, updateProductSchema, insertReviewSchema, insertPriceFilterSchema, insertPromotionalSettingsSchema, insertOrderSchema, insertDeliveryAddressSchema, insertOfferSchema, updateOfferSchema } from "@shared/schema";
+import { updateStockStatusSchema, updateFeaturedStatusSchema, createProductSchema, updateProductSchema, insertReviewSchema, insertPriceFilterSchema, insertPromotionalSettingsSchema, insertOrderSchema, insertDeliveryAddressSchema, insertOfferSchema, updateOfferSchema } from "@shared/schema";
 import { z } from "zod";
 import { sendOrderToTelegram } from "./telegram";
 
@@ -36,6 +36,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stockStatus);
     } catch (error) {
       res.status(500).json({ error: "Failed to update stock status" });
+    }
+  });
+
+  app.get("/api/featured", async (req, res) => {
+    try {
+      const featuredStatus = await storage.getFeaturedStatus();
+      res.json(featuredStatus);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get featured status" });
+    }
+  });
+
+  app.post("/api/featured", async (req, res) => {
+    try {
+      const validation = updateFeaturedStatusSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const { productId, isFeatured } = validation.data;
+      const featuredStatus = await storage.updateFeaturedStatus(productId, isFeatured);
+      res.json(featuredStatus);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update featured status" });
     }
   });
 

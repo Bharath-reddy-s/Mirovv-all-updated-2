@@ -1,4 +1,4 @@
-import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, type FlashOffer, type DeliveryAddress, type InsertDeliveryAddress, type TimeChallenge, type CheckoutDiscount, type Offer, type InsertOffer, type UpdateOffer, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable, flashOffersTable, deliveryAddressesTable, timeChallengeTable, checkoutDiscountTable, offersTable } from "@shared/schema";
+import { type StockStatus, type FeaturedStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, type FlashOffer, type DeliveryAddress, type InsertDeliveryAddress, type TimeChallenge, type CheckoutDiscount, type Offer, type InsertOffer, type UpdateOffer, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable, flashOffersTable, deliveryAddressesTable, timeChallengeTable, checkoutDiscountTable, offersTable } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
 import { Pool, neonConfig } from "@neondatabase/serverless";
@@ -30,6 +30,7 @@ const CACHE_TTL = 300000; // 5 minutes cache
 const cache: {
   products: CacheEntry<Product[]> | null;
   stock: CacheEntry<StockStatus> | null;
+  featured: CacheEntry<FeaturedStatus> | null;
   priceFilters: CacheEntry<PriceFilter[]> | null;
   promotionalSettings: CacheEntry<PromotionalSettings> | null;
   deliveryAddresses: CacheEntry<DeliveryAddress[]> | null;
@@ -37,6 +38,7 @@ const cache: {
 } = {
   products: null,
   stock: null,
+  featured: null,
   priceFilters: null,
   promotionalSettings: null,
   deliveryAddresses: null,
@@ -50,6 +52,7 @@ function isCacheValid<T>(entry: CacheEntry<T> | null): entry is CacheEntry<T> {
 function invalidateProductCache() {
   cache.products = null;
   cache.stock = null;
+  cache.featured = null;
 }
 
 function invalidatePriceFilterCache() {
@@ -107,6 +110,8 @@ export async function warmupCache(): Promise<void> {
 export interface IStorage {
   getStockStatus(): Promise<StockStatus>;
   updateStockStatus(productId: number, isInStock: boolean): Promise<StockStatus>;
+  getFeaturedStatus(): Promise<FeaturedStatus>;
+  updateFeaturedStatus(productId: number, isFeatured: boolean): Promise<FeaturedStatus>;
   getProducts(): Promise<Product[]>;
   getProductById(id: number): Promise<Product | undefined>;
   getSimilarProducts(productId: number, limit?: number): Promise<Product[]>;
@@ -166,6 +171,27 @@ export class DBStorage implements IStorage {
       .where(eq(productsTable.id, productId));
     invalidateProductCache();
     return this.getStockStatus();
+  }
+
+  async getFeaturedStatus(): Promise<FeaturedStatus> {
+    if (isCacheValid(cache.featured)) {
+      return cache.featured.data;
+    }
+    const products = await sql.select().from(productsTable);
+    const status: FeaturedStatus = {};
+    products.forEach(p => {
+      status[p.id] = p.isFeatured;
+    });
+    cache.featured = { data: status, timestamp: Date.now() };
+    return status;
+  }
+
+  async updateFeaturedStatus(productId: number, isFeatured: boolean): Promise<FeaturedStatus> {
+    await sql.update(productsTable)
+      .set({ isFeatured })
+      .where(eq(productsTable.id, productId));
+    invalidateProductCache();
+    return this.getFeaturedStatus();
   }
 
   async getProducts(): Promise<Product[]> {

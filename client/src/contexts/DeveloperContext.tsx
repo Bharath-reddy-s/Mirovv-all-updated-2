@@ -1,11 +1,12 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { StockStatus, Product, CreateProduct, UpdateProduct, PriceFilter, PromotionalSettings, FlashOffer, DeliveryAddress, TimeChallenge, CheckoutDiscount } from "@shared/schema";
+import type { StockStatus, FeaturedStatus, Product, CreateProduct, UpdateProduct, PriceFilter, PromotionalSettings, FlashOffer, DeliveryAddress, TimeChallenge, CheckoutDiscount } from "@shared/schema";
 
 interface DeveloperContextType {
   isDeveloperMode: boolean;
   stockStatus: StockStatus;
+  featuredStatus: FeaturedStatus;
   products: Product[];
   priceFilters: PriceFilter[];
   promotionalSettings: PromotionalSettings | null;
@@ -14,6 +15,7 @@ interface DeveloperContextType {
   timeChallenge: TimeChallenge | null;
   checkoutDiscount: CheckoutDiscount | null;
   toggleStockStatus: (productId: number) => void;
+  toggleFeaturedStatus: (productId: number) => void;
   createProduct: (product: CreateProduct) => Promise<any>;
   updateProduct: (id: number, updates: Partial<UpdateProduct>) => Promise<any>;
   deleteProduct: (id: number) => Promise<any>;
@@ -54,6 +56,10 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/stock"],
   });
 
+  const { data: featuredStatus = {} } = useQuery<FeaturedStatus>({
+    queryKey: ["/api/featured"],
+  });
+
   const { data: products = [], refetch: refetchProducts } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
@@ -89,6 +95,15 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/stock"] });
+    },
+  });
+
+  const updateFeaturedMutation = useMutation({
+    mutationFn: async ({ productId, isFeatured }: { productId: number; isFeatured: boolean }) => {
+      return apiRequest("POST", "/api/featured", { productId, isFeatured });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/featured"] });
     },
   });
 
@@ -269,6 +284,14 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const toggleFeaturedStatus = (productId: number) => {
+    const currentStatus = featuredStatus[productId] ?? false;
+    updateFeaturedMutation.mutate({
+      productId,
+      isFeatured: !currentStatus,
+    });
+  };
+
   const createProduct = async (product: CreateProduct) => {
     return createProductMutation.mutateAsync(product);
   };
@@ -338,6 +361,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
       value={{ 
         isDeveloperMode, 
         stockStatus, 
+        featuredStatus,
         products,
         priceFilters,
         promotionalSettings,
@@ -346,6 +370,7 @@ export function DeveloperProvider({ children }: { children: ReactNode }) {
         timeChallenge,
         checkoutDiscount,
         toggleStockStatus, 
+        toggleFeaturedStatus,
         createProduct,
         updateProduct,
         deleteProduct,

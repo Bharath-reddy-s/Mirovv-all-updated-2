@@ -19,6 +19,7 @@ export const productsTable = pgTable("products", {
   specifications: jsonb("specifications").$type<{ label: string; value: string; }[]>(),
   productLink: text("product_link"),
   isInStock: boolean("is_in_stock").notNull().default(true),
+  isFeatured: boolean("is_featured").notNull().default(false),
   displayOrder: integer("display_order").notNull().default(0),
 });
 
@@ -166,12 +167,23 @@ export interface StockStatus {
   [productId: number]: boolean;
 }
 
+export interface FeaturedStatus {
+  [productId: number]: boolean;
+}
+
 export const updateStockStatusSchema = z.object({
   productId: z.number(),
   isInStock: z.boolean(),
 });
 
 export type UpdateStockStatus = z.infer<typeof updateStockStatusSchema>;
+
+export const updateFeaturedStatusSchema = z.object({
+  productId: z.number(),
+  isFeatured: z.boolean(),
+});
+
+export type UpdateFeaturedStatus = z.infer<typeof updateFeaturedStatusSchema>;
 
 export const createProductSchema = z.object({
   productCode: z.string().min(1),
@@ -250,6 +262,7 @@ export const products: Product[] = [
       { label: "Validity", value: "Lifetime Access" }
     ],
     isInStock: true,
+    isFeatured: false,
     displayOrder: 1
   },
   {
@@ -284,6 +297,7 @@ export const products: Product[] = [
       { label: "Warranty", value: "Manufacturer Warranty" }
     ],
     isInStock: true,
+    isFeatured: false,
     displayOrder: 2
   },
   {
@@ -318,6 +332,7 @@ export const products: Product[] = [
       { label: "Authenticity", value: "100% Official Merchandise" }
     ],
     isInStock: true,
+    isFeatured: false,
     displayOrder: 3
   },
   {
@@ -352,6 +367,7 @@ export const products: Product[] = [
       { label: "Updates", value: "Monthly New Giveaways" }
     ],
     isInStock: true,
+    isFeatured: false,
     displayOrder: 4
   }
 ];
