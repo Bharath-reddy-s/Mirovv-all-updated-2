@@ -478,15 +478,17 @@ export default function CheckoutPage() {
       <Dialog open={showOrderSuccess} onOpenChange={isTrialOrder ? handleCloseTrialDialog : () => {}}>
         <DialogContent className="sm:max-w-sm max-h-[90vh] overflow-y-auto [&>button]:hidden">
           {isTrialOrder && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCloseTrialDialog}
-              className="absolute right-4 top-4 h-6 w-6 z-10"
-              data-testid="button-close-dialog"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="absolute right-4 top-4 z-10">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCloseTrialDialog}
+                className="h-6 w-6"
+                data-testid="button-close-dialog"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           )}
           <DialogHeader>
             <div className="flex justify-center mb-2">
