@@ -167,23 +167,12 @@ export interface StockStatus {
   [productId: number]: boolean;
 }
 
-export interface FeaturedStatus {
-  [productId: number]: boolean;
-}
-
 export const updateStockStatusSchema = z.object({
   productId: z.number(),
   isInStock: z.boolean(),
 });
 
 export type UpdateStockStatus = z.infer<typeof updateStockStatusSchema>;
-
-export const updateFeaturedStatusSchema = z.object({
-  productId: z.number(),
-  isFeatured: z.boolean(),
-});
-
-export type UpdateFeaturedStatus = z.infer<typeof updateFeaturedStatusSchema>;
 
 export const createProductSchema = z.object({
   productCode: z.string().min(1),

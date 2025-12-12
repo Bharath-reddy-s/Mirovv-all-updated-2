@@ -28,7 +28,7 @@ import type { Product, Offer } from "@shared/schema";
 const DEFAULT_LONG_DESCRIPTION = "Mystery box is the medium through which we want to give stuff to students (dont expect that stuff guys) . this is for the people who always say \"Thu yak adru college ge band no\" or \"for that one guy whole is always lonely \" or for that one friend who is single  forever and that one friend who looks inocent but only you know about him . Enjoy the experience very time From the moment you order to the thrill of unboxing and even winning a giveaway, every step is designed to make life a little less \"ugh\" and a lot more \"SIKE\"";
 
 export default function DeveloperPanel() {
-  const { isDeveloperMode, stockStatus, featuredStatus, products, priceFilters, promotionalSettings, flashOffer, deliveryAddresses, timeChallenge, checkoutDiscount, toggleStockStatus, toggleFeaturedStatus, createProduct, updateProduct, deleteProduct, setProductPosition, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, startFlashOffer, stopFlashOffer, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, updateTimeChallenge, updateCheckoutDiscount, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters, isUpdatingPromotionalSettings, isTogglingFlashOffer, isManagingAddresses, isLoadingAddresses, isUpdatingTimeChallenge, isUpdatingCheckoutDiscount } = useDeveloper();
+  const { isDeveloperMode, stockStatus, products, priceFilters, promotionalSettings, flashOffer, deliveryAddresses, timeChallenge, checkoutDiscount, toggleStockStatus, createProduct, updateProduct, deleteProduct, setProductPosition, createPriceFilter, updatePriceFilter, deletePriceFilter, updateOfferBanner, startFlashOffer, stopFlashOffer, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, updateTimeChallenge, updateCheckoutDiscount, isCreatingProduct, isUpdatingProduct, isDeletingProduct, isReordering, isManagingFilters, isLoadingFilters, isUpdatingPromotionalSettings, isTogglingFlashOffer, isManagingAddresses, isLoadingAddresses, isUpdatingTimeChallenge, isUpdatingCheckoutDiscount } = useDeveloper();
   const [isVisible, setIsVisible] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -518,18 +518,6 @@ export default function DeveloperPanel() {
                         data-testid={`button-toggle-stock-${product.id}`}
                       >
                         {stockStatus[product.id] ? "In Stock" : "Out"}
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => toggleFeaturedStatus(product.id)}
-                        className={`h-8 px-3 text-xs ${
-                          featuredStatus[product.id]
-                            ? "bg-yellow-500 hover:bg-yellow-600 text-black"
-                            : "bg-gray-600 hover:bg-gray-700 text-white"
-                        }`}
-                        data-testid={`button-toggle-featured-${product.id}`}
-                      >
-                        {featuredStatus[product.id] ? "Featured" : "Feature"}
                       </Button>
                     </div>
                   </div>

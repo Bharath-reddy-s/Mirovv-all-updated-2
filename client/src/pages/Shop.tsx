@@ -20,7 +20,7 @@ type SortOption = "default" | "low-to-high" | "high-to-low" | "random";
 
 export default function ShopPage() {
   const { addToCart } = useCart();
-  const { flashOffer, featuredStatus } = useDeveloper();
+  const { flashOffer } = useDeveloper();
   const { isTryNowActive } = useTryNowChallenge();
   const [currentImageIndices, setCurrentImageIndices] = useState<{[key: number]: number}>({});
   const [selectedPriceFilter, setSelectedPriceFilter] = useState<number | null>(null);
@@ -235,11 +235,6 @@ export default function ShopPage() {
                     {box.title}
                   </h2>
                   
-                  {featuredStatus[box.id] && (
-                    <span className="inline-block bg-yellow-500 text-black text-[10px] font-bold px-2 py-0.5 rounded-full mb-2">
-                      Featured
-                    </span>
-                  )}
                   
                   {box.id !== 4 && (
                     <p className="text-white/70 text-sm font-normal mb-4">

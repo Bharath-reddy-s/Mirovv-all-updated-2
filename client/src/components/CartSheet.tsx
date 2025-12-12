@@ -78,7 +78,6 @@ export default function CartSheet() {
                         <h3 className="font-semibold text-base text-gray-900 dark:text-gray-100">
                           {index + 1}. {item.title}
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{item.label}</p>
                         <p className="font-semibold text-base mt-2 text-gray-900 dark:text-gray-100">{item.price}</p>
                       </div>
                     </div>
