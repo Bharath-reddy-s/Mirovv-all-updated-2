@@ -575,10 +575,11 @@ export default function CheckoutPage() {
             </div>
 
             <Button
-              onClick={isTrialOrder ? handleCloseTrialDialog : handleCloseDialog}
-              className="w-full h-10 bg-black hover:bg-neutral-800 text-white rounded-full text-sm"
+              onClick={isTrialOrder ? undefined : handleCloseDialog}
+              disabled={isTrialOrder}
+              className="w-full h-10 bg-black hover:bg-neutral-800 text-white rounded-full text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               data-testid="button-close-order-success"
-            >{isTrialOrder ? "Close" : "Instagram DM"}</Button>
+            >Instagram DM</Button>
           </div>
         </DialogContent>
       </Dialog>
