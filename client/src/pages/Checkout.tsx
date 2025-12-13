@@ -108,6 +108,14 @@ export default function CheckoutPage() {
     }
   };
 
+  useEffect(() => {
+    if (showOrderSuccess && orderDetails?.orderNumber) {
+      navigator.clipboard.writeText(orderDetails.orderNumber);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [showOrderSuccess, orderDetails?.orderNumber]);
+
   const handleCloseDialog = () => {
     const orderNumber = orderDetails?.orderNumber;
     const message = `Order Number: #${orderNumber}`;
