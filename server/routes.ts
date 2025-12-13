@@ -338,13 +338,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const order = await storage.createOrder(orderData);
       
-      try {
-        await sendOrderToTelegram(order);
-      } catch (telegramError) {
-        console.error("Failed to send order to Telegram:", telegramError);
-      }
-      
+      // Send response immediately, then notify Telegram in background
       res.json(order);
+      
+      // Fire and forget - don't await Telegram notification
+      sendOrderToTelegram(order).catch(telegramError => {
+        console.error("Failed to send order to Telegram:", telegramError);
+      });
     } catch (error) {
       console.error("Failed to create order:", error);
       res.status(500).json({ error: "Failed to create order" });
