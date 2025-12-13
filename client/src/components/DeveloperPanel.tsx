@@ -1743,7 +1743,7 @@ export default function DeveloperPanel() {
                     }`}
                     data-testid="button-toggle-popup"
                   >
-                    {popupIsActive ? "Active" : "Inactive"}
+                    {popupIsActive ? "On" : "Off"}
                   </Button>
                 </div>
 
