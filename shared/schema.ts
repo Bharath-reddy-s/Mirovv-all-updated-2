@@ -97,6 +97,12 @@ export const offersTable = pgTable("offers", {
   displayOrder: integer("display_order").notNull().default(0),
 });
 
+export const shopPopupTable = pgTable("shop_popup", {
+  id: serial("id").primaryKey(),
+  isActive: boolean("is_active").notNull().default(false),
+  imageUrl: text("image_url"),
+});
+
 export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, isInStock: true, displayOrder: true });
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof productsTable.$inferSelect;
@@ -146,6 +152,8 @@ export type DeliveryAddress = typeof deliveryAddressesTable.$inferSelect;
 export type TimeChallenge = typeof timeChallengeTable.$inferSelect;
 
 export type CheckoutDiscount = typeof checkoutDiscountTable.$inferSelect;
+
+export type ShopPopup = typeof shopPopupTable.$inferSelect;
 
 export const insertOfferSchema = createInsertSchema(offersTable).omit({ id: true, displayOrder: true }).extend({
   title: z.string().min(1, "Title is required"),

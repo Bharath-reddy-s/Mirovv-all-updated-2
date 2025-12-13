@@ -69,10 +69,32 @@ export default function DeveloperPanel() {
   const offerImage1Ref = useRef<HTMLInputElement>(null);
   const offerImage2Ref = useRef<HTMLInputElement>(null);
   const offerImage3Ref = useRef<HTMLInputElement>(null);
+  const [popupImageUrl, setPopupImageUrl] = useState("");
+  const [popupIsActive, setPopupIsActive] = useState(false);
 
   const { data: offers = [], isLoading: isLoadingOffers } = useQuery<Offer[]>({
     queryKey: ["/api/offers"],
   });
+
+  const { data: shopPopup, isLoading: isLoadingPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null }>({
+    queryKey: ["/api/shop-popup"],
+  });
+
+  const updateShopPopupMutation = useMutation({
+    mutationFn: async (data: { isActive: boolean; imageUrl: string | null }) => {
+      return apiRequest("POST", "/api/shop-popup", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/shop-popup"] });
+    },
+  });
+
+  useEffect(() => {
+    if (shopPopup) {
+      setPopupIsActive(shopPopup.isActive);
+      setPopupImageUrl(shopPopup.imageUrl || "");
+    }
+  }, [shopPopup]);
 
   const createOfferMutation = useMutation({
     mutationFn: async (offer: { title: string; description: string; images: string[] }) => {
@@ -485,7 +507,7 @@ export default function DeveloperPanel() {
           </div>
 
           <Tabs defaultValue="stock" className="w-full">
-            <TabsList className="grid w-full grid-cols-9 mb-3">
+            <TabsList className="grid w-full grid-cols-10 mb-3">
               <TabsTrigger value="stock" data-testid="tab-stock">1</TabsTrigger>
               <TabsTrigger value="products" data-testid="tab-products">2</TabsTrigger>
               <TabsTrigger value="filters" data-testid="tab-filters">3</TabsTrigger>
@@ -495,6 +517,7 @@ export default function DeveloperPanel() {
               <TabsTrigger value="timer" data-testid="tab-timer">7</TabsTrigger>
               <TabsTrigger value="discount" data-testid="tab-discount">8</TabsTrigger>
               <TabsTrigger value="nine" data-testid="tab-nine">9</TabsTrigger>
+              <TabsTrigger value="popup" data-testid="tab-popup">10</TabsTrigger>
             </TabsList>
 
             <TabsContent value="stock">
@@ -1680,6 +1703,97 @@ export default function DeveloperPanel() {
                     ))
                   )}
                 </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="popup">
+              <p className="text-xs mb-3 opacity-80">Configure shop page welcome popup</p>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-2 rounded bg-gray-800 dark:bg-gray-200">
+                  <span className="text-sm font-medium">Popup Active</span>
+                  <Button
+                    size="sm"
+                    onClick={async () => {
+                      const newStatus = !popupIsActive;
+                      setPopupIsActive(newStatus);
+                      try {
+                        await updateShopPopupMutation.mutateAsync({
+                          isActive: newStatus,
+                          imageUrl: popupImageUrl || null
+                        });
+                        toast({
+                          title: newStatus ? "Popup enabled" : "Popup disabled",
+                          description: newStatus ? "Popup will show on shop page" : "Popup is now hidden",
+                        });
+                      } catch (error) {
+                        setPopupIsActive(!newStatus);
+                        toast({
+                          title: "Error",
+                          description: "Failed to update popup status",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    disabled={updateShopPopupMutation.isPending}
+                    className={`h-8 px-3 text-xs ${
+                      popupIsActive
+                        ? "bg-green-600 hover:bg-green-700 text-white"
+                        : "bg-red-600 hover:bg-red-700 text-white"
+                    }`}
+                    data-testid="button-toggle-popup"
+                  >
+                    {popupIsActive ? "Active" : "Inactive"}
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="popup-image">Popup Image URL</Label>
+                  <Input
+                    id="popup-image"
+                    value={popupImageUrl}
+                    onChange={(e) => setPopupImageUrl(e.target.value)}
+                    placeholder="Enter image URL for popup"
+                    className="bg-black text-white focus-visible:ring-0 focus-visible:border-gray-600"
+                    data-testid="input-popup-image"
+                  />
+                </div>
+
+                <Button
+                  onClick={async () => {
+                    try {
+                      await updateShopPopupMutation.mutateAsync({
+                        isActive: popupIsActive,
+                        imageUrl: popupImageUrl || null
+                      });
+                      toast({
+                        title: "Popup updated",
+                        description: "Shop popup settings saved successfully",
+                      });
+                    } catch (error) {
+                      toast({
+                        title: "Error",
+                        description: "Failed to update popup settings",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  disabled={updateShopPopupMutation.isPending}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  data-testid="button-save-popup"
+                >
+                  Save Popup Settings
+                </Button>
+
+                {popupImageUrl && (
+                  <div className="mt-2">
+                    <p className="text-xs opacity-60 mb-1">Preview:</p>
+                    <img 
+                      src={popupImageUrl} 
+                      alt="Popup preview" 
+                      className="w-full h-32 object-contain rounded border border-gray-600"
+                    />
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>

@@ -1,4 +1,4 @@
-import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, type FlashOffer, type DeliveryAddress, type InsertDeliveryAddress, type TimeChallenge, type CheckoutDiscount, type Offer, type InsertOffer, type UpdateOffer, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable, flashOffersTable, deliveryAddressesTable, timeChallengeTable, checkoutDiscountTable, offersTable } from "@shared/schema";
+import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, type FlashOffer, type DeliveryAddress, type InsertDeliveryAddress, type TimeChallenge, type CheckoutDiscount, type Offer, type InsertOffer, type UpdateOffer, type ShopPopup, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable, flashOffersTable, deliveryAddressesTable, timeChallengeTable, checkoutDiscountTable, offersTable, shopPopupTable } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
 import { Pool, neonConfig } from "@neondatabase/serverless";
@@ -144,6 +144,8 @@ export interface IStorage {
   updateOffer(id: number, updates: Partial<UpdateOffer>): Promise<Offer | undefined>;
   deleteOffer(id: number): Promise<boolean>;
   reorderOffers(offerId: number, direction: 'up' | 'down'): Promise<Offer[]>;
+  getShopPopup(): Promise<ShopPopup>;
+  updateShopPopup(isActive: boolean, imageUrl: string | null): Promise<ShopPopup>;
 }
 
 export class DBStorage implements IStorage {
@@ -756,6 +758,34 @@ export class DBStorage implements IStorage {
     
     invalidateOffersCache();
     return this.getOffers();
+  }
+
+  async getShopPopup(): Promise<ShopPopup> {
+    const [popup] = await sql.select().from(shopPopupTable).limit(1);
+    if (!popup) {
+      const [created] = await sql.insert(shopPopupTable)
+        .values({ isActive: false, imageUrl: null })
+        .returning();
+      return created as ShopPopup;
+    }
+    return popup as ShopPopup;
+  }
+
+  async updateShopPopup(isActive: boolean, imageUrl: string | null): Promise<ShopPopup> {
+    const existing = await sql.select().from(shopPopupTable).limit(1);
+    
+    if (existing.length > 0) {
+      const [updated] = await sql.update(shopPopupTable)
+        .set({ isActive, imageUrl })
+        .where(eq(shopPopupTable.id, existing[0].id))
+        .returning();
+      return updated as ShopPopup;
+    } else {
+      const [created] = await sql.insert(shopPopupTable)
+        .values({ isActive, imageUrl })
+        .returning();
+      return created as ShopPopup;
+    }
   }
 }
 

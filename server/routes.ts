@@ -571,6 +571,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/shop-popup", async (req, res) => {
+    try {
+      const popup = await storage.getShopPopup();
+      res.json(popup);
+    } catch (error) {
+      console.error("Failed to get shop popup:", error);
+      res.status(500).json({ error: "Failed to get shop popup" });
+    }
+  });
+
+  app.post("/api/shop-popup", async (req, res) => {
+    try {
+      const schema = z.object({
+        isActive: z.boolean(),
+        imageUrl: z.string().nullable()
+      });
+      const validation = schema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+      const { isActive, imageUrl } = validation.data;
+      const popup = await storage.updateShopPopup(isActive, imageUrl);
+      res.json(popup);
+    } catch (error) {
+      console.error("Failed to update shop popup:", error);
+      res.status(500).json({ error: "Failed to update shop popup" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
