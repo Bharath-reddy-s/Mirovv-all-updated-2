@@ -69,6 +69,7 @@ export default function DeveloperPanel() {
   const offerImage1Ref = useRef<HTMLInputElement>(null);
   const offerImage2Ref = useRef<HTMLInputElement>(null);
   const offerImage3Ref = useRef<HTMLInputElement>(null);
+  const popupImageRef = useRef<HTMLInputElement>(null);
   const [popupImageUrl, setPopupImageUrl] = useState("");
   const [popupIsActive, setPopupIsActive] = useState(false);
 
@@ -1747,15 +1748,33 @@ export default function DeveloperPanel() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="popup-image">Popup Image URL</Label>
-                  <Input
-                    id="popup-image"
-                    value={popupImageUrl}
-                    onChange={(e) => setPopupImageUrl(e.target.value)}
-                    placeholder="Enter image URL for popup"
-                    className="bg-black text-white focus-visible:ring-0 focus-visible:border-gray-600"
-                    data-testid="input-popup-image"
-                  />
+                  <Label htmlFor="popup-image">Popup Image</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="popup-image"
+                      value={popupImageUrl}
+                      onChange={(e) => setPopupImageUrl(e.target.value)}
+                      placeholder="Enter image URL or upload"
+                      className="flex-1 bg-black text-white focus-visible:ring-0 focus-visible:border-gray-600"
+                      data-testid="input-popup-image"
+                    />
+                    <input
+                      ref={popupImageRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleOfferImageUpload(e, setPopupImageUrl)}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => popupImageRef.current?.click()}
+                      data-testid="button-upload-popup-image"
+                    >
+                      <Upload className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 <Button

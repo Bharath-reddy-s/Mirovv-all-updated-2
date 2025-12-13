@@ -8,7 +8,7 @@ import { type Product, type PriceFilter, type TimeChallenge } from "@shared/sche
 import { Link } from "wouter";
 import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,10 +26,25 @@ export default function ShopPage() {
   const [selectedPriceFilter, setSelectedPriceFilter] = useState<number | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>("default");
   const [flashTimeLeft, setFlashTimeLeft] = useState(0);
+  const [showPopup, setShowPopup] = useState(false);
   
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
+
+  const { data: shopPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null }>({
+    queryKey: ["/api/shop-popup"],
+  });
+
+  useEffect(() => {
+    if (shopPopup?.isActive && shopPopup?.imageUrl) {
+      const hasSeenPopup = sessionStorage.getItem("shopPopupSeen");
+      if (!hasSeenPopup) {
+        setShowPopup(true);
+        sessionStorage.setItem("shopPopupSeen", "true");
+      }
+    }
+  }, [shopPopup]);
 
   const { data: priceFilters = [], isLoading: isLoadingFilters } = useQuery<PriceFilter[]>({
     queryKey: ["/api/price-filters"],
@@ -288,6 +303,33 @@ export default function ShopPage() {
           </div>
         )}
       </main>
+
+      {showPopup && shopPopup?.imageUrl && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setShowPopup(false)}
+          data-testid="popup-overlay"
+        >
+          <div 
+            className="relative max-w-md w-[90%] mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowPopup(false)}
+              className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-white dark:bg-neutral-800 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
+              data-testid="button-close-popup"
+            >
+              <X className="w-5 h-5 text-black dark:text-white" />
+            </button>
+            <img
+              src={shopPopup.imageUrl}
+              alt="Shop popup"
+              className="w-full h-auto rounded-xl shadow-2xl"
+              data-testid="img-popup"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
