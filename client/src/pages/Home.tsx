@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import BackgroundPaths from "@/components/BackgroundPaths";
 import OfferBanner from "@/components/OfferBanner";
 import { Card } from "@/components/ui/card";
-import { HelpCircle, Shield, Eye, Truck } from "lucide-react";
+import { HelpCircle, Shield, Eye, Truck, Sparkles } from "lucide-react";
 
 const aboutPoints = [
   {
@@ -24,6 +24,11 @@ const aboutPoints = [
     icon: Truck,
     title: "Delivery & Return Policy",
     description: "Your order will arrive in 7–10 days. The reason is simple—we source products directly from wholesalers across different regions of India, not from inflated middlemen warehouses. That takes a little longer, but it's what lets us give you the lowest prices. Faster delivery is already in the works, and we'll roll it out as soon as it's ready."
+  },
+  {
+    icon: Sparkles,
+    title: "What you can expect from us",
+    description: "A constantly evolving product lineup with frequent new arrivals, including selected imported items sourced from trusted suppliers. No fake listings, no hidden tricks—just genuine products at the best possible prices by cutting out middlemen. Plus, fun challenges that unlock maximum discounts and exclusive offers, so every purchase gives you more value."
   }
 ];
 
