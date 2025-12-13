@@ -32,19 +32,28 @@ export default function ShopPage() {
     queryKey: ["/api/products"],
   });
 
+  const [prevPopupActive, setPrevPopupActive] = useState<boolean | null>(null);
+  
   const { data: shopPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null }>({
     queryKey: ["/api/shop-popup"],
+    refetchInterval: 2000,
   });
 
   useEffect(() => {
     if (shopPopup?.isActive && shopPopup?.imageUrl) {
+      const wasInactive = prevPopupActive === false || prevPopupActive === null;
       const hasSeenPopup = sessionStorage.getItem("shopPopupSeen");
-      if (!hasSeenPopup) {
+      
+      if (wasInactive || !hasSeenPopup) {
         setShowPopup(true);
         sessionStorage.setItem("shopPopupSeen", "true");
       }
     }
-  }, [shopPopup]);
+    
+    if (shopPopup) {
+      setPrevPopupActive(shopPopup.isActive);
+    }
+  }, [shopPopup, prevPopupActive]);
 
   const { data: priceFilters = [], isLoading: isLoadingFilters } = useQuery<PriceFilter[]>({
     queryKey: ["/api/price-filters"],
