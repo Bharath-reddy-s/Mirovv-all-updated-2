@@ -2,8 +2,22 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ChevronDown } from "lucide-react";
+import { useState, useEffect } from "react";
 
-function FloatingPaths({ position }: { position: number }) {
+function useIsMobile() {
+    const [isMobile, setIsMobile] = useState(false);
+    
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+    
+    return isMobile;
+}
+
+function FloatingPaths({ position, isMobile }: { position: number; isMobile: boolean }) {
     const paths = Array.from({ length: 36 }, (_, i) => ({
         id: i,
         d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${
@@ -20,7 +34,7 @@ function FloatingPaths({ position }: { position: number }) {
     return (
         <div className="absolute inset-0 pointer-events-none">
             <svg
-                className="w-full h-full text-black dark:text-white"
+                className={`w-full h-full dark:text-white ${isMobile ? 'text-black' : 'text-slate-400'}`}
                 viewBox="0 0 696 316"
                 fill="none"
             >
@@ -31,15 +45,15 @@ function FloatingPaths({ position }: { position: number }) {
                         d={path.d}
                         stroke="currentColor"
                         strokeWidth={path.width}
-                        strokeOpacity={0.4 + path.id * 0.02}
-                        initial={{ pathLength: 0.3, opacity: 0.8 }}
+                        strokeOpacity={isMobile ? 0.4 + path.id * 0.02 : 0.1 + path.id * 0.02}
+                        initial={{ pathLength: 0.3, opacity: isMobile ? 0.8 : 0.5 }}
                         animate={{
                             pathLength: 1,
-                            opacity: [0.6, 1, 0.6],
+                            opacity: isMobile ? [0.6, 1, 0.6] : [0.3, 0.5, 0.3],
                             pathOffset: [0, 1, 0],
                         }}
                         transition={{
-                            duration: 10 + Math.random() * 5,
+                            duration: isMobile ? 10 + Math.random() * 5 : 20 + Math.random() * 10,
                             repeat: Number.POSITIVE_INFINITY,
                             ease: "linear",
                         }}
