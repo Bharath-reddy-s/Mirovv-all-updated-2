@@ -48,7 +48,7 @@ ${itemsList}
 
 ${orderTime}`.trim();
 
-    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -57,6 +57,12 @@ ${orderTime}`.trim();
         parse_mode: 'Markdown',
       }),
     });
+
+    const result = await response.json();
+    if (!result.ok) {
+      console.error(`Telegram API error for order #${order.orderNumber}:`, result);
+      throw new Error(`Telegram API error: ${result.description || 'Unknown error'}`);
+    }
 
     console.log(`Order #${order.orderNumber} sent to Telegram successfully`);
   } catch (error) {
