@@ -34,7 +34,7 @@ function FloatingPaths({ position, isMobile }: { position: number; isMobile: boo
     return (
         <div className="absolute inset-0 pointer-events-none">
             <svg
-                className={`w-full h-full dark:text-white ${isMobile ? 'text-black' : 'text-slate-400'}`}
+                className="w-full h-full text-black dark:text-white"
                 viewBox="0 0 696 316"
                 fill="none"
             >
@@ -45,15 +45,15 @@ function FloatingPaths({ position, isMobile }: { position: number; isMobile: boo
                         d={path.d}
                         stroke="currentColor"
                         strokeWidth={path.width}
-                        strokeOpacity={isMobile ? 0.4 + path.id * 0.02 : 0.1 + path.id * 0.02}
-                        initial={{ pathLength: 0.3, opacity: isMobile ? 0.8 : 0.5 }}
+                        strokeOpacity={isMobile ? 0.1 + path.id * 0.03 : 0.1 + path.id * 0.02}
+                        initial={{ pathLength: 0.3, opacity: isMobile ? 0.6 : 0.4 }}
                         animate={{
                             pathLength: 1,
-                            opacity: isMobile ? [0.6, 1, 0.6] : [0.3, 0.5, 0.3],
+                            opacity: isMobile ? [0.3, 0.6, 0.3] : [0.2, 0.4, 0.2],
                             pathOffset: [0, 1, 0],
                         }}
                         transition={{
-                            duration: isMobile ? 10 + Math.random() * 5 : 20 + Math.random() * 10,
+                            duration: isMobile ? 20 + Math.random() * 10 : 30 + Math.random() * 15,
                             repeat: Number.POSITIVE_INFINITY,
                             ease: "linear",
                         }}
@@ -70,12 +70,13 @@ export default function BackgroundPaths({
     title?: string;
 }) {
     const words = title.split(" ");
+    const isMobile = useIsMobile();
 
     return (
         <div className="relative min-h-[calc(100vh-120px)] w-full flex items-center justify-center overflow-hidden bg-white dark:bg-neutral-950">
             <div className="absolute inset-0 -top-24 sm:-top-16 md:top-0 flex items-center justify-center">
-                <FloatingPaths position={1} />
-                <FloatingPaths position={-1} />
+                <FloatingPaths position={1} isMobile={isMobile} />
+                <FloatingPaths position={-1} isMobile={isMobile} />
             </div>
             <div className="relative z-10 container mx-auto px-4 md:px-6 text-center -mt-24 sm:-mt-16 md:mt-0">
                 <motion.div
