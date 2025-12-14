@@ -1,0 +1,41 @@
+# Fly.io configuration for production deployment
+# Ensures backend never sleeps and time-based features (flash offers, timer challenges) work reliably
+
+app = "your-app-name"  # TODO: Replace with your actual Fly.io app name
+primary_region = "sin" # Singapore - adjust to your preferred region
+
+[build]
+
+[env]
+  NODE_ENV = "production"
+  # PORT is automatically set by Fly.io based on internal_port
+
+[http_service]
+  internal_port = 5000             # Must match Express server port
+  force_https = true
+  auto_stop_machines = "off"       # CRITICAL: Never auto-stop - keeps backend always alive for timers
+  auto_start_machines = true       # Auto-start if machine is somehow stopped
+  min_machines_running = 1         # CRITICAL: Always keep 1 machine running - no cold starts
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 250
+    soft_limit = 200
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+# Health check ensures Fly.io knows the app is alive
+# Uses a lightweight API endpoint that validates DB connection
+[checks]
+  [checks.health]
+    grace_period = "30s"
+    interval = "30s"
+    method = "GET"
+    path = "/api/stock"
+    port = 5000
+    timeout = "10s"
+    type = "http"
