@@ -15,6 +15,12 @@ function applyCheckoutDiscount(total: string, discountPercent: number): string {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Fly.io health check endpoint - must not touch DB or app state
+  // Required for reliable machine health monitoring without affecting app performance
+  app.get("/health", (_req, res) => {
+    res.status(200).send("ok");
+  });
+
   app.get("/api/stock", async (req, res) => {
     try {
       const stockStatus = await storage.getStockStatus();

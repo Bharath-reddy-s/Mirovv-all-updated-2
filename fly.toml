@@ -1,21 +1,23 @@
-# Fly.io configuration for production deployment
-# Ensures backend never sleeps and time-based features (flash offers, timer challenges) work reliably
+# Fly.io production configuration
+# Hardened for reliability - backend never sleeps, time-based features work without cold starts
 
 app = "your-app-name"  # TODO: Replace with your actual Fly.io app name
 primary_region = "sin" # Singapore - adjust to your preferred region
+
+# Graceful shutdown: allows in-flight requests to complete before killing the process
+kill_timeout = "10s"
 
 [build]
 
 [env]
   NODE_ENV = "production"
-  # PORT is automatically set by Fly.io based on internal_port
 
 [http_service]
-  internal_port = 5000             # Must match Express server port
+  internal_port = 5000
   force_https = true
-  auto_stop_machines = "off"       # CRITICAL: Never auto-stop - keeps backend always alive for timers
+  auto_stop_machines = "off"       # CRITICAL: Never auto-stop - keeps backend always alive for timers/flash offers
   auto_start_machines = true       # Auto-start if machine is somehow stopped
-  min_machines_running = 1         # CRITICAL: Always keep 1 machine running - no cold starts
+  min_machines_running = 1         # CRITICAL: Always keep 1 machine running - no cold starts for time-sensitive features
   processes = ["app"]
 
   [http_service.concurrency]
@@ -28,14 +30,14 @@ primary_region = "sin" # Singapore - adjust to your preferred region
   cpu_kind = "shared"
   cpus = 1
 
-# Health check ensures Fly.io knows the app is alive
-# Uses a lightweight API endpoint that validates DB connection
+# Health check uses dedicated /health endpoint that does NOT touch DB
+# This prevents false positives from DB latency and keeps checks lightweight
 [checks]
   [checks.health]
     grace_period = "30s"
     interval = "30s"
     method = "GET"
-    path = "/api/stock"
+    path = "/health"
     port = 5000
     timeout = "10s"
     type = "http"
