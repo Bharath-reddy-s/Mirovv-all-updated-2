@@ -126,7 +126,7 @@ export default function DeveloperPanel() {
 
   const setOfferPositionMutation = useMutation({
     mutationFn: async ({ offerId, newPosition }: { offerId: number; newPosition: number }) => {
-      return apiRequest("PATCH", `/api/offers/${offerId}`, { displayOrder: newPosition });
+      return apiRequest("POST", "/api/offers/set-position", { offerId, position: newPosition });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/offers"] });

@@ -144,6 +144,7 @@ export interface IStorage {
   updateOffer(id: number, updates: Partial<UpdateOffer>): Promise<Offer | undefined>;
   deleteOffer(id: number): Promise<boolean>;
   reorderOffers(offerId: number, direction: 'up' | 'down'): Promise<Offer[]>;
+  setOfferPosition(offerId: number, newPosition: number): Promise<Offer[]>;
   getShopPopup(): Promise<ShopPopup>;
   updateShopPopup(isActive: boolean, imageUrl: string | null): Promise<ShopPopup>;
 }
@@ -749,6 +750,42 @@ export class DBStorage implements IStorage {
       .set({ displayOrder: currentOffer.displayOrder })
       .where(eq(offersTable.id, swapOffer.id));
     
+    invalidateOffersCache();
+    return this.getOffers();
+  }
+
+  async setOfferPosition(offerId: number, newPosition: number): Promise<Offer[]> {
+    const allOffers = await this.getOffers();
+    const currentIndex = allOffers.findIndex(o => o.id === offerId);
+    
+    if (currentIndex === -1) {
+      throw new Error('Offer not found');
+    }
+
+    const targetIndex = newPosition - 1;
+    
+    if (targetIndex < 0 || targetIndex >= allOffers.length) {
+      throw new Error('Invalid position');
+    }
+
+    if (currentIndex === targetIndex) {
+      return allOffers;
+    }
+
+    // Swap positions: offer at currentIndex goes to targetIndex position,
+    // offer at targetIndex goes to currentIndex position
+    const movingOffer = allOffers[currentIndex];
+    const targetOffer = allOffers[targetIndex];
+
+    // Swap displayOrder values between the two offers
+    await sql.update(offersTable)
+      .set({ displayOrder: targetOffer.displayOrder })
+      .where(eq(offersTable.id, movingOffer.id));
+
+    await sql.update(offersTable)
+      .set({ displayOrder: movingOffer.displayOrder })
+      .where(eq(offersTable.id, targetOffer.id));
+
     invalidateOffersCache();
     return this.getOffers();
   }

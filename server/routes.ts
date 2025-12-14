@@ -577,6 +577,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/offers/set-position", async (req, res) => {
+    try {
+      const schema = z.object({
+        offerId: z.number(),
+        position: z.number().min(1)
+      });
+
+      const validation = schema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const { offerId, position } = validation.data;
+      const offers = await storage.setOfferPosition(offerId, position);
+      res.json(offers);
+    } catch (error) {
+      console.error("Failed to set offer position:", error);
+      res.status(500).json({ error: "Failed to set offer position" });
+    }
+  });
+
   app.get("/api/shop-popup", async (req, res) => {
     try {
       const popup = await storage.getShopPopup();
