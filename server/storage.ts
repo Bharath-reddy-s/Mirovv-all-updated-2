@@ -337,26 +337,19 @@ export class DBStorage implements IStorage {
       return allProducts;
     }
 
+    // Swap positions: product at currentIndex goes to targetIndex position,
+    // product at targetIndex goes to currentIndex position
     const movingProduct = allProducts[currentIndex];
-    const newDisplayOrder = allProducts[targetIndex].displayOrder;
+    const targetProduct = allProducts[targetIndex];
 
-    if (currentIndex < targetIndex) {
-      for (let i = currentIndex + 1; i <= targetIndex; i++) {
-        await sql.update(productsTable)
-          .set({ displayOrder: allProducts[i - 1].displayOrder })
-          .where(eq(productsTable.id, allProducts[i].id));
-      }
-    } else {
-      for (let i = currentIndex - 1; i >= targetIndex; i--) {
-        await sql.update(productsTable)
-          .set({ displayOrder: allProducts[i + 1].displayOrder })
-          .where(eq(productsTable.id, allProducts[i].id));
-      }
-    }
+    // Swap displayOrder values between the two products
+    await sql.update(productsTable)
+      .set({ displayOrder: targetProduct.displayOrder })
+      .where(eq(productsTable.id, movingProduct.id));
 
     await sql.update(productsTable)
-      .set({ displayOrder: newDisplayOrder })
-      .where(eq(productsTable.id, movingProduct.id));
+      .set({ displayOrder: movingProduct.displayOrder })
+      .where(eq(productsTable.id, targetProduct.id));
 
     invalidateProductCache();
     return this.getProducts();
