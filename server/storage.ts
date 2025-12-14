@@ -342,12 +342,14 @@ export class DBStorage implements IStorage {
     const [movingProduct] = allProducts.splice(currentIndex, 1);
     allProducts.splice(targetIndex, 0, movingProduct);
 
-    // Re-assign sequential displayOrder values to all products
-    for (let i = 0; i < allProducts.length; i++) {
-      await sql.update(productsTable)
-        .set({ displayOrder: i })
-        .where(eq(productsTable.id, allProducts[i].id));
-    }
+    // Re-assign sequential displayOrder values to all products in parallel
+    await Promise.all(
+      allProducts.map((product, i) =>
+        sql.update(productsTable)
+          .set({ displayOrder: i })
+          .where(eq(productsTable.id, product.id))
+      )
+    );
 
     invalidateProductCache();
     return this.getProducts();
@@ -773,12 +775,14 @@ export class DBStorage implements IStorage {
     const [movingOffer] = allOffers.splice(currentIndex, 1);
     allOffers.splice(targetIndex, 0, movingOffer);
 
-    // Re-assign sequential displayOrder values to all offers
-    for (let i = 0; i < allOffers.length; i++) {
-      await sql.update(offersTable)
-        .set({ displayOrder: i })
-        .where(eq(offersTable.id, allOffers[i].id));
-    }
+    // Re-assign sequential displayOrder values to all offers in parallel
+    await Promise.all(
+      allOffers.map((offer, i) =>
+        sql.update(offersTable)
+          .set({ displayOrder: i })
+          .where(eq(offersTable.id, offer.id))
+      )
+    );
 
     invalidateOffersCache();
     return this.getOffers();
