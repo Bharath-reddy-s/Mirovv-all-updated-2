@@ -338,19 +338,16 @@ export class DBStorage implements IStorage {
       return allProducts;
     }
 
-    // Swap positions: product at currentIndex goes to targetIndex position,
-    // product at targetIndex goes to currentIndex position
-    const movingProduct = allProducts[currentIndex];
-    const targetProduct = allProducts[targetIndex];
+    // Remove product from current position and insert at target position
+    const [movingProduct] = allProducts.splice(currentIndex, 1);
+    allProducts.splice(targetIndex, 0, movingProduct);
 
-    // Swap displayOrder values between the two products
-    await sql.update(productsTable)
-      .set({ displayOrder: targetProduct.displayOrder })
-      .where(eq(productsTable.id, movingProduct.id));
-
-    await sql.update(productsTable)
-      .set({ displayOrder: movingProduct.displayOrder })
-      .where(eq(productsTable.id, targetProduct.id));
+    // Re-assign sequential displayOrder values to all products
+    for (let i = 0; i < allProducts.length; i++) {
+      await sql.update(productsTable)
+        .set({ displayOrder: i })
+        .where(eq(productsTable.id, allProducts[i].id));
+    }
 
     invalidateProductCache();
     return this.getProducts();
@@ -772,19 +769,16 @@ export class DBStorage implements IStorage {
       return allOffers;
     }
 
-    // Swap positions: offer at currentIndex goes to targetIndex position,
-    // offer at targetIndex goes to currentIndex position
-    const movingOffer = allOffers[currentIndex];
-    const targetOffer = allOffers[targetIndex];
+    // Remove offer from current position and insert at target position
+    const [movingOffer] = allOffers.splice(currentIndex, 1);
+    allOffers.splice(targetIndex, 0, movingOffer);
 
-    // Swap displayOrder values between the two offers
-    await sql.update(offersTable)
-      .set({ displayOrder: targetOffer.displayOrder })
-      .where(eq(offersTable.id, movingOffer.id));
-
-    await sql.update(offersTable)
-      .set({ displayOrder: movingOffer.displayOrder })
-      .where(eq(offersTable.id, targetOffer.id));
+    // Re-assign sequential displayOrder values to all offers
+    for (let i = 0; i < allOffers.length; i++) {
+      await sql.update(offersTable)
+        .set({ displayOrder: i })
+        .where(eq(offersTable.id, allOffers[i].id));
+    }
 
     invalidateOffersCache();
     return this.getOffers();
