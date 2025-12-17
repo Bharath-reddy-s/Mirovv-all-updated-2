@@ -254,9 +254,10 @@ export default function CheckoutPage() {
       <main className="container mx-auto px-4 py-24 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+            style={{ willChange: "opacity" }}
           >
             <form onSubmit={handleSubmit} className="space-y-8">
               <div>
@@ -325,9 +326,10 @@ export default function CheckoutPage() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2, delay: 0.1 }}
+            style={{ willChange: "opacity" }}
           >
             <h2 className="text-2xl font-bold mb-8">Order Summary</h2>
             

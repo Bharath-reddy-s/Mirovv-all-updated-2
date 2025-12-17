@@ -8,23 +8,30 @@ export default function CartSheet() {
   const { items, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart, clearCart, subtotal } = useCart();
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="sync">
       {isCartOpen && (
         <>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
             className="fixed inset-0 bg-black/50 z-50"
             onClick={() => setIsCartOpen(false)}
+            style={{ willChange: "opacity" }}
           />
           <motion.div
-            initial={{ x: "100%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: "100%", opacity: 0 }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ 
+              type: "spring",
+              damping: 30,
+              stiffness: 300,
+              mass: 0.8
+            }}
             className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white dark:bg-neutral-900 z-50 shadow-xl flex flex-col"
+            style={{ willChange: "transform" }}
           >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-neutral-800">
           <h2 className="text-2xl font-bold">Shopping Cart</h2>
