@@ -93,7 +93,7 @@ export default function BackgroundPaths({
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{
-                                        duration: 0.6,
+                                        duration: 0.3,
                                         ease: "easeOut"
                                     }}
                                     className="inline-block text-transparent bg-clip-text 
@@ -108,7 +108,7 @@ export default function BackgroundPaths({
                                     animate={{ opacity: 1 }}
                                     transition={{
                                         delay: 0.5,
-                                        duration: 0.6,
+                                        duration: 0.3,
                                         ease: "easeOut"
                                     }}
                                     className="inline-block text-transparent bg-clip-text 
