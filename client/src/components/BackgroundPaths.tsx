@@ -90,8 +90,8 @@ export default function BackgroundPaths({
                             // Simplified animation for mobile - Mirovv first, then Welcomes You after 1 second
                             <>
                                 <motion.span
-                                    initial={{ opacity: 0, y: 30 }}
-                                    animate={{ opacity: 1, y: 0 }}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
                                     transition={{
                                         duration: 0.6,
                                         ease: "easeOut"
@@ -104,8 +104,8 @@ export default function BackgroundPaths({
                                 </motion.span>
                                 <br />
                                 <motion.span
-                                    initial={{ opacity: 0, y: 30 }}
-                                    animate={{ opacity: 1, y: 0 }}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
                                     transition={{
                                         delay: 1,
                                         duration: 0.6,
