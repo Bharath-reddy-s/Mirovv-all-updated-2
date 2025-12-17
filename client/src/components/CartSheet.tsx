@@ -15,7 +15,7 @@ export default function CartSheet() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.35 }}
             className="fixed inset-0 bg-black/50 z-50"
             onClick={() => setIsCartOpen(false)}
             style={{ willChange: "opacity" }}
@@ -26,9 +26,9 @@ export default function CartSheet() {
             exit={{ x: "100%" }}
             transition={{ 
               type: "spring",
-              damping: 30,
-              stiffness: 300,
-              mass: 0.8
+              damping: 25,
+              stiffness: 180,
+              mass: 1
             }}
             className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white dark:bg-neutral-900 z-50 shadow-xl flex flex-col"
             style={{ willChange: "transform" }}
