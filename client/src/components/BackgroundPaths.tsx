@@ -87,26 +87,37 @@ export default function BackgroundPaths({
                 >
                     <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter mt-[100px] mb-[100px]">
                         {isMobile ? (
-                            // Simplified animation for mobile - animate words instead of letters
-                            words.map((word, wordIndex) => (
-                                <span key={wordIndex}>
-                                    <motion.span
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{
-                                            delay: wordIndex * 0.2,
-                                            duration: 0.5,
-                                            ease: "easeOut"
-                                        }}
-                                        className="inline-block mr-4 last:mr-0 text-transparent bg-clip-text 
-                                        bg-gradient-to-r from-neutral-900 to-neutral-700/80 
-                                        dark:from-white dark:to-white/80"
-                                    >
-                                        {word}
-                                    </motion.span>
-                                    {wordIndex === 0 && <br />}
-                                </span>
-                            ))
+                            // Simplified animation for mobile - Mirovv first, then Welcomes You after 1 second
+                            <>
+                                <motion.span
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{
+                                        duration: 0.6,
+                                        ease: "easeOut"
+                                    }}
+                                    className="inline-block text-transparent bg-clip-text 
+                                    bg-gradient-to-r from-neutral-900 to-neutral-700/80 
+                                    dark:from-white dark:to-white/80"
+                                >
+                                    {words[0]}
+                                </motion.span>
+                                <br />
+                                <motion.span
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{
+                                        delay: 1,
+                                        duration: 0.6,
+                                        ease: "easeOut"
+                                    }}
+                                    className="inline-block text-transparent bg-clip-text 
+                                    bg-gradient-to-r from-neutral-900 to-neutral-700/80 
+                                    dark:from-white dark:to-white/80"
+                                >
+                                    {words.slice(1).join(" ")}
+                                </motion.span>
+                            </>
                         ) : (
                             // Full letter-by-letter animation for desktop
                             words.map((word, wordIndex) => (
