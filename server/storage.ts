@@ -338,18 +338,18 @@ export class DBStorage implements IStorage {
       return allProducts;
     }
 
-    // Remove product from current position and insert at target position
-    const [movingProduct] = allProducts.splice(currentIndex, 1);
-    allProducts.splice(targetIndex, 0, movingProduct);
+    const currentProduct = allProducts[currentIndex];
+    const targetProduct = allProducts[targetIndex];
 
-    // Re-assign sequential displayOrder values to all products in parallel
-    await Promise.all(
-      allProducts.map((product, i) =>
-        sql.update(productsTable)
-          .set({ displayOrder: i })
-          .where(eq(productsTable.id, product.id))
-      )
-    );
+    // Swap displayOrder values between the two products
+    await Promise.all([
+      sql.update(productsTable)
+        .set({ displayOrder: targetProduct.displayOrder })
+        .where(eq(productsTable.id, currentProduct.id)),
+      sql.update(productsTable)
+        .set({ displayOrder: currentProduct.displayOrder })
+        .where(eq(productsTable.id, targetProduct.id))
+    ]);
 
     invalidateProductCache();
     return this.getProducts();
