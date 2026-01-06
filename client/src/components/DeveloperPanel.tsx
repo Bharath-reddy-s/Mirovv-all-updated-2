@@ -74,6 +74,10 @@ export default function DeveloperPanel() {
   const [popupIsShopActive, setPopupIsShopActive] = useState(false);
   const popupImageRef = useRef<HTMLInputElement>(null);
 
+  const { data: offers = [], isLoading: isLoadingOffers } = useQuery<Offer[]>({
+    queryKey: ["/api/offers"],
+  });
+
   const { data: shopPopup, isLoading: isLoadingPopup } = useQuery<{ id: number; isHomeActive: boolean; isShopActive: boolean; imageUrl: string | null; homeImageUrl: string | null }>({
     queryKey: ["/api/shop-popup"],
     staleTime: 60000,
@@ -192,6 +196,46 @@ export default function DeveloperPanel() {
     const images = [offerImage1, offerImage2, offerImage3].filter(Boolean);
     if (images.length === 0) {
       toast({
+        title: "Missing images",
+        description: "Please add at least one image URL",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      if (editingOffer) {
+        await updateOfferMutation.mutateAsync({
+          id: editingOffer.id,
+          updates: {
+            title: offerTitle,
+            description: offerDescription,
+            images,
+          },
+        });
+        toast({
+          title: "Offer updated",
+          description: "Offer has been updated successfully.",
+        });
+      } else {
+        await createOfferMutation.mutateAsync({
+          title: offerTitle,
+          description: offerDescription,
+          images,
+        });
+        toast({
+          title: "Offer created",
+          description: "New offer has been created successfully.",
+        });
+      }
+      setIsOfferDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save offer. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
         title: "Missing images",
         description: "Please add at least one image URL",
         variant: "destructive",
