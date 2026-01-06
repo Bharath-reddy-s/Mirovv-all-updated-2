@@ -1,24 +1,7 @@
+import { db } from "./db";
 import { type StockStatus, type Product, type CreateProduct, type UpdateProduct, type Review, type InsertReview, type PriceFilter, type InsertPriceFilter, type PromotionalSettings, type InsertPromotionalSettings, type Order, type InsertOrder, type FlashOffer, type DeliveryAddress, type InsertDeliveryAddress, type TimeChallenge, type CheckoutDiscount, type Offer, type InsertOffer, type UpdateOffer, type ShopPopup, products as initialProducts, productsTable, reviewsTable, priceFiltersTable, promotionalSettingsTable, ordersTable, flashOffersTable, deliveryAddressesTable, timeChallengeTable, checkoutDiscountTable, offersTable, shopPopupTable } from "@shared/schema";
-import { drizzle } from "drizzle-orm/neon-serverless";
 import { eq, asc, desc, sql as sqlOp, avg, count } from "drizzle-orm";
-import { Pool, neonConfig } from "@neondatabase/serverless";
-import ws from "ws";
 import { compressProductImages, compressOfferImages } from "./image-compression";
-
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is required");
-}
-
-neonConfig.webSocketConstructor = ws;
-
-const dbUrl = process.env.DATABASE_URL.trim().replace(/^['"]|['"]$/g, '');
-
-console.log("Connecting to database...");
-
-const pool = new Pool({ connectionString: dbUrl });
-pool.on('error', (err) => console.error('Database pool error:', err));
-
-const sql = drizzle({ client: pool });
 
 interface CacheEntry<T> {
   data: T;
@@ -79,9 +62,9 @@ export async function warmupCache(): Promise<void> {
   
   try {
     const [products, priceFilters, settings] = await Promise.all([
-      sql.select().from(productsTable).orderBy(asc(productsTable.displayOrder)),
-      sql.select().from(priceFiltersTable).orderBy(asc(priceFiltersTable.displayOrder)),
-      sql.select().from(promotionalSettingsTable).limit(1),
+      db.select().from(productsTable).orderBy(asc(productsTable.displayOrder)),
+      db.select().from(priceFiltersTable).orderBy(asc(priceFiltersTable.displayOrder)),
+      db.select().from(promotionalSettingsTable).limit(1),
     ]);
     
     cache.products = { data: products as Product[], timestamp: Date.now() };
@@ -154,7 +137,7 @@ export class DBStorage implements IStorage {
     if (isCacheValid(cache.stock)) {
       return cache.stock.data;
     }
-    const products = await sql.select().from(productsTable);
+    const products = await db.select().from(productsTable);
     const status: StockStatus = {};
     products.forEach(p => {
       status[p.id] = p.isInStock;
@@ -164,7 +147,7 @@ export class DBStorage implements IStorage {
   }
 
   async updateStockStatus(productId: number, isInStock: boolean): Promise<StockStatus> {
-    await sql.update(productsTable)
+    await db.update(productsTable)
       .set({ isInStock })
       .where(eq(productsTable.id, productId));
     invalidateProductCache();
@@ -175,7 +158,7 @@ export class DBStorage implements IStorage {
     if (isCacheValid(cache.products)) {
       return cache.products.data;
     }
-    const products = await sql.select().from(productsTable).orderBy(asc(productsTable.displayOrder)) as Product[];
+    const products = await db.select().from(productsTable).orderBy(asc(productsTable.displayOrder)) as Product[];
     cache.products = { data: products, timestamp: Date.now() };
     return products;
   }
@@ -184,7 +167,7 @@ export class DBStorage implements IStorage {
     if (isCacheValid(cache.products)) {
       return cache.products.data.find(p => p.id === id);
     }
-    const [product] = await sql.select().from(productsTable).where(eq(productsTable.id, id));
+    const [product] = await db.select().from(productsTable).where(eq(productsTable.id, id));
     return product as Product | undefined;
   }
 
@@ -192,7 +175,7 @@ export class DBStorage implements IStorage {
     if (isCacheValid(cache.products)) {
       return cache.products.data.find(p => p.productCode === code);
     }
-    const [product] = await sql.select().from(productsTable).where(eq(productsTable.productCode, code));
+    const [product] = await db.select().from(productsTable).where(eq(productsTable.productCode, code));
     return product as Product | undefined;
   }
 
@@ -247,7 +230,7 @@ export class DBStorage implements IStorage {
       productData.additionalImages
     );
     
-    const [newProduct] = await sql.insert(productsTable)
+    const [newProduct] = await db.insert(productsTable)
       .values({
         ...productData,
         image: compressed.image,
@@ -275,7 +258,7 @@ export class DBStorage implements IStorage {
       }
     }
     
-    const [updated] = await sql.update(productsTable)
+    const [updated] = await db.update(productsTable)
       .set(finalUpdates)
       .where(eq(productsTable.id, id))
       .returning();
@@ -284,7 +267,7 @@ export class DBStorage implements IStorage {
   }
 
   async deleteProduct(id: number): Promise<boolean> {
-    const result = await sql.delete(productsTable)
+    const result = await db.delete(productsTable)
       .where(eq(productsTable.id, id))
       .returning();
     invalidateProductCache();
@@ -292,7 +275,7 @@ export class DBStorage implements IStorage {
   }
 
   async reorderProducts(productId: number, direction: 'up' | 'down'): Promise<Product[]> {
-    const allProducts = await sql.select().from(productsTable).orderBy(asc(productsTable.displayOrder));
+    const allProducts = await db.select().from(productsTable).orderBy(asc(productsTable.displayOrder));
     const currentIndex = allProducts.findIndex(p => p.id === productId);
     
     if (currentIndex === -1) {
@@ -308,11 +291,11 @@ export class DBStorage implements IStorage {
     const currentProduct = allProducts[currentIndex];
     const targetProduct = allProducts[targetIndex];
 
-    await sql.update(productsTable)
+    await db.update(productsTable)
       .set({ displayOrder: targetProduct.displayOrder })
       .where(eq(productsTable.id, currentProduct.id));
 
-    await sql.update(productsTable)
+    await db.update(productsTable)
       .set({ displayOrder: currentProduct.displayOrder })
       .where(eq(productsTable.id, targetProduct.id));
 
@@ -321,7 +304,7 @@ export class DBStorage implements IStorage {
   }
 
   async setProductPosition(productId: number, newPosition: number): Promise<Product[]> {
-    const allProducts = await sql.select().from(productsTable).orderBy(asc(productsTable.displayOrder));
+    const allProducts = await db.select().from(productsTable).orderBy(asc(productsTable.displayOrder));
     const currentIndex = allProducts.findIndex(p => p.id === productId);
     
     if (currentIndex === -1) {
@@ -343,10 +326,10 @@ export class DBStorage implements IStorage {
 
     // Swap displayOrder values between the two products
     await Promise.all([
-      sql.update(productsTable)
+      db.update(productsTable)
         .set({ displayOrder: targetProduct.displayOrder })
         .where(eq(productsTable.id, currentProduct.id)),
-      sql.update(productsTable)
+      db.update(productsTable)
         .set({ displayOrder: currentProduct.displayOrder })
         .where(eq(productsTable.id, targetProduct.id))
     ]);
@@ -356,7 +339,7 @@ export class DBStorage implements IStorage {
   }
 
   async getReviews(productId: number): Promise<Review[]> {
-    const reviews = await sql.select()
+    const reviews = await db.select()
       .from(reviewsTable)
       .where(eq(reviewsTable.productId, productId))
       .orderBy(desc(reviewsTable.createdAt));
@@ -364,21 +347,21 @@ export class DBStorage implements IStorage {
   }
 
   async createReview(reviewData: InsertReview): Promise<Review> {
-    const [newReview] = await sql.insert(reviewsTable)
+    const [newReview] = await db.insert(reviewsTable)
       .values(reviewData)
       .returning();
     return newReview as Review;
   }
 
   async deleteReview(id: number): Promise<boolean> {
-    const result = await sql.delete(reviewsTable)
+    const result = await db.delete(reviewsTable)
       .where(eq(reviewsTable.id, id))
       .returning();
     return result.length > 0;
   }
 
   async getReviewStats(productId: number): Promise<{ averageRating: number; totalReviews: number }> {
-    const [result] = await sql.select({
+    const [result] = await db.select({
       averageRating: avg(reviewsTable.rating),
       totalReviews: count(reviewsTable.id),
     })
@@ -395,16 +378,16 @@ export class DBStorage implements IStorage {
     if (isCacheValid(cache.priceFilters)) {
       return cache.priceFilters.data;
     }
-    const filters = await sql.select().from(priceFiltersTable).orderBy(asc(priceFiltersTable.displayOrder));
+    const filters = await db.select().from(priceFiltersTable).orderBy(asc(priceFiltersTable.displayOrder));
     cache.priceFilters = { data: filters as PriceFilter[], timestamp: Date.now() };
     return filters as PriceFilter[];
   }
 
   async createPriceFilter(filterData: InsertPriceFilter): Promise<PriceFilter> {
-    const maxOrder = await sql.select({ max: sqlOp<number>`max(${priceFiltersTable.displayOrder})` }).from(priceFiltersTable);
+    const maxOrder = await db.select({ max: sqlOp<number>`max(${priceFiltersTable.displayOrder})` }).from(priceFiltersTable);
     const nextOrder = (maxOrder[0]?.max ?? -1) + 1;
     
-    const [newFilter] = await sql.insert(priceFiltersTable)
+    const [newFilter] = await db.insert(priceFiltersTable)
       .values({ ...filterData, displayOrder: nextOrder })
       .returning();
     invalidatePriceFilterCache();
@@ -412,7 +395,7 @@ export class DBStorage implements IStorage {
   }
 
   async updatePriceFilter(id: number, value: number): Promise<PriceFilter | undefined> {
-    const [updated] = await sql.update(priceFiltersTable)
+    const [updated] = await db.update(priceFiltersTable)
       .set({ value })
       .where(eq(priceFiltersTable.id, id))
       .returning();
@@ -421,7 +404,7 @@ export class DBStorage implements IStorage {
   }
 
   async deletePriceFilter(id: number): Promise<boolean> {
-    const result = await sql.delete(priceFiltersTable)
+    const result = await db.delete(priceFiltersTable)
       .where(eq(priceFiltersTable.id, id))
       .returning();
     invalidatePriceFilterCache();
@@ -432,9 +415,9 @@ export class DBStorage implements IStorage {
     if (isCacheValid(cache.promotionalSettings)) {
       return cache.promotionalSettings.data;
     }
-    const [settings] = await sql.select().from(promotionalSettingsTable).limit(1);
+    const [settings] = await db.select().from(promotionalSettingsTable).limit(1);
     if (!settings) {
-      const [newSettings] = await sql.insert(promotionalSettingsTable).values({
+      const [newSettings] = await db.insert(promotionalSettingsTable).values({
         bannerText: "₹10 off on every product",
         timerSeconds: 604800,
         deliveryText: "Shop for ₹199 and get free delivery",
@@ -448,7 +431,7 @@ export class DBStorage implements IStorage {
 
   async updatePromotionalSettings(bannerText: string, timerSeconds: number, deliveryText: string): Promise<PromotionalSettings> {
     const timerEndTime = new Date(Date.now() + (timerSeconds * 1000));
-    const [updated] = await sql.update(promotionalSettingsTable)
+    const [updated] = await db.update(promotionalSettingsTable)
       .set({ bannerText, timerSeconds, timerEndTime, deliveryText })
       .where(eq(promotionalSettingsTable.id, 1))
       .returning();
@@ -463,7 +446,7 @@ export class DBStorage implements IStorage {
     while (!isUnique) {
       orderNumber = Math.floor(10000 + Math.random() * 90000).toString();
       
-      const existing = await sql.select()
+      const existing = await db.select()
         .from(ordersTable)
         .where(eq(ordersTable.orderNumber, orderNumber))
         .limit(1);
@@ -473,14 +456,14 @@ export class DBStorage implements IStorage {
       }
     }
     
-    const [newOrder] = await sql.insert(ordersTable)
+    const [newOrder] = await db.insert(ordersTable)
       .values({ ...orderData, orderNumber } as any)
       .returning();
     return newOrder as Order;
   }
 
   async getOrderByNumber(orderNumber: string): Promise<Order | undefined> {
-    const [order] = await sql.select()
+    const [order] = await db.select()
       .from(ordersTable)
       .where(eq(ordersTable.orderNumber, orderNumber))
       .limit(1);
@@ -488,14 +471,14 @@ export class DBStorage implements IStorage {
   }
 
   async getFlashOffer(): Promise<FlashOffer | null> {
-    const [offer] = await sql.select().from(flashOffersTable).limit(1);
+    const [offer] = await db.select().from(flashOffersTable).limit(1);
     if (!offer) {
       return null;
     }
     if (offer.isActive && offer.endsAt) {
       const now = new Date();
       if (now > offer.endsAt) {
-        await sql.update(flashOffersTable)
+        await db.update(flashOffersTable)
           .set({ isActive: false })
           .where(eq(flashOffersTable.id, offer.id));
         return { ...offer, isActive: false } as FlashOffer;
@@ -505,7 +488,7 @@ export class DBStorage implements IStorage {
   }
 
   async startFlashOffer(maxClaims?: number, durationSeconds?: number, bannerText?: string): Promise<FlashOffer> {
-    const existing = await sql.select().from(flashOffersTable).limit(1);
+    const existing = await db.select().from(flashOffersTable).limit(1);
     const now = new Date();
     const duration = durationSeconds ?? 30;
     const slots = maxClaims ?? 5;
@@ -513,7 +496,7 @@ export class DBStorage implements IStorage {
     const endsAt = new Date(now.getTime() + duration * 1000);
     
     if (existing.length > 0) {
-      const [updated] = await sql.update(flashOffersTable)
+      const [updated] = await db.update(flashOffersTable)
         .set({ 
           isActive: true, 
           claimedCount: 0,
@@ -527,7 +510,7 @@ export class DBStorage implements IStorage {
         .returning();
       return updated as FlashOffer;
     } else {
-      const [created] = await sql.insert(flashOffersTable)
+      const [created] = await db.insert(flashOffersTable)
         .values({
           isActive: true,
           maxClaims: slots,
@@ -543,11 +526,11 @@ export class DBStorage implements IStorage {
   }
 
   async stopFlashOffer(): Promise<FlashOffer | null> {
-    const [existing] = await sql.select().from(flashOffersTable).limit(1);
+    const [existing] = await db.select().from(flashOffersTable).limit(1);
     if (!existing) {
       return null;
     }
-    const [updated] = await sql.update(flashOffersTable)
+    const [updated] = await db.update(flashOffersTable)
       .set({ isActive: false })
       .where(eq(flashOffersTable.id, existing.id))
       .returning();
@@ -564,18 +547,18 @@ export class DBStorage implements IStorage {
     }
     const now = new Date();
     if (offer.endsAt && now > offer.endsAt) {
-      await sql.update(flashOffersTable)
+      await db.update(flashOffersTable)
         .set({ isActive: false })
         .where(eq(flashOffersTable.id, offer.id));
       return { success: false, flashOffer: { ...offer, isActive: false }, spotsRemaining: 0 };
     }
-    const [updated] = await sql.update(flashOffersTable)
+    const [updated] = await db.update(flashOffersTable)
       .set({ claimedCount: offer.claimedCount + 1 })
       .where(eq(flashOffersTable.id, offer.id))
       .returning();
     const spotsRemaining = updated.maxClaims - updated.claimedCount;
     if (spotsRemaining <= 0) {
-      await sql.update(flashOffersTable)
+      await db.update(flashOffersTable)
         .set({ isActive: false })
         .where(eq(flashOffersTable.id, offer.id));
     }
@@ -590,16 +573,16 @@ export class DBStorage implements IStorage {
     if (isCacheValid(cache.deliveryAddresses)) {
       return cache.deliveryAddresses.data;
     }
-    const addresses = await sql.select().from(deliveryAddressesTable).orderBy(asc(deliveryAddressesTable.displayOrder));
+    const addresses = await db.select().from(deliveryAddressesTable).orderBy(asc(deliveryAddressesTable.displayOrder));
     cache.deliveryAddresses = { data: addresses as DeliveryAddress[], timestamp: Date.now() };
     return addresses as DeliveryAddress[];
   }
 
   async createDeliveryAddress(addressData: InsertDeliveryAddress): Promise<DeliveryAddress> {
-    const maxOrder = await sql.select({ max: sqlOp<number>`max(${deliveryAddressesTable.displayOrder})` }).from(deliveryAddressesTable);
+    const maxOrder = await db.select({ max: sqlOp<number>`max(${deliveryAddressesTable.displayOrder})` }).from(deliveryAddressesTable);
     const nextOrder = (maxOrder[0]?.max ?? -1) + 1;
     
-    const [newAddress] = await sql.insert(deliveryAddressesTable)
+    const [newAddress] = await db.insert(deliveryAddressesTable)
       .values({ ...addressData, displayOrder: nextOrder })
       .returning();
     invalidateDeliveryAddressCache();
@@ -607,7 +590,7 @@ export class DBStorage implements IStorage {
   }
 
   async updateDeliveryAddress(id: number, name: string): Promise<DeliveryAddress | undefined> {
-    const [updated] = await sql.update(deliveryAddressesTable)
+    const [updated] = await db.update(deliveryAddressesTable)
       .set({ name })
       .where(eq(deliveryAddressesTable.id, id))
       .returning();
@@ -616,7 +599,7 @@ export class DBStorage implements IStorage {
   }
 
   async deleteDeliveryAddress(id: number): Promise<boolean> {
-    const result = await sql.delete(deliveryAddressesTable)
+    const result = await db.delete(deliveryAddressesTable)
       .where(eq(deliveryAddressesTable.id, id))
       .returning();
     invalidateDeliveryAddressCache();
@@ -624,7 +607,7 @@ export class DBStorage implements IStorage {
   }
 
   async getTimeChallenge(): Promise<TimeChallenge | null> {
-    const [challenge] = await sql.select().from(timeChallengeTable).limit(1);
+    const [challenge] = await db.select().from(timeChallengeTable).limit(1);
     if (!challenge) {
       return null;
     }
@@ -632,19 +615,19 @@ export class DBStorage implements IStorage {
   }
 
   async updateTimeChallenge(settings: { name?: string; isActive?: boolean; durationSeconds?: number; discountPercent?: number }): Promise<TimeChallenge> {
-    const existing = await sql.select().from(timeChallengeTable).limit(1);
+    const existing = await db.select().from(timeChallengeTable).limit(1);
     
     // Invalidate product cache since product ordering depends on time challenge state
     invalidateProductCache();
     
     if (existing.length > 0) {
-      const [updated] = await sql.update(timeChallengeTable)
+      const [updated] = await db.update(timeChallengeTable)
         .set(settings)
         .where(eq(timeChallengeTable.id, existing[0].id))
         .returning();
       return updated as TimeChallenge;
     } else {
-      const [created] = await sql.insert(timeChallengeTable)
+      const [created] = await db.insert(timeChallengeTable)
         .values({
           name: settings.name ?? "Time is Money",
           isActive: settings.isActive ?? false,
@@ -657,9 +640,9 @@ export class DBStorage implements IStorage {
   }
 
   async getCheckoutDiscount(): Promise<CheckoutDiscount> {
-    const [discount] = await sql.select().from(checkoutDiscountTable).limit(1);
+    const [discount] = await db.select().from(checkoutDiscountTable).limit(1);
     if (!discount) {
-      const [created] = await sql.insert(checkoutDiscountTable)
+      const [created] = await db.insert(checkoutDiscountTable)
         .values({ discountPercent: 0 })
         .returning();
       return created as CheckoutDiscount;
@@ -668,16 +651,16 @@ export class DBStorage implements IStorage {
   }
 
   async updateCheckoutDiscount(discountPercent: number): Promise<CheckoutDiscount> {
-    const existing = await sql.select().from(checkoutDiscountTable).limit(1);
+    const existing = await db.select().from(checkoutDiscountTable).limit(1);
     
     if (existing.length > 0) {
-      const [updated] = await sql.update(checkoutDiscountTable)
+      const [updated] = await db.update(checkoutDiscountTable)
         .set({ discountPercent })
         .where(eq(checkoutDiscountTable.id, existing[0].id))
         .returning();
       return updated as CheckoutDiscount;
     } else {
-      const [created] = await sql.insert(checkoutDiscountTable)
+      const [created] = await db.insert(checkoutDiscountTable)
         .values({ discountPercent })
         .returning();
       return created as CheckoutDiscount;
@@ -688,18 +671,18 @@ export class DBStorage implements IStorage {
     if (isCacheValid(cache.offers)) {
       return cache.offers.data;
     }
-    const offers = await sql.select().from(offersTable).orderBy(asc(offersTable.displayOrder));
+    const offers = await db.select().from(offersTable).orderBy(asc(offersTable.displayOrder));
     cache.offers = { data: offers as Offer[], timestamp: Date.now() };
     return offers as Offer[];
   }
 
   async createOffer(offerData: InsertOffer): Promise<Offer> {
-    const maxOrder = await sql.select({ max: sqlOp<number>`max(${offersTable.displayOrder})` }).from(offersTable);
+    const maxOrder = await db.select({ max: sqlOp<number>`max(${offersTable.displayOrder})` }).from(offersTable);
     const nextOrder = (maxOrder[0]?.max ?? -1) + 1;
     
     const processedImages = await compressOfferImages(offerData.images);
     
-    const [newOffer] = await sql.insert(offersTable)
+    const [newOffer] = await db.insert(offersTable)
       .values({ ...offerData, images: processedImages, displayOrder: nextOrder })
       .returning();
     invalidateOffersCache();
@@ -714,7 +697,7 @@ export class DBStorage implements IStorage {
       updateData.images = await compressOfferImages(updates.images);
     }
     
-    const [updated] = await sql.update(offersTable)
+    const [updated] = await db.update(offersTable)
       .set(updateData)
       .where(eq(offersTable.id, id))
       .returning();
@@ -723,7 +706,7 @@ export class DBStorage implements IStorage {
   }
 
   async deleteOffer(id: number): Promise<boolean> {
-    const result = await sql.delete(offersTable)
+    const result = await db.delete(offersTable)
       .where(eq(offersTable.id, id))
       .returning();
     invalidateOffersCache();
@@ -741,11 +724,11 @@ export class DBStorage implements IStorage {
     const currentOffer = offers[currentIndex];
     const swapOffer = offers[newIndex];
     
-    await sql.update(offersTable)
+    await db.update(offersTable)
       .set({ displayOrder: swapOffer.displayOrder })
       .where(eq(offersTable.id, currentOffer.id));
     
-    await sql.update(offersTable)
+    await db.update(offersTable)
       .set({ displayOrder: currentOffer.displayOrder })
       .where(eq(offersTable.id, swapOffer.id));
     
@@ -778,7 +761,7 @@ export class DBStorage implements IStorage {
     // Re-assign sequential displayOrder values to all offers in parallel
     await Promise.all(
       allOffers.map((offer, i) =>
-        sql.update(offersTable)
+        db.update(offersTable)
           .set({ displayOrder: i })
           .where(eq(offersTable.id, offer.id))
       )
@@ -789,9 +772,9 @@ export class DBStorage implements IStorage {
   }
 
   async getShopPopup(): Promise<ShopPopup> {
-    const [popup] = await sql.select().from(shopPopupTable).limit(1);
+    const [popup] = await db.select().from(shopPopupTable).limit(1);
     if (!popup) {
-      const [created] = await sql.insert(shopPopupTable)
+      const [created] = await db.insert(shopPopupTable)
         .values({ isActive: false, imageUrl: null })
         .returning();
       return created as ShopPopup;
@@ -800,16 +783,16 @@ export class DBStorage implements IStorage {
   }
 
   async updateShopPopup(isActive: boolean, imageUrl: string | null): Promise<ShopPopup> {
-    const existing = await sql.select().from(shopPopupTable).limit(1);
+    const existing = await db.select().from(shopPopupTable).limit(1);
     
     if (existing.length > 0) {
-      const [updated] = await sql.update(shopPopupTable)
+      const [updated] = await db.update(shopPopupTable)
         .set({ isActive, imageUrl })
         .where(eq(shopPopupTable.id, existing[0].id))
         .returning();
       return updated as ShopPopup;
     } else {
-      const [created] = await sql.insert(shopPopupTable)
+      const [created] = await db.insert(shopPopupTable)
         .values({ isActive, imageUrl })
         .returning();
       return created as ShopPopup;
