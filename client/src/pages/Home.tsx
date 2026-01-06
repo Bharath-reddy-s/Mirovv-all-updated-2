@@ -52,39 +52,62 @@ export default function Home() {
       <OfferBanner />
       <BackgroundPaths title="Mirovv Welcomes You" />
       
-      <motion.section 
+      <section 
         id="about-us" 
         className="min-h-screen bg-background py-20 px-4"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-6 text-black dark:text-white" data-testid="heading-about-us">
+          <motion.h2 
+            className="text-4xl md:text-5xl font-bold text-center mb-6 text-black dark:text-white" 
+            data-testid="heading-about-us"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
             About Us
-          </h2>
-          <p className="text-center text-muted-foreground mb-16 max-w-2xl mx-auto">
+          </motion.h2>
+          <motion.p 
+            className="text-center text-muted-foreground mb-16 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
             We're on a mission to bring you honest pricing and genuine products, cutting out the middlemen.
-          </p>
+          </motion.p>
           
           <div className="flex flex-col gap-6">
             {aboutPoints.map((point, index) => (
-              <Card key={index} className="p-6 md:p-8 shadow-sm" data-testid={`card-about-${index}`} id={point.title === "Delivery & Return Policy" ? "delivery-return-policy" : undefined}>
-                <div className="flex items-center gap-3 mb-3">
-                  <point.icon className="w-6 h-6 text-foreground" strokeWidth={1.5} />
-                  <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                    {point.title}
-                  </h3>
-                </div>
-                <p className="text-muted-foreground leading-relaxed text-sm">
-                  {point.description}
-                </p>
-              </Card>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.1 * (index + 3) }}
+              >
+                <Card className="p-6 md:p-8 shadow-sm" data-testid={`card-about-${index}`} id={point.title === "Delivery & Return Policy" ? "delivery-return-policy" : undefined}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <point.icon className="w-6 h-6 text-foreground" strokeWidth={1.5} />
+                    <h3 className="text-lg md:text-xl font-semibold text-foreground">
+                      {point.title}
+                    </h3>
+                  </div>
+                  <p className="text-muted-foreground leading-relaxed text-sm">
+                    {point.description}
+                  </p>
+                </Card>
+              </motion.div>
             ))}
           </div>
 
-          <div className="mt-12 flex flex-col items-center gap-8">
+          <motion.div 
+            className="mt-12 flex flex-col items-center gap-8"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 * (aboutPoints.length + 3) }}
+          >
             <div className="flex flex-wrap justify-center gap-6">
               <a 
                 href="https://www.instagram.com/mirovv.in?igsh=MXFhOWtrMnpvbjZnbg==" 
@@ -120,9 +143,9 @@ export default function Home() {
                 Follow us on Instagram
               </a>
             </Button>
-          </div>
+          </motion.div>
         </div>
-      </motion.section>
+      </section>
     </div>
   );
 }
