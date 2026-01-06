@@ -324,7 +324,7 @@ export default function ShopPage() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-[calc(100vw-3rem)] md:w-[calc(100vw-48rem)] max-w-[500px]"
+            className="relative w-full max-w-[calc(100vw-3rem)] md:max-w-[400px]"
             onClick={(e) => e.stopPropagation()}
           >
             <button
