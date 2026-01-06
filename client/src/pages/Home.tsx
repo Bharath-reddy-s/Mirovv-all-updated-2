@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import BackgroundPaths from "@/components/BackgroundPaths";
 import OfferBanner from "@/components/OfferBanner";
 import { Card } from "@/components/ui/card";
-import { HelpCircle, Shield, Eye, Truck, Sparkles, Instagram } from "lucide-react";
+import { HelpCircle, Shield, Eye, Truck, Sparkles, Instagram, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Mail } from "lucide-react";
+import { motion } from "framer-motion";
 
 const aboutPoints = [
   {
@@ -52,7 +52,14 @@ export default function Home() {
       <OfferBanner />
       <BackgroundPaths title="Mirovv Welcomes You" />
       
-      <section id="about-us" className="min-h-screen bg-background py-20 px-4">
+      <motion.section 
+        id="about-us" 
+        className="min-h-screen bg-background py-20 px-4"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
         <div className="container mx-auto max-w-4xl">
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-6 text-black dark:text-white" data-testid="heading-about-us">
             About Us
@@ -115,7 +122,7 @@ export default function Home() {
             </Button>
           </div>
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 }
