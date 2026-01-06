@@ -40,9 +40,9 @@ export default function ShopPage() {
   });
 
   useEffect(() => {
+    const hasSeenThisSession = sessionStorage.getItem("shopPopupShownThisLoad");
     if (shopPopup?.isActive && shopPopup?.imageUrl && (shopPopup.showOn === 'shop' || shopPopup.showOn === 'both')) {
-      const hasSeenPopup = sessionStorage.getItem("shopPopupSeen");
-      if (!hasSeenPopup) {
+      if (!hasSeenThisSession) {
         setShowPopup(true);
       }
     }
@@ -50,7 +50,7 @@ export default function ShopPage() {
 
   const handleClosePopup = () => {
     setShowPopup(false);
-    sessionStorage.setItem("shopPopupSeen", "true");
+    sessionStorage.setItem("shopPopupShownThisLoad", "true");
   };
 
   const { data: priceFilters = [], isLoading: isLoadingFilters } = useQuery<PriceFilter[]>({

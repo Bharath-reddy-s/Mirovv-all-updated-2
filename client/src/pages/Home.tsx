@@ -43,9 +43,9 @@ export default function Home() {
   });
 
   useEffect(() => {
+    const hasSeenThisSession = sessionStorage.getItem("homePopupShownThisLoad");
     if (shopPopup?.isActive && shopPopup?.homeImageUrl && (shopPopup.showOn === 'home' || shopPopup.showOn === 'both')) {
-      const hasSeenPopup = sessionStorage.getItem("homePopupSeen");
-      if (!hasSeenPopup) {
+      if (!hasSeenThisSession) {
         setShowPopup(true);
       }
     }
@@ -53,7 +53,7 @@ export default function Home() {
 
   const handleClosePopup = () => {
     setShowPopup(false);
-    sessionStorage.setItem("homePopupSeen", "true");
+    sessionStorage.setItem("homePopupShownThisLoad", "true");
   };
 
   useEffect(() => {
