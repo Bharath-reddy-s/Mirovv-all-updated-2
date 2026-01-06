@@ -753,6 +753,7 @@ export class DBStorage implements IStorage {
       const [newPopup] = await db.insert(shopPopupTable).values({
         isActive: false,
         imageUrl: null,
+        homeImageUrl: null,
         showOn: "shop"
       }).returning();
       return newPopup as ShopPopup;
@@ -760,10 +761,13 @@ export class DBStorage implements IStorage {
     return popup as ShopPopup;
   }
 
-  async updateShopPopup(isActive: boolean, imageUrl: string | null, showOn?: string): Promise<ShopPopup> {
+  async updateShopPopup(isActive: boolean, imageUrl: string | null, showOn?: string, homeImageUrl?: string | null): Promise<ShopPopup> {
     const updateData: any = { isActive, imageUrl };
     if (showOn) {
       updateData.showOn = showOn;
+    }
+    if (homeImageUrl !== undefined) {
+      updateData.homeImageUrl = homeImageUrl;
     }
     
     const [updated] = await db.update(shopPopupTable)

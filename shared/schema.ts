@@ -101,6 +101,7 @@ export const shopPopupTable = pgTable("shop_popup", {
   id: serial("id").primaryKey(),
   isActive: boolean("is_active").notNull().default(false),
   imageUrl: text("image_url"),
+  homeImageUrl: text("home_image_url"),
   showOn: text("show_on").notNull().default("shop"), // 'home', 'shop', or 'both'
 });
 
@@ -230,6 +231,7 @@ export type UpdateProduct = z.infer<typeof updateProductSchema>;
 export const products: Product[] = [
   {
     id: 1,
+    productCode: "#101",
     title: "Lightts",
     label: "Giveaway Ticket Included",
     price: "₹49",
@@ -265,6 +267,7 @@ export const products: Product[] = [
   },
   {
     id: 2,
+    productCode: "#102",
     title: "Aahhh!!!!",
     label: "Giveaway Ticket Included",
     price: "₹69",
@@ -300,6 +303,7 @@ export const products: Product[] = [
   },
   {
     id: 3,
+    productCode: "#103",
     title: "Rider PRO MAX",
     label: "Giveaway Ticket Included",
     price: "₹79",
@@ -335,6 +339,7 @@ export const products: Product[] = [
   },
   {
     id: 4,
+    productCode: "#104",
     title: "Future Giveaways",
     label: "Giveaway Ticket Included",
     price: "₹99",

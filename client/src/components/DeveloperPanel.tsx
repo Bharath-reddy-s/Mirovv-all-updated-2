@@ -83,16 +83,14 @@ export default function DeveloperPanel() {
     staleTime: 60000,
   });
 
+  const [homePopupImageUrl, setHomePopupImageUrl] = useState("");
+  const homePopupImageRef = useRef<HTMLInputElement>(null);
+
   const updateShopPopupMutation = useMutation({
-    mutationFn: async (data: { isActive: boolean; imageUrl: string | null; showOn?: string }) => {
+    mutationFn: async (data: { isActive: boolean; imageUrl: string | null; showOn?: string; homeImageUrl?: string | null }) => {
       return apiRequest("POST", "/api/shop-popup", data);
     },
     onSuccess: () => {
-      queryClient.setQueryData(["/api/shop-popup"], (old: any) => ({
-        ...old,
-        isActive: popupIsActive,
-        showOn: popupShowOn
-      }));
       queryClient.invalidateQueries({ queryKey: ["/api/shop-popup"] });
     },
   });
@@ -103,6 +101,9 @@ export default function DeveloperPanel() {
       setPopupShowOn(shopPopup.showOn || "shop");
       if (!popupImageUrl) {
         setPopupImageUrl(shopPopup.imageUrl || "");
+      }
+      if (!homePopupImageUrl) {
+        setHomePopupImageUrl((shopPopup as any).homeImageUrl || "");
       }
     }
   }, [shopPopup]);
@@ -1788,15 +1789,45 @@ export default function DeveloperPanel() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="popup-image">Popup Image</Label>
+                  <Label htmlFor="home-popup-image">Home Popup Image</Label>
                   <div className="flex gap-2">
                     <Input
-                      id="popup-image"
+                      id="home-popup-image"
+                      value={homePopupImageUrl}
+                      onChange={(e) => setHomePopupImageUrl(e.target.value)}
+                      placeholder="Home image URL or upload"
+                      className="flex-1 bg-black text-white focus-visible:ring-0 focus-visible:border-gray-600"
+                      data-testid="input-home-popup-image"
+                    />
+                    <input
+                      ref={homePopupImageRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleOfferImageUpload(e, setHomePopupImageUrl)}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => homePopupImageRef.current?.click()}
+                      data-testid="button-upload-home-popup-image"
+                    >
+                      <Upload className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="shop-popup-image">Shop Popup Image</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="shop-popup-image"
                       value={popupImageUrl}
                       onChange={(e) => setPopupImageUrl(e.target.value)}
-                      placeholder="Enter image URL or upload"
+                      placeholder="Shop image URL or upload"
                       className="flex-1 bg-black text-white focus-visible:ring-0 focus-visible:border-gray-600"
-                      data-testid="input-popup-image"
+                      data-testid="input-shop-popup-image"
                     />
                     <input
                       ref={popupImageRef}
@@ -1810,7 +1841,7 @@ export default function DeveloperPanel() {
                       variant="outline"
                       size="icon"
                       onClick={() => popupImageRef.current?.click()}
-                      data-testid="button-upload-popup-image"
+                      data-testid="button-upload-shop-popup-image"
                     >
                       <Upload className="w-4 h-4" />
                     </Button>
@@ -1823,6 +1854,7 @@ export default function DeveloperPanel() {
                       await updateShopPopupMutation.mutateAsync({
                         isActive: popupIsActive,
                         imageUrl: popupImageUrl || null,
+                        homeImageUrl: homePopupImageUrl || null,
                         showOn: popupShowOn
                       });
                       toast({
@@ -1844,12 +1876,23 @@ export default function DeveloperPanel() {
                   Save Popup Settings
                 </Button>
 
+                {homePopupImageUrl && (
+                  <div className="mt-2">
+                    <p className="text-xs opacity-60 mb-1">Home Preview:</p>
+                    <img 
+                      src={homePopupImageUrl} 
+                      alt="Home Popup preview" 
+                      className="w-full h-32 object-contain rounded border border-gray-600"
+                    />
+                  </div>
+                )}
+
                 {popupImageUrl && (
                   <div className="mt-2">
-                    <p className="text-xs opacity-60 mb-1">Preview:</p>
+                    <p className="text-xs opacity-60 mb-1">Shop Preview:</p>
                     <img 
                       src={popupImageUrl} 
-                      alt="Popup preview" 
+                      alt="Shop Popup preview" 
                       className="w-full h-32 object-contain rounded border border-gray-600"
                     />
                   </div>

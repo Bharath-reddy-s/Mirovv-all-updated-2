@@ -37,13 +37,13 @@ const aboutPoints = [
 
 export default function Home() {
   const [showPopup, setShowPopup] = useState(false);
-  const { data: shopPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null; showOn: string }>({
+  const { data: shopPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null; homeImageUrl: string | null; showOn: string }>({
     queryKey: ["/api/shop-popup"],
     staleTime: 60000,
   });
 
   useEffect(() => {
-    if (shopPopup?.isActive && shopPopup?.imageUrl && (shopPopup.showOn === 'home' || shopPopup.showOn === 'both')) {
+    if (shopPopup?.isActive && shopPopup?.homeImageUrl && (shopPopup.showOn === 'home' || shopPopup.showOn === 'both')) {
       const hasSeenPopup = sessionStorage.getItem("homePopupSeen");
       if (!hasSeenPopup) {
         setShowPopup(true);
@@ -170,7 +170,7 @@ export default function Home() {
       </section>
 
       <AnimatePresence>
-        {showPopup && shopPopup?.imageUrl && (
+        {showPopup && shopPopup?.homeImageUrl && (
           <div 
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
             onClick={handleClosePopup}
@@ -192,7 +192,7 @@ export default function Home() {
                 <X className="w-5 h-5 text-black dark:text-white" />
               </button>
               <img
-                src={shopPopup.imageUrl}
+                src={shopPopup.homeImageUrl}
                 alt="Welcome popup"
                 className="w-full h-auto rounded-[32px] shadow-2xl border-4 border-white/10"
                 data-testid="img-popup"
