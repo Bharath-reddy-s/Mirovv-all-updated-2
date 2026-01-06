@@ -69,16 +69,16 @@ export default function DeveloperPanel() {
   const offerImage1Ref = useRef<HTMLInputElement>(null);
   const offerImage2Ref = useRef<HTMLInputElement>(null);
   const offerImage3Ref = useRef<HTMLInputElement>(null);
-  const [popupImageUrl, setPopupImageUrl] = useState("");
-  const [popupIsHomeActive, setPopupIsHomeActive] = useState(false);
-  const [popupIsShopActive, setPopupIsShopActive] = useState(false);
   const popupImageRef = useRef<HTMLInputElement>(null);
+  const [popupImageUrl, setPopupImageUrl] = useState("");
+  const [popupIsActive, setPopupIsActive] = useState(false);
+  const [popupShowOn, setPopupShowOn] = useState<string>("shop");
 
   const { data: offers = [], isLoading: isLoadingOffers } = useQuery<Offer[]>({
     queryKey: ["/api/offers"],
   });
 
-  const { data: shopPopup, isLoading: isLoadingPopup } = useQuery<{ id: number; isHomeActive: boolean; isShopActive: boolean; imageUrl: string | null; homeImageUrl: string | null }>({
+  const { data: shopPopup, isLoading: isLoadingPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null; showOn: string }>({
     queryKey: ["/api/shop-popup"],
     staleTime: 60000,
   });
@@ -87,7 +87,7 @@ export default function DeveloperPanel() {
   const homePopupImageRef = useRef<HTMLInputElement>(null);
 
   const updateShopPopupMutation = useMutation({
-    mutationFn: async (data: { isHomeActive: boolean; isShopActive: boolean; imageUrl: string | null; homeImageUrl?: string | null }) => {
+    mutationFn: async (data: { isActive: boolean; imageUrl: string | null; showOn?: string; homeImageUrl?: string | null }) => {
       return apiRequest("POST", "/api/shop-popup", data);
     },
     onSuccess: () => {
@@ -97,13 +97,13 @@ export default function DeveloperPanel() {
 
   useEffect(() => {
     if (shopPopup) {
-      setPopupIsHomeActive(shopPopup.isHomeActive);
-      setPopupIsShopActive(shopPopup.isShopActive);
+      setPopupIsActive(shopPopup.isActive);
+      setPopupShowOn(shopPopup.showOn || "shop");
       if (!popupImageUrl) {
         setPopupImageUrl(shopPopup.imageUrl || "");
       }
       if (!homePopupImageUrl) {
-        setHomePopupImageUrl(shopPopup.homeImageUrl || "");
+        setHomePopupImageUrl((shopPopup as any).homeImageUrl || "");
       }
     }
   }, [shopPopup]);
@@ -196,46 +196,6 @@ export default function DeveloperPanel() {
     const images = [offerImage1, offerImage2, offerImage3].filter(Boolean);
     if (images.length === 0) {
       toast({
-        title: "Missing images",
-        description: "Please add at least one image URL",
-        variant: "destructive",
-      });
-      return;
-    }
-    try {
-      if (editingOffer) {
-        await updateOfferMutation.mutateAsync({
-          id: editingOffer.id,
-          updates: {
-            title: offerTitle,
-            description: offerDescription,
-            images,
-          },
-        });
-        toast({
-          title: "Offer updated",
-          description: "Offer has been updated successfully.",
-        });
-      } else {
-        await createOfferMutation.mutateAsync({
-          title: offerTitle,
-          description: offerDescription,
-          images,
-        });
-        toast({
-          title: "Offer created",
-          description: "New offer has been created successfully.",
-        });
-      }
-      setIsOfferDialogOpen(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save offer. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
         title: "Missing images",
         description: "Please add at least one image URL",
         variant: "destructive",
@@ -1892,10 +1852,10 @@ export default function DeveloperPanel() {
                   onClick={async () => {
                     try {
                       await updateShopPopupMutation.mutateAsync({
-                        isHomeActive: popupIsHomeActive,
-                        isShopActive: popupIsShopActive,
+                        isActive: popupIsActive,
                         imageUrl: popupImageUrl || null,
                         homeImageUrl: homePopupImageUrl || null,
+                        showOn: popupShowOn
                       });
                       toast({
                         title: "Popup updated",
