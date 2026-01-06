@@ -49,6 +49,10 @@ export default function ShopPage() {
     }
   }, [shopPopup]);
 
+  const handleClosePopup = () => {
+    setShowPopup(false);
+  };
+
   const { data: priceFilters = [], isLoading: isLoadingFilters } = useQuery<PriceFilter[]>({
     queryKey: ["/api/price-filters"],
   });
@@ -310,7 +314,7 @@ export default function ShopPage() {
       {showPopup && shopPopup?.imageUrl && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
-          onClick={() => setShowPopup(false)}
+          onClick={handleClosePopup}
           data-testid="popup-overlay"
         >
           <motion.div 
@@ -322,7 +326,7 @@ export default function ShopPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              onClick={() => setShowPopup(false)}
+              onClick={handleClosePopup}
               className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-white dark:bg-neutral-800 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 dark:hover:bg-neutral-700 transition-all hover:scale-110 active:scale-95"
               data-testid="button-close-popup"
             >
