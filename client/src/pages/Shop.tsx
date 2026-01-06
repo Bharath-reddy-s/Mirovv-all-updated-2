@@ -41,19 +41,14 @@ export default function ShopPage() {
 
   useEffect(() => {
     if (shopPopup?.isActive && shopPopup?.imageUrl) {
-      const wasInactive = prevPopupActive === false || prevPopupActive === null;
       const hasSeenPopup = sessionStorage.getItem("shopPopupSeen");
       
-      if (wasInactive || !hasSeenPopup) {
+      if (!hasSeenPopup) {
         setShowPopup(true);
         sessionStorage.setItem("shopPopupSeen", "true");
       }
     }
-    
-    if (shopPopup) {
-      setPrevPopupActive(shopPopup.isActive);
-    }
-  }, [shopPopup, prevPopupActive]);
+  }, [shopPopup]);
 
   const { data: priceFilters = [], isLoading: isLoadingFilters } = useQuery<PriceFilter[]>({
     queryKey: ["/api/price-filters"],
