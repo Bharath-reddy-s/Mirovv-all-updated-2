@@ -4,6 +4,7 @@ import OfferBanner from "@/components/OfferBanner";
 import { Card } from "@/components/ui/card";
 import { HelpCircle, Shield, Eye, Truck, Sparkles, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Mail } from "lucide-react";
 
 const aboutPoints = [
   {
@@ -76,7 +77,26 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="mt-12 flex justify-center">
+          <div className="mt-12 flex flex-col items-center gap-8">
+            <div className="flex flex-wrap justify-center gap-6">
+              <a 
+                href="https://www.instagram.com/mirovv.in?igsh=MXFhOWtrMnpvbjZnbg==" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform group"
+                data-testid="link-social-instagram"
+              >
+                <Instagram className="w-8 h-8 text-[#0066FF] group-hover:text-[#0052CC]" />
+              </a>
+              <a 
+                href="mailto:contact@mirovv.in" 
+                className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform group"
+                data-testid="link-social-email"
+              >
+                <Mail className="w-8 h-8 text-[#0066FF] group-hover:text-[#0052CC]" />
+              </a>
+            </div>
+
             <Button
               variant="outline"
               size="lg"
