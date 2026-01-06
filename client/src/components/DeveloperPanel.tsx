@@ -1759,36 +1759,6 @@ export default function DeveloperPanel() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Popup Display Location</Label>
-                  <div className="grid grid-cols-3 gap-1">
-                    <Button
-                      size="sm"
-                      variant={popupShowOn === 'home' ? 'default' : 'outline'}
-                      onClick={() => setPopupShowOn('home')}
-                      className="text-[10px] h-8 px-1"
-                    >
-                      Home
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={popupShowOn === 'shop' ? 'default' : 'outline'}
-                      onClick={() => setPopupShowOn('shop')}
-                      className="text-[10px] h-8 px-1"
-                    >
-                      Shop
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={popupShowOn === 'both' ? 'default' : 'outline'}
-                      onClick={() => setPopupShowOn('both')}
-                      className="text-[10px] h-8 px-1"
-                    >
-                      Both
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="home-popup-image">Home Popup Image</Label>
                   <div className="flex gap-2">
                     <Input
