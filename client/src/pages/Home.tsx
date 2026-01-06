@@ -39,7 +39,7 @@ export default function Home() {
   const [showPopup, setShowPopup] = useState(false);
   const { data: shopPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null; showOn: string }>({
     queryKey: ["/api/shop-popup"],
-    refetchInterval: 2000,
+    staleTime: 60000,
   });
 
   useEffect(() => {

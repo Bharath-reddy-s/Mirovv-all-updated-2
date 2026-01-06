@@ -80,6 +80,7 @@ export default function DeveloperPanel() {
 
   const { data: shopPopup, isLoading: isLoadingPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null; showOn: string }>({
     queryKey: ["/api/shop-popup"],
+    staleTime: 60000,
   });
 
   const updateShopPopupMutation = useMutation({
@@ -87,6 +88,11 @@ export default function DeveloperPanel() {
       return apiRequest("POST", "/api/shop-popup", data);
     },
     onSuccess: () => {
+      queryClient.setQueryData(["/api/shop-popup"], (old: any) => ({
+        ...old,
+        isActive: popupIsActive,
+        showOn: popupShowOn
+      }));
       queryClient.invalidateQueries({ queryKey: ["/api/shop-popup"] });
     },
   });
@@ -94,8 +100,10 @@ export default function DeveloperPanel() {
   useEffect(() => {
     if (shopPopup) {
       setPopupIsActive(shopPopup.isActive);
-      setPopupImageUrl(shopPopup.imageUrl || "");
       setPopupShowOn(shopPopup.showOn || "shop");
+      if (!popupImageUrl) {
+        setPopupImageUrl(shopPopup.imageUrl || "");
+      }
     }
   }, [shopPopup]);
 
