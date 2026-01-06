@@ -41,9 +41,11 @@ export default function ShopPage() {
 
   useEffect(() => {
     if (shopPopup?.isActive && shopPopup?.imageUrl && (shopPopup.showOn === 'shop' || shopPopup.showOn === 'both')) {
-      setShowPopup(true);
-    } else {
-      setShowPopup(false);
+      const hasSeenPopup = sessionStorage.getItem("globalPopupSeen");
+      if (!hasSeenPopup) {
+        setShowPopup(true);
+        sessionStorage.setItem("globalPopupSeen", "true");
+      }
     }
   }, [shopPopup]);
 
