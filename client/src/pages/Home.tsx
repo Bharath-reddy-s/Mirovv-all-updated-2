@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import BackgroundPaths from "@/components/BackgroundPaths";
 import OfferBanner from "@/components/OfferBanner";
 import { Card } from "@/components/ui/card";
-import { HelpCircle, Shield, Eye, Truck, Sparkles } from "lucide-react";
+import { HelpCircle, Shield, Eye, Truck, Sparkles, Instagram } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const aboutPoints = [
   {
@@ -73,6 +74,25 @@ export default function Home() {
                 </p>
               </Card>
             ))}
+          </div>
+
+          <div className="mt-12 flex justify-center">
+            <Button
+              variant="outline"
+              size="lg"
+              className="gap-2 border-foreground hover:bg-foreground hover:text-background transition-colors"
+              asChild
+              data-testid="button-instagram-link"
+            >
+              <a 
+                href="https://www.instagram.com/mirovv.in?igsh=MXFhOWtrMnpvbjZnbg==" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                <Instagram className="w-5 h-5" />
+                Follow us on Instagram
+              </a>
+            </Button>
           </div>
         </div>
       </section>
