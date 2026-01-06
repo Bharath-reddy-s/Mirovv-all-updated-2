@@ -337,7 +337,7 @@ export default function ShopPage() {
             <img
               src={shopPopup.imageUrl}
               alt="Shop popup"
-              className="w-full h-auto rounded-[32px] shadow-2xl border-4 border-white/10"
+              className="w-full aspect-[4/5] md:aspect-auto object-cover md:object-contain rounded-[32px] shadow-2xl border-4 border-white/10"
               data-testid="img-popup"
             />
           </motion.div>
