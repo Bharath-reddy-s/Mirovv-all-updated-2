@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import BackgroundPaths from "@/components/BackgroundPaths";
 import OfferBanner from "@/components/OfferBanner";
 import { Card } from "@/components/ui/card";
-import { HelpCircle, Shield, Eye, Truck, Sparkles, Instagram, Mail } from "lucide-react";
+import { HelpCircle, Shield, Eye, Truck, Sparkles, Instagram, Mail, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 
 const aboutPoints = [
   {
@@ -35,6 +36,23 @@ const aboutPoints = [
 ];
 
 export default function Home() {
+  const [showPopup, setShowPopup] = useState(false);
+  const { data: shopPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null; showOn: string }>({
+    queryKey: ["/api/shop-popup"],
+    refetchInterval: 2000,
+  });
+
+  useEffect(() => {
+    if (shopPopup?.isActive && shopPopup?.imageUrl && (shopPopup.showOn === 'home' || shopPopup.showOn === 'both')) {
+      const hasSeenPopup = sessionStorage.getItem("homePopupSeen");
+      
+      if (!hasSeenPopup) {
+        setShowPopup(true);
+        sessionStorage.setItem("homePopupSeen", "true");
+      }
+    }
+  }, [shopPopup]);
+
   useEffect(() => {
     const hash = window.location.hash;
     if (hash) {
@@ -146,6 +164,39 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      <AnimatePresence>
+        {showPopup && shopPopup?.imageUrl && (
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+            onClick={() => setShowPopup(false)}
+            data-testid="popup-overlay"
+          >
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-[calc(100vw-3rem)] md:max-w-[400px]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowPopup(false)}
+                className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-white dark:bg-neutral-800 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 dark:hover:bg-neutral-700 transition-all hover:scale-110 active:scale-95"
+                data-testid="button-close-popup"
+              >
+                <X className="w-5 h-5 text-black dark:text-white" />
+              </button>
+              <img
+                src={shopPopup.imageUrl}
+                alt="Welcome popup"
+                className="w-full h-auto rounded-[32px] shadow-2xl border-4 border-white/10"
+                data-testid="img-popup"
+              />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

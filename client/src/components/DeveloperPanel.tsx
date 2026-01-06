@@ -72,17 +72,18 @@ export default function DeveloperPanel() {
   const popupImageRef = useRef<HTMLInputElement>(null);
   const [popupImageUrl, setPopupImageUrl] = useState("");
   const [popupIsActive, setPopupIsActive] = useState(false);
+  const [popupShowOn, setPopupShowOn] = useState<string>("shop");
 
   const { data: offers = [], isLoading: isLoadingOffers } = useQuery<Offer[]>({
     queryKey: ["/api/offers"],
   });
 
-  const { data: shopPopup, isLoading: isLoadingPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null }>({
+  const { data: shopPopup, isLoading: isLoadingPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null; showOn: string }>({
     queryKey: ["/api/shop-popup"],
   });
 
   const updateShopPopupMutation = useMutation({
-    mutationFn: async (data: { isActive: boolean; imageUrl: string | null }) => {
+    mutationFn: async (data: { isActive: boolean; imageUrl: string | null; showOn?: string }) => {
       return apiRequest("POST", "/api/shop-popup", data);
     },
     onSuccess: () => {
@@ -94,6 +95,7 @@ export default function DeveloperPanel() {
     if (shopPopup) {
       setPopupIsActive(shopPopup.isActive);
       setPopupImageUrl(shopPopup.imageUrl || "");
+      setPopupShowOn(shopPopup.showOn || "shop");
     }
   }, [shopPopup]);
 
@@ -1748,6 +1750,36 @@ export default function DeveloperPanel() {
                 </div>
 
                 <div className="space-y-2">
+                  <Label>Popup Display Location</Label>
+                  <div className="grid grid-cols-3 gap-1">
+                    <Button
+                      size="sm"
+                      variant={popupShowOn === 'home' ? 'default' : 'outline'}
+                      onClick={() => setPopupShowOn('home')}
+                      className="text-[10px] h-8 px-1"
+                    >
+                      Home
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={popupShowOn === 'shop' ? 'default' : 'outline'}
+                      onClick={() => setPopupShowOn('shop')}
+                      className="text-[10px] h-8 px-1"
+                    >
+                      Shop
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={popupShowOn === 'both' ? 'default' : 'outline'}
+                      onClick={() => setPopupShowOn('both')}
+                      className="text-[10px] h-8 px-1"
+                    >
+                      Both
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="popup-image">Popup Image</Label>
                   <div className="flex gap-2">
                     <Input
@@ -1782,7 +1814,8 @@ export default function DeveloperPanel() {
                     try {
                       await updateShopPopupMutation.mutateAsync({
                         isActive: popupIsActive,
-                        imageUrl: popupImageUrl || null
+                        imageUrl: popupImageUrl || null,
+                        showOn: popupShowOn
                       });
                       toast({
                         title: "Popup updated",

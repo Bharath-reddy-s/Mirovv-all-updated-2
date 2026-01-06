@@ -129,7 +129,7 @@ export interface IStorage {
   reorderOffers(offerId: number, direction: 'up' | 'down'): Promise<Offer[]>;
   setOfferPosition(offerId: number, newPosition: number): Promise<Offer[]>;
   getShopPopup(): Promise<ShopPopup>;
-  updateShopPopup(isActive: boolean, imageUrl: string | null): Promise<ShopPopup>;
+  updateShopPopup(isActive: boolean, imageUrl: string | null, showOn?: string): Promise<ShopPopup>;
 }
 
 export class DBStorage implements IStorage {
@@ -615,56 +615,28 @@ export class DBStorage implements IStorage {
   }
 
   async updateTimeChallenge(settings: { name?: string; isActive?: boolean; durationSeconds?: number; discountPercent?: number }): Promise<TimeChallenge> {
-    const existing = await db.select().from(timeChallengeTable).limit(1);
-    
-    // Invalidate product cache since product ordering depends on time challenge state
-    invalidateProductCache();
-    
-    if (existing.length > 0) {
-      const [updated] = await db.update(timeChallengeTable)
-        .set(settings)
-        .where(eq(timeChallengeTable.id, existing[0].id))
-        .returning();
-      return updated as TimeChallenge;
-    } else {
-      const [created] = await db.insert(timeChallengeTable)
-        .values({
-          name: settings.name ?? "Time is Money",
-          isActive: settings.isActive ?? false,
-          durationSeconds: settings.durationSeconds ?? 30,
-          discountPercent: settings.discountPercent ?? 30,
-        })
-        .returning();
-      return created as TimeChallenge;
-    }
+    const [updated] = await db.update(timeChallengeTable)
+      .set(settings)
+      .where(eq(timeChallengeTable.id, 1))
+      .returning();
+    return updated as TimeChallenge;
   }
 
   async getCheckoutDiscount(): Promise<CheckoutDiscount> {
     const [discount] = await db.select().from(checkoutDiscountTable).limit(1);
     if (!discount) {
-      const [created] = await db.insert(checkoutDiscountTable)
-        .values({ discountPercent: 0 })
-        .returning();
-      return created as CheckoutDiscount;
+      const [newDiscount] = await db.insert(checkoutDiscountTable).values({ discountPercent: 0 }).returning();
+      return newDiscount as CheckoutDiscount;
     }
     return discount as CheckoutDiscount;
   }
 
   async updateCheckoutDiscount(discountPercent: number): Promise<CheckoutDiscount> {
-    const existing = await db.select().from(checkoutDiscountTable).limit(1);
-    
-    if (existing.length > 0) {
-      const [updated] = await db.update(checkoutDiscountTable)
-        .set({ discountPercent })
-        .where(eq(checkoutDiscountTable.id, existing[0].id))
-        .returning();
-      return updated as CheckoutDiscount;
-    } else {
-      const [created] = await db.insert(checkoutDiscountTable)
-        .values({ discountPercent })
-        .returning();
-      return created as CheckoutDiscount;
-    }
+    const [updated] = await db.update(checkoutDiscountTable)
+      .set({ discountPercent })
+      .where(eq(checkoutDiscountTable.id, 1))
+      .returning();
+    return updated as CheckoutDiscount;
   }
 
   async getOffers(): Promise<Offer[]> {
@@ -680,25 +652,28 @@ export class DBStorage implements IStorage {
     const maxOrder = await db.select({ max: sqlOp<number>`max(${offersTable.displayOrder})` }).from(offersTable);
     const nextOrder = (maxOrder[0]?.max ?? -1) + 1;
     
-    const processedImages = await compressOfferImages(offerData.images);
+    const compressed = await compressOfferImages(offerData.images);
     
     const [newOffer] = await db.insert(offersTable)
-      .values({ ...offerData, images: processedImages, displayOrder: nextOrder })
+      .values({ 
+        ...offerData, 
+        images: compressed,
+        displayOrder: nextOrder 
+      })
       .returning();
     invalidateOffersCache();
     return newOffer as Offer;
   }
 
   async updateOffer(id: number, updates: Partial<UpdateOffer>): Promise<Offer | undefined> {
-    const updateData: Record<string, unknown> = {};
-    if (updates.title !== undefined) updateData.title = updates.title;
-    if (updates.description !== undefined) updateData.description = updates.description;
-    if (updates.images !== undefined) {
-      updateData.images = await compressOfferImages(updates.images);
+    let finalUpdates = { ...updates };
+    
+    if (updates.images) {
+      finalUpdates.images = await compressOfferImages(updates.images);
     }
     
     const [updated] = await db.update(offersTable)
-      .set(updateData)
+      .set(finalUpdates)
       .where(eq(offersTable.id, id))
       .returning();
     invalidateOffersCache();
@@ -716,6 +691,7 @@ export class DBStorage implements IStorage {
   async reorderOffers(offerId: number, direction: 'up' | 'down'): Promise<Offer[]> {
     const offers = await this.getOffers();
     const currentIndex = offers.findIndex(o => o.id === offerId);
+    
     if (currentIndex === -1) return offers;
     
     const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
@@ -774,29 +750,27 @@ export class DBStorage implements IStorage {
   async getShopPopup(): Promise<ShopPopup> {
     const [popup] = await db.select().from(shopPopupTable).limit(1);
     if (!popup) {
-      const [created] = await db.insert(shopPopupTable)
-        .values({ isActive: false, imageUrl: null })
-        .returning();
-      return created as ShopPopup;
+      const [newPopup] = await db.insert(shopPopupTable).values({
+        isActive: false,
+        imageUrl: null,
+        showOn: "shop"
+      }).returning();
+      return newPopup as ShopPopup;
     }
     return popup as ShopPopup;
   }
 
-  async updateShopPopup(isActive: boolean, imageUrl: string | null): Promise<ShopPopup> {
-    const existing = await db.select().from(shopPopupTable).limit(1);
-    
-    if (existing.length > 0) {
-      const [updated] = await db.update(shopPopupTable)
-        .set({ isActive, imageUrl })
-        .where(eq(shopPopupTable.id, existing[0].id))
-        .returning();
-      return updated as ShopPopup;
-    } else {
-      const [created] = await db.insert(shopPopupTable)
-        .values({ isActive, imageUrl })
-        .returning();
-      return created as ShopPopup;
+  async updateShopPopup(isActive: boolean, imageUrl: string | null, showOn?: string): Promise<ShopPopup> {
+    const updateData: any = { isActive, imageUrl };
+    if (showOn) {
+      updateData.showOn = showOn;
     }
+    
+    const [updated] = await db.update(shopPopupTable)
+      .set(updateData)
+      .where(eq(shopPopupTable.id, 1))
+      .returning();
+    return updated as ShopPopup;
   }
 }
 

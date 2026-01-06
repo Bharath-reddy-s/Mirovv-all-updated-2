@@ -34,13 +34,13 @@ export default function ShopPage() {
 
   const [prevPopupActive, setPrevPopupActive] = useState<boolean | null>(null);
   
-  const { data: shopPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null }>({
+  const { data: shopPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null; showOn: string }>({
     queryKey: ["/api/shop-popup"],
     refetchInterval: 2000,
   });
 
   useEffect(() => {
-    if (shopPopup?.isActive && shopPopup?.imageUrl) {
+    if (shopPopup?.isActive && shopPopup?.imageUrl && (shopPopup.showOn === 'shop' || shopPopup.showOn === 'both')) {
       const hasSeenPopup = sessionStorage.getItem("shopPopupSeen");
       
       if (!hasSeenPopup) {
