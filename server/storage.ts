@@ -751,21 +751,18 @@ export class DBStorage implements IStorage {
     const [popup] = await db.select().from(shopPopupTable).limit(1);
     if (!popup) {
       const [newPopup] = await db.insert(shopPopupTable).values({
-        isActive: false,
+        isHomeActive: false,
+        isShopActive: false,
         imageUrl: null,
         homeImageUrl: null,
-        showOn: "shop"
       }).returning();
       return newPopup as ShopPopup;
     }
     return popup as ShopPopup;
   }
 
-  async updateShopPopup(isActive: boolean, imageUrl: string | null, showOn?: string, homeImageUrl?: string | null): Promise<ShopPopup> {
-    const updateData: any = { isActive, imageUrl };
-    if (showOn) {
-      updateData.showOn = showOn;
-    }
+  async updateShopPopup(isHomeActive: boolean, isShopActive: boolean, imageUrl: string | null, homeImageUrl?: string | null): Promise<ShopPopup> {
+    const updateData: any = { isHomeActive, isShopActive, imageUrl };
     if (homeImageUrl !== undefined) {
       updateData.homeImageUrl = homeImageUrl;
     }

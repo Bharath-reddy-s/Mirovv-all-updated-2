@@ -37,13 +37,13 @@ const aboutPoints = [
 
 export default function Home() {
   const [showPopup, setShowPopup] = useState(false);
-  const { data: shopPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null; homeImageUrl: string | null; showOn: string }>({
+  const { data: shopPopup } = useQuery<{ id: number; isHomeActive: boolean; isShopActive: boolean; imageUrl: string | null; homeImageUrl: string | null }>({
     queryKey: ["/api/shop-popup"],
     staleTime: 60000,
   });
 
   useEffect(() => {
-    if (shopPopup?.isActive && shopPopup?.homeImageUrl && (shopPopup.showOn === 'home' || shopPopup.showOn === 'both')) {
+    if (shopPopup?.isHomeActive && shopPopup?.homeImageUrl) {
       const hasSeenPopup = sessionStorage.getItem("homePopupSeen");
       if (!hasSeenPopup) {
         setShowPopup(true);

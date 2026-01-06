@@ -611,17 +611,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/shop-popup", async (req, res) => {
     try {
       const schema = z.object({
-        isActive: z.boolean(),
+        isHomeActive: z.boolean(),
+        isShopActive: z.boolean(),
         imageUrl: z.string().nullable(),
-        showOn: z.string().optional(),
         homeImageUrl: z.string().nullable().optional()
       });
       const validation = schema.safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({ error: validation.error });
       }
-      const { isActive, imageUrl, showOn, homeImageUrl } = validation.data;
-      const popup = await storage.updateShopPopup(isActive, imageUrl, showOn, homeImageUrl ?? null);
+      const { isHomeActive, isShopActive, imageUrl, homeImageUrl } = validation.data;
+      const popup = await storage.updateShopPopup(isHomeActive, isShopActive, imageUrl, homeImageUrl ?? null);
       res.json(popup);
     } catch (error) {
       console.error("Failed to update shop popup:", error);

@@ -99,10 +99,10 @@ export const offersTable = pgTable("offers", {
 
 export const shopPopupTable = pgTable("shop_popup", {
   id: serial("id").primaryKey(),
-  isActive: boolean("is_active").notNull().default(false),
+  isHomeActive: boolean("is_home_active").notNull().default(false),
+  isShopActive: boolean("is_shop_active").notNull().default(false),
   imageUrl: text("image_url"),
   homeImageUrl: text("home_image_url"),
-  showOn: text("show_on").notNull().default("shop"), // 'home', 'shop', or 'both'
 });
 
 export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, isInStock: true, displayOrder: true });

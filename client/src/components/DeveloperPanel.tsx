@@ -69,16 +69,12 @@ export default function DeveloperPanel() {
   const offerImage1Ref = useRef<HTMLInputElement>(null);
   const offerImage2Ref = useRef<HTMLInputElement>(null);
   const offerImage3Ref = useRef<HTMLInputElement>(null);
-  const popupImageRef = useRef<HTMLInputElement>(null);
   const [popupImageUrl, setPopupImageUrl] = useState("");
-  const [popupIsActive, setPopupIsActive] = useState(false);
-  const [popupShowOn, setPopupShowOn] = useState<string>("shop");
+  const [popupIsHomeActive, setPopupIsHomeActive] = useState(false);
+  const [popupIsShopActive, setPopupIsShopActive] = useState(false);
+  const popupImageRef = useRef<HTMLInputElement>(null);
 
-  const { data: offers = [], isLoading: isLoadingOffers } = useQuery<Offer[]>({
-    queryKey: ["/api/offers"],
-  });
-
-  const { data: shopPopup, isLoading: isLoadingPopup } = useQuery<{ id: number; isActive: boolean; imageUrl: string | null; showOn: string }>({
+  const { data: shopPopup, isLoading: isLoadingPopup } = useQuery<{ id: number; isHomeActive: boolean; isShopActive: boolean; imageUrl: string | null; homeImageUrl: string | null }>({
     queryKey: ["/api/shop-popup"],
     staleTime: 60000,
   });
@@ -87,7 +83,7 @@ export default function DeveloperPanel() {
   const homePopupImageRef = useRef<HTMLInputElement>(null);
 
   const updateShopPopupMutation = useMutation({
-    mutationFn: async (data: { isActive: boolean; imageUrl: string | null; showOn?: string; homeImageUrl?: string | null }) => {
+    mutationFn: async (data: { isHomeActive: boolean; isShopActive: boolean; imageUrl: string | null; homeImageUrl?: string | null }) => {
       return apiRequest("POST", "/api/shop-popup", data);
     },
     onSuccess: () => {
@@ -97,13 +93,13 @@ export default function DeveloperPanel() {
 
   useEffect(() => {
     if (shopPopup) {
-      setPopupIsActive(shopPopup.isActive);
-      setPopupShowOn(shopPopup.showOn || "shop");
+      setPopupIsHomeActive(shopPopup.isHomeActive);
+      setPopupIsShopActive(shopPopup.isShopActive);
       if (!popupImageUrl) {
         setPopupImageUrl(shopPopup.imageUrl || "");
       }
       if (!homePopupImageUrl) {
-        setHomePopupImageUrl((shopPopup as any).homeImageUrl || "");
+        setHomePopupImageUrl(shopPopup.homeImageUrl || "");
       }
     }
   }, [shopPopup]);
@@ -1852,10 +1848,10 @@ export default function DeveloperPanel() {
                   onClick={async () => {
                     try {
                       await updateShopPopupMutation.mutateAsync({
-                        isActive: popupIsActive,
+                        isHomeActive: popupIsHomeActive,
+                        isShopActive: popupIsShopActive,
                         imageUrl: popupImageUrl || null,
                         homeImageUrl: homePopupImageUrl || null,
-                        showOn: popupShowOn
                       });
                       toast({
                         title: "Popup updated",
