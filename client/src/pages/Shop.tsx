@@ -41,12 +41,9 @@ export default function ShopPage() {
 
   useEffect(() => {
     if (shopPopup?.isActive && shopPopup?.imageUrl && (shopPopup.showOn === 'shop' || shopPopup.showOn === 'both')) {
-      const hasSeenPopup = sessionStorage.getItem("shopPopupSeen");
-      
-      if (!hasSeenPopup) {
-        setShowPopup(true);
-        sessionStorage.setItem("shopPopupSeen", "true");
-      }
+      setShowPopup(true);
+    } else {
+      setShowPopup(false);
     }
   }, [shopPopup]);
 

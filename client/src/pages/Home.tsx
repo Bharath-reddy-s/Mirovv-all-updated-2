@@ -44,12 +44,9 @@ export default function Home() {
 
   useEffect(() => {
     if (shopPopup?.isActive && shopPopup?.imageUrl && (shopPopup.showOn === 'home' || shopPopup.showOn === 'both')) {
-      const hasSeenPopup = sessionStorage.getItem("homePopupSeen");
-      
-      if (!hasSeenPopup) {
-        setShowPopup(true);
-        sessionStorage.setItem("homePopupSeen", "true");
-      }
+      setShowPopup(true);
+    } else {
+      setShowPopup(false);
     }
   }, [shopPopup]);
 
