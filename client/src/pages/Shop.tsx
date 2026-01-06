@@ -44,13 +44,13 @@ export default function ShopPage() {
       const hasSeenPopup = sessionStorage.getItem("globalPopupSeen");
       if (!hasSeenPopup) {
         setShowPopup(true);
-        sessionStorage.setItem("globalPopupSeen", "true");
       }
     }
   }, [shopPopup]);
 
   const handleClosePopup = () => {
     setShowPopup(false);
+    sessionStorage.setItem("globalPopupSeen", "true");
   };
 
   const { data: priceFilters = [], isLoading: isLoadingFilters } = useQuery<PriceFilter[]>({
