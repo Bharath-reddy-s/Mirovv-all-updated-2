@@ -1721,41 +1721,50 @@ export default function DeveloperPanel() {
             <TabsContent value="popup">
               <p className="text-xs mb-3 opacity-80">Configure shop page welcome popup</p>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-2 rounded bg-gray-800 dark:bg-gray-200">
+                <div className="space-y-2">
                   <span className="text-sm font-medium">Popup Active</span>
-                  <Button
-                    size="sm"
-                    onClick={async () => {
-                      const newStatus = !popupIsActive;
-                      setPopupIsActive(newStatus);
-                      try {
-                        await updateShopPopupMutation.mutateAsync({
-                          isActive: newStatus,
-                          imageUrl: popupImageUrl || null
-                        });
-                        toast({
-                          title: newStatus ? "Popup enabled" : "Popup disabled",
-                          description: newStatus ? "Popup will show on shop page" : "Popup is now hidden",
-                        });
-                      } catch (error) {
-                        setPopupIsActive(!newStatus);
-                        toast({
-                          title: "Error",
-                          description: "Failed to update popup status",
-                          variant: "destructive",
-                        });
-                      }
-                    }}
-                    disabled={updateShopPopupMutation.isPending}
-                    className={`h-8 px-3 text-xs ${
-                      popupIsActive
-                        ? "bg-green-600 hover:bg-green-700 text-white"
-                        : "bg-red-600 hover:bg-red-700 text-white"
-                    }`}
-                    data-testid="button-toggle-popup"
-                  >
-                    {popupIsActive ? "On" : "Off"}
-                  </Button>
+                  <div className="grid grid-cols-2 gap-1">
+                    <Button
+                      size="sm"
+                      variant={popupIsActive ? 'default' : 'outline'}
+                      onClick={async () => {
+                        setPopupIsActive(true);
+                        try {
+                          await updateShopPopupMutation.mutateAsync({
+                            isActive: true,
+                            imageUrl: popupImageUrl || null,
+                            homeImageUrl: homePopupImageUrl || null,
+                            showOn: popupShowOn
+                          });
+                        } catch (error) {
+                          setPopupIsActive(false);
+                        }
+                      }}
+                      className="text-[10px] h-8 px-1"
+                    >
+                      On
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={!popupIsActive ? 'default' : 'outline'}
+                      onClick={async () => {
+                        setPopupIsActive(false);
+                        try {
+                          await updateShopPopupMutation.mutateAsync({
+                            isActive: false,
+                            imageUrl: popupImageUrl || null,
+                            homeImageUrl: homePopupImageUrl || null,
+                            showOn: popupShowOn
+                          });
+                        } catch (error) {
+                          setPopupIsActive(true);
+                        }
+                      }}
+                      className="text-[10px] h-8 px-1"
+                    >
+                      Off
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
