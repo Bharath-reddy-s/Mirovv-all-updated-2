@@ -44,7 +44,7 @@ export default function Home() {
 
   useEffect(() => {
     if (shopPopup?.isActive && shopPopup?.imageUrl && (shopPopup.showOn === 'home' || shopPopup.showOn === 'both')) {
-      const hasSeenPopup = sessionStorage.getItem("globalPopupSeen");
+      const hasSeenPopup = sessionStorage.getItem("homePopupSeen");
       if (!hasSeenPopup) {
         setShowPopup(true);
       }
@@ -53,7 +53,7 @@ export default function Home() {
 
   const handleClosePopup = () => {
     setShowPopup(false);
-    sessionStorage.setItem("globalPopupSeen", "true");
+    sessionStorage.setItem("homePopupSeen", "true");
   };
 
   useEffect(() => {
