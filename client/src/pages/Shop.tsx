@@ -44,6 +44,7 @@ export default function ShopPage() {
       const hasSeenPopup = sessionStorage.getItem("shopPopupSeen");
       if (!hasSeenPopup) {
         setShowPopup(true);
+        // We only set it to seen AFTER it has been closed, not immediately when it shows
       }
     }
   }, [shopPopup]);
