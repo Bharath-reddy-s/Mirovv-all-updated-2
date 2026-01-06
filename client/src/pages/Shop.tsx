@@ -315,17 +315,21 @@ export default function ShopPage() {
 
       {showPopup && shopPopup?.imageUrl && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           onClick={() => setShowPopup(false)}
           data-testid="popup-overlay"
         >
-          <div 
-            className="relative max-w-md w-[90%] mx-4"
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative max-w-sm w-full"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setShowPopup(false)}
-              className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-white dark:bg-neutral-800 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
+              className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-white dark:bg-neutral-800 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 dark:hover:bg-neutral-700 transition-all hover:scale-110 active:scale-95"
               data-testid="button-close-popup"
             >
               <X className="w-5 h-5 text-black dark:text-white" />
@@ -333,10 +337,10 @@ export default function ShopPage() {
             <img
               src={shopPopup.imageUrl}
               alt="Shop popup"
-              className="w-full h-auto rounded-xl shadow-2xl"
+              className="w-full h-auto rounded-[32px] shadow-2xl border-4 border-white/10"
               data-testid="img-popup"
             />
-          </div>
+          </motion.div>
         </div>
       )}
     </div>
