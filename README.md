@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: rest-express
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ENABLE_TELEGRAM
+        value: "true"
