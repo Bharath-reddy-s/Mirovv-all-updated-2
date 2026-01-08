@@ -139,13 +139,6 @@ export default function Home() {
               >
                 <Instagram className="w-8 h-8 text-black" />
               </a>
-              <a 
-                href="mailto:contact@mirovv.in" 
-                className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform group"
-                data-testid="link-social-email"
-              >
-                <Mail className="w-8 h-8 text-black" />
-              </a>
             </div>
 
             <Button
